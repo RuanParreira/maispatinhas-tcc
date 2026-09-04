@@ -2,4 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::redirect('/', '/home');
+Route::livewire('/home', 'pages.home');
