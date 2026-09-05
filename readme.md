@@ -7,64 +7,166 @@ O **Mais Patinhas** é um marketplace voltado para a causa animal. A plataforma 
 ## 📋 Pré-requisitos
 
 Antes de começar, certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
+
 * [Git](https://git-scm.com/)
-* [PHP](https://www.php.net/)
+* [PHP](https://www.php.net/) 8.3 ou superior
 * [Composer](https://getcomposer.org/)
-* [Node.js](https://nodejs.org/) (com NPM)
-* O banco de dados local (MariaDB)
+* [Node.js](https://nodejs.org/) 22 ou superior (com NPM)
+
+O banco padrão é **SQLite**, que não precisa de servidor — o arquivo é criado automaticamente em `database/database.sqlite`. Se preferir usar MySQL ou MariaDB, veja [Usando MySQL](#usando-mysql-opcional) no final.
 
 ---
 
-## 🚀 Instalação e Configuração
-
-Siga os passos abaixo para preparar o ambiente de desenvolvimento local:
+## 🚀 Instalação
 
 **1. Clone o repositório**
+
 ```bash
 git clone https://github.com/RuanParreira/maispatinhas-tcc
 cd maispatinhas-tcc
 ```
 
-**2. Instale as dependências**
-Instale os pacotes do back-end (PHP) e do front-end (Node):
+**2. Rode o setup**
+
+```bash
+composer setup
+```
+
+Esse comando faz tudo de uma vez: instala as dependências do PHP e do Node, cria o `.env` a partir do `.env.example`, gera a chave da aplicação, roda as migrações e compila os assets.
+
+<details>
+<summary>Prefere fazer passo a passo?</summary>
+
 ```bash
 composer install
 npm install
-```
-
-**3. Configure o ambiente**
-Crie uma cópia do arquivo de configuração padrão:
-```bash
 cp .env.example .env
-```
-> **Aviso:** Abra o arquivo `.env` gerado e configure as credenciais do seu banco de dados (variáveis `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`).
-
-**4. Gere a chave da aplicação**
-```bash
 php artisan key:generate
+php artisan migrate
+npm run build
 ```
 
-**5. Execute as migrações**
-Crie as tabelas no seu banco de dados:
+</details>
+
+---
+
+## 📦 Dependências: quando rodar o install
+
+> **Sempre que uma biblioteca nova entrar no projeto, é preciso instalar as dependências de novo.** Isso vale nas duas situações abaixo.
+
+### Depois de dar `git pull`
+
+Se alguém da equipe adicionou uma biblioteca, o código dela **não vem no pull** — o Git versiona apenas o `composer.lock` e o `package-lock.json`, não as pastas `vendor/` e `node_modules/`, que estão no `.gitignore`.
+
+Então, depois de puxar as alterações:
+
+```bash
+git pull
+composer install   # se o composer.lock mudou
+npm install        # se o package-lock.json mudou
+```
+
+Na dúvida, rode os dois — se nada mudou, o comando termina em segundos sem fazer nada.
+
+Sinal de que você esqueceu: erros de `Class não encontrada`, `Unable to locate file in Vite manifest`, ou a aplicação quebrando logo depois de um pull que estava funcionando antes.
+
+Se a biblioteca nova trouxe migrações, rode também:
+
 ```bash
 php artisan migrate
 ```
-*(Se o projeto tiver dados de teste, você pode usar `php artisan migrate --seed`)*
+
+### Depois de instalar uma biblioteca você mesmo
+
+Ao rodar `composer require` ou `npm install <pacote>`, o arquivo de lock é atualizado. **Comite o lock junto com o código**, senão a equipe e o CI não conseguem instalar a mesma versão:
+
+```bash
+composer require vendor/pacote
+git add composer.json composer.lock
+```
+
+```bash
+npm install pacote
+git add package.json package-lock.json
+```
+
+Se o pacote publicar arquivos de configuração, migrações ou views, comite esses arquivos também.
 
 ---
 
 ## 💻 Executando o Projeto
 
-Para rodar a aplicação, você precisará de **dois terminais** abertos rodando simultaneamente.
+Um comando só, que sobe o servidor, a fila e o Vite juntos:
 
-**Terminal 1 (Back-end / Servidor PHP):**
+```bash
+composer dev
+```
+
+<details>
+<summary>Prefere terminais separados?</summary>
+
+**Terminal 1 — servidor PHP:**
+
 ```bash
 php artisan serve
 ```
 
-**Terminal 2 (Front-end / Compilação de assets):**
+**Terminal 2 — compilação de assets:**
+
 ```bash
 npm run dev
 ```
 
-A aplicação estará disponível no seu navegador em: [http://localhost:8000](http://localhost:8000)
+</details>
+
+A aplicação estará disponível em [http://localhost:8000](http://localhost:8000).
+
+---
+
+## ✅ Antes de dar push
+
+O CI roda formatação, análise estática e testes a cada push na `main`. Rode o mesmo conjunto localmente para não descobrir o erro depois:
+
+```bash
+composer test
+```
+
+Comandos individuais, se quiser rodar separado:
+
+| Comando | O que faz |
+| --- | --- |
+| `composer lint` | corrige a formatação com o Pint |
+| `composer lint:check` | só verifica, sem alterar arquivos |
+| `composer types:check` | análise estática com o PHPStan |
+| `php artisan test --compact` | roda a suíte de testes |
+
+---
+
+## 🗄️ Usando MySQL (opcional)
+
+O projeto funciona em SQLite sem configuração nenhuma. Para usar MySQL ou MariaDB, descomente e preencha as variáveis no seu `.env`:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=maispatinhas
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> **Atenção:** trocar `DB_CONNECTION` para `mysql` sem preencher `DB_DATABASE` faz o Laravel cair no banco padrão `laravel`, que provavelmente não existe ou está vazio — e a aplicação parece funcionar até a primeira consulta falhar.
+
+Depois de configurar, crie o banco e rode as migrações:
+
+```bash
+php artisan migrate
+```
+
+Mantenha o `.env.example` com `DB_CONNECTION=sqlite`. O CI usa esse arquivo e não tem servidor MySQL disponível.
+
+---
+
+## 📚 Documentação
+
+A modelagem do projeto (entidades, fluxos de status, pesquisa) fica no vault do Obsidian em [`Documentation/Mais Patinhas`](Documentation/Mais%20Patinhas). Abra a pasta `Documentation` como vault para navegar pelos links e pelo canvas de entidades.
