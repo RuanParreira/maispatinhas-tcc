@@ -193,4 +193,4 @@ Mantenha o `.env.example` com `DB_CONNECTION=sqlite`. O CI usa esse arquivo e n�
 
 ## 📚 Documentação
 
-A modelagem do projeto (entidades, fluxos de status, pesquisa) fica no vault do Obsidian em [`Documentation/Mais Patinhas`](Documentation/Mais%20Patinhas). Abra a pasta `Documentation` como vault para navegar pelos links e pelo canvas de entidades.
+A modelagem do projeto (entidades, fluxos de status, pesquisa) fica no vault do Obsidian em [`documentation/Mais Patinhas`](documentation/Mais%20Patinhas). Abra a pasta `documentation` como vault para navegar pelos links e pelo canvas de entidades.

@@ -28,5 +28,5 @@ yarn-error.log
 /CLAUDE.md
 
 # Obsidian (estado de interface, muda a cada abertura do vault)
-/Documentation/**/.obsidian/workspace.json
-/Documentation/**/.obsidian/workspace-mobile.json
+/documentation/**/.obsidian/workspace.json
+/documentation/**/.obsidian/workspace-mobile.json
