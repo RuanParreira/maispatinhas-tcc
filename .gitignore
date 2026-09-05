@@ -26,3 +26,7 @@ yarn-error.log
 # Claude Code (Projeto Utilizando o Antigravity)
 /.claude
 /CLAUDE.md
+
+# Obsidian (estado de interface, muda a cada abertura do vault)
+/Documentation/**/.obsidian/workspace.json
+/Documentation/**/.obsidian/workspace-mobile.json
