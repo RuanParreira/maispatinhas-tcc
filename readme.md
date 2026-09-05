@@ -50,6 +50,30 @@ npm run build
 
 ---
 
+## 🌱 Dados de teste
+
+O `composer setup` cria as tabelas, mas deixa o banco vazio. Para recriar o schema **já com dados navegáveis**:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+> **Atenção:** o `migrate:fresh` apaga todas as tabelas antes de recriá-las. Tudo que estiver no banco se perde. Em um banco que você não quer zerar, use `php artisan db:seed`, que só insere.
+
+O seed monta um cenário em Uberaba, para dar o que ver no filtro por região: dez usuários, cinco animais, cinco posts em estados diferentes do fluxo de moderação (publicado, na fila, perdido e rejeitado), uma conversa com mensagens, duas adoções e as avaliações de uma adoção concluída.
+
+Três contas ficam com e-mail e senha fixos:
+
+| E-mail | Papel | Senha |
+| --- | --- | --- |
+| `admin@admin.com` | moderador | `Bomdia123` |
+| `doador@doador.com` | publica os posts | `Bomdia123` |
+| `adota@adota.com` | solicita adoção | `Bomdia123` |
+
+Os outros sete usuários têm e-mail gerado aleatoriamente e existem só para o catálogo não ficar vazio.
+
+---
+
 ## 📦 Dependências: quando rodar o install
 
 > **Sempre que uma biblioteca nova entrar no projeto, é preciso instalar as dependências de novo.** Isso vale nas duas situações abaixo.
