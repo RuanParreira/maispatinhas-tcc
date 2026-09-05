@@ -12,10 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ReviewFactory extends Factory
 {
     /**
-     * Define the model's default state.
-     *
-     * O adotador avalia o doador. Avaliador e avaliado saem da própria adoção
-     * para nunca cair no CHECK que proíbe alguém avaliar a si mesmo.
+     * Avaliador e avaliado saem da adoção, para não cair no CHECK que proíbe
+     * avaliar a si mesmo.
      *
      * @return array<string, mixed>
      */

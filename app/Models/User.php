@@ -16,8 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * O usuário nunca é apagado quando tem histórico: a saída da plataforma é
- * anonimização, registrada em `anonymized_at`.
+ * Usuário com histórico não é apagado, e sim anonimizado em anonymized_at.
  *
  * @property int $id
  * @property string $name

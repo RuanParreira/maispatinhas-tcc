@@ -27,8 +27,7 @@ class PostSeeder extends Seeder
             'ibge_code' => '3170206',
         ];
 
-        /** Publicado: aparece no catálogo e aceita solicitação de adoção. */
-        $adocao = Post::factory()
+        $publicado = Post::factory()
             ->for($doador)
             ->for(Animal::factory()->for($doador)->create(['name' => 'Mel']))
             ->active()
@@ -38,11 +37,10 @@ class PostSeeder extends Seeder
                 ...$localizacao,
             ]);
 
-        Moderation::factory()->for($adocao)->for($admin, 'moderator')->create([
+        Moderation::factory()->for($publicado)->for($admin, 'moderator')->create([
             'action' => ModerationAction::Aprovacao,
         ]);
 
-        /** Na fila da moderação: só o autor e o moderador enxergam. */
         Post::factory()
             ->for($doador)
             ->for(Animal::factory()->for($doador)->create(['name' => 'Thor']))
@@ -52,7 +50,6 @@ class PostSeeder extends Seeder
                 ...$localizacao,
             ]);
 
-        /** Animal perdido, com data do último avistamento. */
         Post::factory()
             ->for($doador)
             ->for(Animal::factory()->for($doador)->create(['name' => 'Nina']))
@@ -64,7 +61,6 @@ class PostSeeder extends Seeder
                 ...$localizacao,
             ]);
 
-        /** Recusado pela moderação, com o motivo registrado no log. */
         $rejeitado = Post::factory()
             ->for($doador)
             ->for(Animal::factory()->for($doador)->create(['name' => 'Bidu']))

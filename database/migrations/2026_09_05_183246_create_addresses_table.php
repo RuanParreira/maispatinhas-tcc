@@ -22,7 +22,6 @@ return new class extends Migration
             $table->decimal('longitude', 11, 8)->nullable();
             $table->timestamps();
 
-            /** Ponto de partida do filtro regional: resolve a região do usuário logado. */
             $table->index('ibge_code');
             $table->index(['state', 'city']);
         });

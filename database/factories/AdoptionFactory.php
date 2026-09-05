@@ -14,11 +14,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class AdoptionFactory extends Factory
 {
     /**
-     * Define the model's default state.
-     *
-     * `donor_id` e `animal_id` são closures para saírem do post só quando ele
-     * não vier sobrescrito. Resolver o post aqui dentro com `create()` faria a
-     * factory gravar um post órfão toda vez que o chamador passasse `post_id`.
+     * O post é preguiçoso e as closures leem dele: resolver com create() aqui
+     * gravaria um post órfão sempre que o chamador passasse post_id.
      *
      * @return array<string, mixed>
      */

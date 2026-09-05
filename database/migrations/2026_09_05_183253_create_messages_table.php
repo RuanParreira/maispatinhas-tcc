@@ -20,10 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            /** Paginação do histórico da conversa. */
             $table->index(['conversation_id', 'created_at']);
-
-            /** Contagem de não lidas: WHERE conversation_id = ? AND read_at IS NULL. */
             $table->index(['conversation_id', 'read_at']);
         });
     }

@@ -12,9 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * `exclusive_post_id` é coluna gerada pelo banco e nunca deve ser escrita
- * pela aplicação. Ela garante no máximo uma adoção `em_andamento` ou
- * `concluida` por post.
+ * exclusive_post_id é coluna gerada pelo banco e nunca deve ser escrita aqui.
  *
  * @property int $id
  * @property int $post_id

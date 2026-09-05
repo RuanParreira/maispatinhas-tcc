@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Log imutável: cada passagem pela moderação gera uma linha nova, e linha
- * existente nunca é editada. Por isso a tabela só tem `created_at`.
+ * Log imutável: linha nova a cada moderação, e a tabela só tem created_at.
  *
  * @property int $id
  * @property int $post_id

@@ -16,7 +16,6 @@ use Illuminate\Support\Carbon;
 
 /**
  * O animal não guarda status: ele é derivado dos posts e adoções.
- * Ver "Fluxo Status de Adocao" no vault.
  *
  * @property int $id
  * @property int $user_id

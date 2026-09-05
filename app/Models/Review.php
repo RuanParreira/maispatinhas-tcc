@@ -10,8 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Só adoção `concluida` libera avaliação, e cada parte avalia a outra
- * uma única vez.
+ * Só adoção concluida libera avaliação, uma por parte.
  *
  * @property int $id
  * @property int $adoption_id

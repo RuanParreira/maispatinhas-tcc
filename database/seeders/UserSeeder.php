@@ -14,9 +14,6 @@ class UserSeeder extends Seeder
 
     public const EMAIL_ADOTANTE = 'adota@adota.com';
 
-    /**
-     * Senha das contas nomeadas.
-     */
     private const SENHA = 'Bomdia123';
 
     /**

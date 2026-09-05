@@ -49,8 +49,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Conta que saiu da plataforma: dado pessoal removido, linha preservada
-     * para não quebrar o histórico de terceiros.
+     * Conta que saiu da plataforma: dado pessoal removido, linha preservada.
      */
     public function anonymized(): static
     {

@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Log imutável: linha existente nunca é editada, por isso não há
+     * updated_at nem soft delete.
      */
     public function up(): void
     {
@@ -15,14 +16,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('moderator_id')->constrained('users')->restrictOnDelete();
-
-            /** Enum ModerationAction: aprovacao, rejeicao. */
             $table->string('action', 20);
             $table->text('reason')->nullable();
-
             $table->timestamp('created_at')->useCurrent();
 
-            /** Histórico de moderação de um post, do mais recente para o mais antigo. */
             $table->index(['post_id', 'created_at']);
         });
     }

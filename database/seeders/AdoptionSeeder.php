@@ -16,8 +16,7 @@ use Illuminate\Database\Seeder;
 class AdoptionSeeder extends Seeder
 {
     /**
-     * Uma adoção concluída com as duas avaliações e uma em andamento, para
-     * cobrir os dois lados do fluxo descrito em "Fluxo Status de Adocao".
+     * Cobre os dois lados do fluxo: uma adoção fechada e uma em negociação.
      */
     public function run(): void
     {
@@ -29,7 +28,7 @@ class AdoptionSeeder extends Seeder
     }
 
     /**
-     * Adoção fechada: o post vai para `resolvido` e as duas partes se avaliam.
+     * Adoção fechada: o post vai para resolvido e as duas partes se avaliam.
      */
     private function concluida(User $doador, User $adotante): void
     {

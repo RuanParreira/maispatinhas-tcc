@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * last_message_at é desnormalizado de messages para ordenar a caixa de
+     * entrada sem agregação.
      */
     public function up(): void
     {
@@ -16,21 +17,11 @@ return new class extends Migration
             $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('advertiser_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('interested_id')->constrained('users')->cascadeOnDelete();
-
-            /** Enum ConversationStatus: ativa, arquivada, bloqueada. */
             $table->string('status', 20)->default('ativa');
-
-            /**
-             * Desnormalizado a partir de `messages` para ordenar a caixa de entrada sem
-             * agregação. Atualizado no mesmo fluxo que insere a mensagem.
-             */
             $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
 
-            /** Um interessado tem uma única conversa por post. */
             $table->unique(['post_id', 'interested_id']);
-
-            /** Caixa de entrada das duas pontas, ordenada pela mensagem mais recente. */
             $table->index(['advertiser_id', 'last_message_at']);
             $table->index(['interested_id', 'last_message_at']);
         });
