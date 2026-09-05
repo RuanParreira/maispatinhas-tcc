@@ -15,8 +15,23 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            /** Enum UserRole: admin, usuario. */
+            $table->string('role', 20)->default('usuario');
+
+            /** Enum UserStatus: ativo, suspenso, banido. */
+            $table->string('status', 20)->default('ativo');
+            $table->timestamp('last_login_at')->nullable();
+
+            /**
+             * O usuário nunca é apagado: as FKs de anúncios, adoções e avaliações
+             * são RESTRICT para preservar o histórico. A saída da plataforma é
+             * anonimização, registrada aqui.
+             */
+            $table->timestamp('anonymized_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
