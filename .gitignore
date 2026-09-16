@@ -1,0 +1,11 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Claude Code — pessoal, não compartilhado com o time
+/.claude/
+/CLAUDE.md
+
+# Obsidian — estado de interface, muda a cada abertura do vault
+docs/**/.obsidian/workspace.json
+docs/**/.obsidian/workspace-mobile.json

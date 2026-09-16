@@ -1,0 +1,1 @@
+- Na hora de adotar o dono do post marca quem adotou e vai direto salvar na tabela de adoções.
