@@ -1,4 +1,5 @@
 import { Dog, Cat } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function Home() {
   return (
@@ -7,6 +8,7 @@ function Home() {
         <Dog className="size-15" />
         Hello World <Cat className="size-15" />
       </h1>
+      <Button> Click me </Button>
     </div>
   );
 }

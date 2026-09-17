@@ -14,7 +14,9 @@ dist-ssr
 
 # Editor directories and files
 /.claude/
+/.agents/
 /CLAUDE.md
+/skills-lock.json
 .vscode/*
 !.vscode/extensions.json
 .idea
