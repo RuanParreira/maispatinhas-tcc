@@ -4,13 +4,32 @@ API REST em Laravel 13 do projeto [Mais Patinhas](../README.md). Autenticação 
 
 ## Stack
 
-- PHP 8.3, Laravel 13
+- PHP 8.4, Laravel 13
 - Laravel Sanctum (auth SPA)
-- MySQL
+- MySQL 8
 - Pest (testes), Pint (estilo de código)
 - Laravel Boost (integração com agentes de IA)
 
-## Instalação
+## Rodando com Docker (recomendado)
+
+Instruções completas em [`../README.md`](../README.md). Resumo:
+
+```bash
+docker compose up -d --build
+```
+
+API sobe em `http://localhost:8000`, migrations rodam sozinhas.
+
+Comandos comuns dentro do container:
+
+```bash
+docker compose exec backend php artisan migrate:fresh --seed
+docker compose exec backend php artisan test
+docker compose exec backend vendor/bin/pint
+docker compose exec backend composer require alguma/lib   # depois: docker compose up -d --build
+```
+
+## Rodando sem Docker (manual)
 
 ```bash
 composer install
@@ -27,7 +46,7 @@ Edite `.env`:
 php artisan migrate
 ```
 
-## Rodando
+### Rodando
 
 ```bash
 php artisan serve
@@ -35,13 +54,13 @@ php artisan serve
 
 API sobe em `http://localhost:8000`.
 
-## Testes
+### Testes
 
 ```bash
 php artisan test
 ```
 
-## Estilo de código
+### Estilo de código
 
 ```bash
 vendor/bin/pint

@@ -8,58 +8,56 @@ Funcionalidades principais: catálogo de adoção, posts de animais perdidos/enc
 
 Backend e frontend desacoplados:
 
-- **`backend-api/`** — Laravel 13 API REST, autenticação via Sanctum (SPA/cookie).
-- **`frontend-web/`** — React (Vite), consome a API via `axios`.
+- **`backend-api/`** — Laravel 13 API REST (PHP 8.4), autenticação via Sanctum (SPA/cookie).
+- **`frontend-web/`** — React (Vite, Node 24), consome a API via `axios`.
 
-## Pré-requisitos
+## Rodando com Docker (recomendado)
 
-- PHP 8.3+ e Composer
-- Node.js 20+ e npm
+Pré-requisito: [Docker](https://docs.docker.com/get-docker/) e Docker Compose (já vem junto no Docker Desktop).
+
+```bash
+git clone <repo>
+cd maispatinhas-tcc
+docker compose up -d --build
+```
+
+O primeiro `up` builda as imagens, sobe o MySQL, espera o banco ficar pronto e roda as migrations sozinho. Nada mais precisa ser instalado no seu PC — nem PHP, nem Composer, nem Node.
+
+| Serviço      | URL                          | O que é                          |
+|--------------|-------------------------------|-----------------------------------|
+| `frontend`   | http://localhost:5173         | SPA React (Vite dev server)      |
+| `backend`    | http://localhost:8000         | API Laravel                      |
+| `phpmyadmin` | http://localhost:8080         | Admin do MySQL (login: `maispatinhas` / `secret`) |
+| `db`         | `127.0.0.1:3307` (do host)    | MySQL 8 — use essa porta em ferramentas externas (DBeaver, Workbench). Internamente os containers acessam via `db:3306`. |
+
+### Comandos do dia a dia
+
+```bash
+docker compose logs -f backend        # acompanhar logs de um serviço
+docker compose exec backend php artisan migrate:fresh --seed   # resetar banco
+docker compose exec backend composer require alguma/lib        # instalar lib PHP
+docker compose exec frontend npm install alguma-lib             # instalar lib JS
+docker compose down                    # parar tudo
+docker compose down -v                 # parar e apagar dados do banco
+```
+
+Instalou uma dependência nova (`composer.json`/`package.json` mudou, seja local ou via `exec` acima)? Quem for atualizar o ambiente precisa rebuildar a imagem:
+
+```bash
+docker compose up -d --build
+```
+
+Ainda dá pra usar Composer/Node instalados no seu PC normalmente (ex: rodar `composer require` local só pra atualizar `composer.json`/`composer.lock`) — o container só lê esses arquivos no build, não interfere um com o outro.
+
+## Rodando sem Docker (manual)
+
+Pré-requisitos:
+
+- PHP 8.4+ e Composer
+- Node.js 24+ e npm
 - MySQL
 
-## Instalação
-
-Clone o repositório e configure as duas partes:
-
-### 1. Backend
-
-```bash
-cd backend-api
-composer install
-cp .env.example .env
-php artisan key:generate
-```
-
-Edite `.env` e configure `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` com as credenciais do seu MySQL local. Depois rode as migrations:
-
-```bash
-php artisan migrate
-```
-
-### 2. Frontend
-
-```bash
-cd frontend-web
-npm install
-```
-
-## Rodando o projeto
-
-Dois terminais, um pra cada parte:
-
-```bash
-# terminal 1 — API em http://localhost:8000
-cd backend-api
-php artisan serve
-
-# terminal 2 — SPA em http://localhost:5173
-cd frontend-web
-npm run dev
-```
-
-Acesse `http://localhost:5173` no navegador.
-
-## Documentação de cada parte
+Ver instruções detalhadas em cada parte:
 
 - [`backend-api/README.md`](backend-api/README.md)
 - [`frontend-web/README.md`](frontend-web/README.md)
