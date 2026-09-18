@@ -1,9 +1,9 @@
 import { Dog, Cat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function Home() {
+export default function Home() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex flex-col h-screen w-screen items-center justify-center">
       <h1 className="flex text-amber-500 text-6xl">
         <Dog className="size-15" />
         Hello World <Cat className="size-15" />
@@ -12,5 +12,3 @@ function Home() {
     </div>
   );
 }
-
-export default Home;
