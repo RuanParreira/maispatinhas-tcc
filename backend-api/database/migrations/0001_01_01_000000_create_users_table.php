@@ -15,10 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedInteger('municipality_id');
+            $table->enum('role', ['admin', 'user'])->default('user');
+            $table->enum('status', ['active', 'suspended', 'banned'])->default('active');
             $table->rememberToken();
+            $table->timestamp('last_login_at')->nullable();
+            $table->timestamp('anonymized_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('municipality_id')->references('ibge_code')->on('municipalities')->restrictOnDelete();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
