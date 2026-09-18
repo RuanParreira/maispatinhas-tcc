@@ -22,7 +22,7 @@ Conversas usadas como apoio durante a concepção do projeto. As três partiram 
 
 ## O que foi descartado ou decidido diferente
 
-- **PostgreSQL / PostGIS** — ChatGPT e Gemini recomendaram; o projeto usa MySQL. A busca por proximidade foi resolvida por código IBGE de município, não por cálculo de distância. Ver [[Proposta do Projeto]].
+- **PostgreSQL / PostGIS** — ChatGPT e Gemini recomendaram; o projeto usa MySQL. A busca por proximidade usa uma tabela `municipios` (código IBGE + coordenadas do centro da cidade) e calcula a distância no próprio MySQL com `ST_Distance_Sphere`. Ver [[Busca por Proximidade]].
 - **`conversa_participantes` como tabela separada** (ChatGPT) — desnecessário aqui: a conversa é sempre entre duas pessoas, anunciante e interessado. Tabela de participantes só se justifica em chat de grupo.
 - **Tabela de arquivos polimórfica** (Gemini) — descartada porque relação polimórfica não aceita foreign key, e o modelo depende de garantia estrutural.
 - **Manter `Status` e `Status ADMIN` separados** (Claude) — o modelo ficou com uma máquina de estados única. Ver [[Fluxo Status de Anuncio]].

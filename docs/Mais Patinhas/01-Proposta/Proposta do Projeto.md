@@ -32,7 +32,7 @@ O fluxo de status de um anúncio segue [[Fluxo Status de Anuncio]], e os tipos d
 
 ## Modelo de dados
 
-Entidades principais: Usuário, Endereço, Animais, Anúncios, Arquivos e Adoções. Ver [[Entidades.canvas|Entidades]] para o diagrama completo.
+Entidades principais: Usuário, Municípios, Animais, Anúncios, Arquivos e Adoções. Ver [[Entidades.canvas|Entidades]] para o diagrama completo.
 
 ## Justificativa
 
