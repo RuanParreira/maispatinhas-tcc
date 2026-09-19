@@ -5,16 +5,22 @@ import Register from "./auth/Register.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
+import GuestLayout from "./layouts/GuestLayout.jsx";
+import AppLayout from "./layouts/AppLayout.jsx";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/home" replace />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route element={<GuestLayout />}>
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
       <Route element={<RequireAuth />}>
-        <Route path="/adoptions" element={<Adoptions />} />
+        <Route element={<AppLayout />}>
+          <Route path="/adoptions" element={<Adoptions />} />
+        </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
