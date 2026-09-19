@@ -20,14 +20,32 @@ docker compose up -d --build
 
 API sobe em `http://localhost:8000`, migrations rodam sozinhas.
 
+Se o `.env` do backend estiver vazio ou sem `APP_KEY`, gere a chave antes de testar login:
+
+```bash
+docker compose exec backend php artisan key:generate
+```
+
+Credenciais do banco do Docker (já configuradas no Compose):
+
+- `DB_HOST=db` (dentro do container)
+- `DB_DATABASE=maispatinhas`
+- `DB_USERNAME=maispatinhas`
+- `DB_PASSWORD=secret`
+
+Para execução local fora do Docker, use `DB_HOST=127.0.0.1` e as mesmas credenciais do banco.
+
 Comandos comuns dentro do container:
 
 ```bash
-docker compose exec backend php artisan migrate:fresh --seed
+docker compose exec backend php artisan key:generate
+ docker compose exec backend php artisan migrate:fresh --seed
 docker compose exec backend php artisan test
 docker compose exec backend vendor/bin/pint
 docker compose exec backend composer require alguma/lib   # depois: docker compose up -d --build
 ```
+
+O `--build` só é necessário quando a imagem ou dependências do container mudaram. Em um ambiente já funcionando, normalmente basta `docker compose up -d`.
 
 ## Rodando sem Docker (manual)
 
@@ -39,7 +57,10 @@ php artisan key:generate
 
 Edite `.env`:
 
-- `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` — credenciais do seu MySQL local.
+- `DB_CONNECTION=mysql`
+- `DB_DATABASE=maispatinhas`
+- `DB_USERNAME=maispatinhas`
+- `DB_PASSWORD=secret`
 - `FRONTEND_URL` e `SANCTUM_STATEFUL_DOMAINS` — já vêm configurados para `http://localhost:5173` / `localhost:5173`, ajuste se a SPA rodar em outra porta/domínio.
 
 ```bash
