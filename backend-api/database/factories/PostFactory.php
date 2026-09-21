@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Enums\ListingStatus;
-use App\Enums\ListingType;
+use App\Enums\PostStatus;
+use App\Enums\PostType;
 use App\Models\Animal;
-use App\Models\Listing;
 use App\Models\Municipality;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Listing>
+ * @extends Factory<Post>
  */
-class ListingFactory extends Factory
+class PostFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -25,7 +25,7 @@ class ListingFactory extends Factory
         return [
             'user_id' => User::factory(),
             'animal_id' => fn (array $attributes) => Animal::factory()->create(['user_id' => $attributes['user_id']]),
-            'type' => ListingType::Adoption,
+            'type' => PostType::Adoption,
             'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
             'municipality_id' => Municipality::factory(),
@@ -33,44 +33,44 @@ class ListingFactory extends Factory
     }
 
     /**
-     * Indicate that the listing is about a lost animal.
+     * Indicate that the post is about a lost animal.
      */
     public function lost(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => ListingType::Lost,
+            'type' => PostType::Lost,
             'occurred_at' => fake()->dateTimeBetween('-30 days'),
         ]);
     }
 
     /**
-     * Indicate that the listing is about a found animal.
+     * Indicate that the post is about a found animal.
      */
     public function found(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => ListingType::Found,
+            'type' => PostType::Found,
             'occurred_at' => fake()->dateTimeBetween('-30 days'),
         ]);
     }
 
     /**
-     * Indicate that the listing is waiting for moderation.
+     * Indicate that the post is waiting for moderation.
      */
     public function pendingApproval(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => ListingStatus::PendingApproval,
+            'status' => PostStatus::PendingApproval,
         ]);
     }
 
     /**
-     * Indicate that the listing was approved and is visible in the catalogue.
+     * Indicate that the post was approved and is visible in the catalogue.
      */
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => ListingStatus::Active,
+            'status' => PostStatus::Active,
             'approved_by' => User::factory()->admin(),
             'approved_at' => $approvedAt = fake()->dateTimeBetween('-20 days'),
             'published_at' => $approvedAt,
@@ -78,22 +78,22 @@ class ListingFactory extends Factory
     }
 
     /**
-     * Indicate that the listing was rejected by a moderator.
+     * Indicate that the post was rejected by a moderator.
      */
     public function rejected(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => ListingStatus::Rejected,
+            'status' => PostStatus::Rejected,
         ]);
     }
 
     /**
-     * Indicate that the listing was approved and has since been resolved.
+     * Indicate that the post was approved and has since been resolved.
      */
     public function resolved(): static
     {
         return $this->active()->state(fn (array $attributes) => [
-            'status' => ListingStatus::Resolved,
+            'status' => PostStatus::Resolved,
         ]);
     }
 }

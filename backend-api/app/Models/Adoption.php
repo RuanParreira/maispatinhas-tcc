@@ -13,10 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * status and completed_at are not fillable: they follow the adoption flow.
- * locked_listing_id is a generated column, never written by the application.
+ * locked_post_id is a generated column, never written by the application.
+ * donor and animal are not stored here: read them through the post relation
+ * ($adoption->post->user, $adoption->post->animal), which posts.fillable keeps immutable.
  */
-#[Fillable(['listing_id', 'donor_id', 'animal_id', 'adopter_id'])]
-#[Hidden(['locked_listing_id'])]
+#[Fillable(['post_id', 'adopter_id'])]
+#[Hidden(['locked_post_id'])]
 class Adoption extends Model
 {
     /** @use HasFactory<AdoptionFactory> */
@@ -36,27 +38,11 @@ class Adoption extends Model
     }
 
     /**
-     * @return BelongsTo<Listing, $this>
+     * @return BelongsTo<Post, $this>
      */
-    public function listing(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Listing::class);
-    }
-
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function donor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'donor_id');
-    }
-
-    /**
-     * @return BelongsTo<Animal, $this>
-     */
-    public function animal(): BelongsTo
-    {
-        return $this->belongsTo(Animal::class);
+        return $this->belongsTo(Post::class);
     }
 
     /**

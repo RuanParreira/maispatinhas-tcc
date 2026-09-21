@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['listing_id', 'advertiser_id', 'interested_id'])]
+#[Fillable(['post_id', 'advertiser_id', 'interested_id'])]
 class Conversation extends Model
 {
     /** @use HasFactory<ConversationFactory> */
@@ -30,11 +30,11 @@ class Conversation extends Model
     }
 
     /**
-     * @return BelongsTo<Listing, $this>
+     * @return BelongsTo<Post, $this>
      */
-    public function listing(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Listing::class);
+        return $this->belongsTo(Post::class);
     }
 
     /**

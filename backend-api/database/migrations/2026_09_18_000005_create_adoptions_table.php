@@ -9,24 +9,26 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * locked_listing_id enforces at most one in_progress/completed adoption per listing:
-     * it holds listing_id only in those states and NULL otherwise, and UNIQUE ignores NULLs.
+     * locked_post_id enforces at most one in_progress/completed adoption per post:
+     * it holds post_id only in those states and NULL otherwise, and UNIQUE ignores NULLs.
+     *
+     * donor and animal are not stored here: posts.user_id and posts.animal_id are locked
+     * against mass assignment, so they are read through the post relation instead of
+     * duplicating them into a column that could drift out of sync.
      */
     public function up(): void
     {
         Schema::create('adoptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('listing_id')->constrained()->restrictOnDelete();
-            $table->foreignId('donor_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('animal_id')->constrained()->restrictOnDelete();
+            $table->foreignId('post_id')->constrained()->restrictOnDelete();
             $table->foreignId('adopter_id')->constrained('users')->restrictOnDelete();
             $table->enum('status', ['requested', 'in_progress', 'completed', 'refused', 'canceled'])->default('requested');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 
-            $table->unsignedBigInteger('locked_listing_id')
+            $table->unsignedBigInteger('locked_post_id')
                 ->nullable()
-                ->storedAs("case when status in ('in_progress', 'completed') then listing_id end")
+                ->storedAs("case when status in ('in_progress', 'completed') then post_id end")
                 ->unique();
         });
     }

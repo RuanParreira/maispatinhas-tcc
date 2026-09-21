@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Listing;
-use App\Models\ListingFile;
+use App\Models\Post;
+use App\Models\PostFile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<ListingFile>
+ * @extends Factory<PostFile>
  */
-class ListingFileFactory extends Factory
+class PostFileFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,9 +19,9 @@ class ListingFileFactory extends Factory
     public function definition(): array
     {
         return [
-            'listing_id' => Listing::factory(),
+            'post_id' => Post::factory(),
             'original_name' => fake()->word().'.jpg',
-            'path' => 'listings/'.fake()->uuid().'.jpg',
+            'path' => 'posts/'.fake()->uuid().'.jpg',
             'disk' => 'public',
             'hash' => hash('sha256', fake()->uuid()),
             'size' => fake()->numberBetween(50_000, 5_000_000),

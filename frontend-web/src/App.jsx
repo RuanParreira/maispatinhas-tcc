@@ -4,7 +4,7 @@ import Login from "./auth/Login.jsx";
 import Register from "./auth/Register.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
 import NotFound from "./pages/NotFound.jsx";
-import RequireAuth from "./auth/RequireAuth.jsx";
+import { AuthGate } from "./auth/AuthProvider.jsx";
 import GuestLayout from "./layouts/GuestLayout.jsx";
 import AppLayout from "./layouts/AppLayout.jsx";
 
@@ -14,10 +14,18 @@ export default function App() {
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route element={<GuestLayout />}>
         <Route path="/home" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+
+        {/* Bloqueia acesso de quem já está autenticado */}
+        <Route
+          element={<AuthGate when="authenticated" redirectTo="/adoptions" />}
+        >
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
       </Route>
-      <Route element={<RequireAuth />}>
+
+      {/* Exige autenticação */}
+      <Route element={<AuthGate when="guest" redirectTo="/login" />}>
         <Route element={<AppLayout />}>
           <Route path="/adoptions" element={<Adoptions />} />
         </Route>

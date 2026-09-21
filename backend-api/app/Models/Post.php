@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\ListingStatus;
-use App\Enums\ListingType;
-use Database\Factories\ListingFactory;
+use App\Enums\PostStatus;
+use App\Enums\PostType;
+use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,19 +14,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * status, published_at and approved_* are not fillable: they only change through the moderation flow.
+ * user_id and animal_id are not fillable either: they are set once at creation and adoptions
+ * relies on them never changing (see the adoptions migration).
  */
 #[Fillable([
-    'user_id',
-    'animal_id',
     'type',
     'title',
     'description',
     'municipality_id',
     'occurred_at',
 ])]
-class Listing extends Model
+class Post extends Model
 {
-    /** @use HasFactory<ListingFactory> */
+    /** @use HasFactory<PostFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -37,8 +37,8 @@ class Listing extends Model
     protected function casts(): array
     {
         return [
-            'type' => ListingType::class,
-            'status' => ListingStatus::class,
+            'type' => PostType::class,
+            'status' => PostStatus::class,
             'occurred_at' => 'date',
             'published_at' => 'datetime',
             'approved_at' => 'datetime',
@@ -78,11 +78,11 @@ class Listing extends Model
     }
 
     /**
-     * @return HasMany<ListingFile, $this>
+     * @return HasMany<PostFile, $this>
      */
     public function files(): HasMany
     {
-        return $this->hasMany(ListingFile::class)->orderBy('position');
+        return $this->hasMany(PostFile::class)->orderBy('position');
     }
 
     /**

@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('listing_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('advertiser_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('interested_id')->constrained('users')->cascadeOnDelete();
             $table->enum('status', ['active', 'archived', 'blocked'])->default('active');
             $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['listing_id', 'interested_id']);
+            $table->unique(['post_id', 'interested_id']);
             $table->index(['advertiser_id', 'last_message_at']);
             $table->index(['interested_id', 'last_message_at']);
         });

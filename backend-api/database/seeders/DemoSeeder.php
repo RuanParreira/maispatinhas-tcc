@@ -8,17 +8,17 @@ use App\Enums\AnimalSpecies;
 use App\Models\Adoption;
 use App\Models\Animal;
 use App\Models\Conversation;
-use App\Models\Listing;
 use App\Models\Message;
 use App\Models\Moderation;
+use App\Models\Post;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
 /**
- * Sample animals, listings, adoptions and chats for local development.
+ * Sample animals, posts, adoptions and chats for local development.
  *
- * Listings are spread over real municipalities at known distances from Uberaba, to exercise
+ * Posts are spread over real municipalities at known distances from Uberaba, to exercise
  * the proximity search: Uberaba (0 km), Delta (30 km), Igarapava/SP (38 km),
  * Uberlândia (99 km) and Belo Horizonte (420 km, outside a 100 km radius).
  */
@@ -48,56 +48,56 @@ class DemoSeeder extends Seeder
         $caramelo = $this->animal($walysson, null, AnimalSpecies::Dog, AnimalSex::Male, AnimalSize::Medium);
         $fred = $this->animal($walysson, 'Fred', AnimalSpecies::Dog, AnimalSex::Male, AnimalSize::Large);
 
-        $thorListing = $this->recordApproval(Listing::factory()->recycle($this->admin)->active()->for($ruan)->for($thor)->create([
+        $thorPost = $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($ruan)->for($thor)->create([
             'municipality_id' => UserSeeder::UBERABA,
             'title' => 'Thor procura um lar',
             'description' => 'Cachorro dócil, brincalhão e acostumado com crianças.',
         ]));
 
-        Listing::factory()->pendingApproval()->for($ruan)->for($mia)->create([
+        Post::factory()->pendingApproval()->for($ruan)->for($mia)->create([
             'municipality_id' => UserSeeder::UBERABA,
             'title' => 'Mia para adoção responsável',
             'description' => 'Gatinha calma, castrada e vacinada.',
         ]);
 
-        $bolinhaListing = $this->recordApproval(Listing::factory()->recycle($this->admin)->lost()->active()->for($leandro)->for($bolinha)->create([
+        $bolinhaPost = $this->recordApproval(Post::factory()->recycle($this->admin)->lost()->active()->for($leandro)->for($bolinha)->create([
             'municipality_id' => UserSeeder::UBERLANDIA,
             'title' => 'Bolinha desapareceu no bairro Santa Mônica',
             'description' => 'Usava coleira azul. Muito assustado com barulho.',
         ]));
 
-        $pipocaListing = Listing::factory()->rejected()->for($leandro)->for($pipoca)->create([
+        $pipocaPost = Post::factory()->rejected()->for($leandro)->for($pipoca)->create([
             'municipality_id' => UserSeeder::UBERLANDIA,
             'title' => 'Coelha Pipoca',
             'description' => 'Doação.',
         ]);
-        Moderation::factory()->rejection()->for($pipocaListing)->create([
+        Moderation::factory()->rejection()->for($pipocaPost)->create([
             'moderator_id' => $this->admin->id,
             'reason' => 'Descrição insuficiente. Informe idade, temperamento e cuidados necessários.',
         ]);
 
-        $this->recordApproval(Listing::factory()->recycle($this->admin)->found()->active()->for($walysson)->for($caramelo)->create([
+        $this->recordApproval(Post::factory()->recycle($this->admin)->found()->active()->for($walysson)->for($caramelo)->create([
             'municipality_id' => self::IGARAPAVA,
             'title' => 'Cachorro caramelo encontrado perto da rodoviária',
             'description' => 'Está comigo em segurança. Procuro o tutor.',
         ]));
 
-        $lunaListing = $this->recordApproval(Listing::factory()->recycle($this->admin)->resolved()->for($walysson)->for($luna)->create([
+        $lunaPost = $this->recordApproval(Post::factory()->recycle($this->admin)->resolved()->for($walysson)->for($luna)->create([
             'municipality_id' => UserSeeder::DELTA,
             'title' => 'Luna, gatinha de 1 ano',
             'description' => 'Carinhosa e acostumada com apartamento.',
         ]));
 
-        $this->recordApproval(Listing::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([
+        $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([
             'municipality_id' => self::BELO_HORIZONTE,
             'title' => 'Fred precisa de um quintal',
             'description' => 'Cachorro grande e muito ativo.',
         ]));
 
-        Adoption::factory()->inProgress()->for($thorListing)->create(['adopter_id' => $leandro->id]);
-        Adoption::factory()->for($thorListing)->create(['adopter_id' => $walysson->id]);
+        Adoption::factory()->inProgress()->for($thorPost)->create(['adopter_id' => $leandro->id]);
+        Adoption::factory()->for($thorPost)->create(['adopter_id' => $walysson->id]);
 
-        $lunaAdoption = Adoption::factory()->completed()->for($lunaListing)->create(['adopter_id' => $ruan->id]);
+        $lunaAdoption = Adoption::factory()->completed()->for($lunaPost)->create(['adopter_id' => $ruan->id]);
         Review::factory()->for($lunaAdoption)->create([
             'rating' => 5,
             'comment' => 'Luna chegou super bem cuidada. Walysson explicou toda a rotina dela.',
@@ -109,16 +109,16 @@ class DemoSeeder extends Seeder
             'comment' => 'Ruan foi muito atencioso e manda notícias da Luna.',
         ]);
 
-        $this->conversation($thorListing, $leandro, [
+        $this->conversation($thorPost, $leandro, [
             [$leandro, 'Oi! O Thor ainda está disponível?'],
             [$ruan, 'Está sim! Quer marcar uma visita?'],
             [$leandro, 'Pode ser no sábado de manhã?'],
         ]);
-        $this->conversation($lunaListing, $ruan, [
+        $this->conversation($lunaPost, $ruan, [
             [$ruan, 'Tenho interesse na Luna, moro em Uberaba.'],
             [$walysson, 'Que ótimo! Delta é pertinho, posso levar ela até você.'],
         ]);
-        $this->conversation($bolinhaListing, $walysson, [
+        $this->conversation($bolinhaPost, $walysson, [
             [$walysson, 'Acho que vi um cachorro parecido com o Bolinha ontem perto do shopping.'],
         ]);
     }
@@ -133,22 +133,22 @@ class DemoSeeder extends Seeder
         ]);
     }
 
-    private function recordApproval(Listing $listing): Listing
+    private function recordApproval(Post $post): Post
     {
-        Moderation::factory()->for($listing)->create([
+        Moderation::factory()->for($post)->create([
             'moderator_id' => $this->admin->id,
-            'created_at' => $listing->approved_at,
+            'created_at' => $post->approved_at,
         ]);
 
-        return $listing;
+        return $post;
     }
 
     /**
      * @param  list<array{0: User, 1: string}>  $messages
      */
-    private function conversation(Listing $listing, User $interested, array $messages): void
+    private function conversation(Post $post, User $interested, array $messages): void
     {
-        $conversation = Conversation::factory()->for($listing)->create(['interested_id' => $interested->id]);
+        $conversation = Conversation::factory()->for($post)->create(['interested_id' => $interested->id]);
 
         foreach ($messages as $position => [$sender, $body]) {
             $sentAt = now()->subHours(count($messages) - $position);

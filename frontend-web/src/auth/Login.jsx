@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
+import { useAuth } from "@/auth/useAuth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -14,7 +17,8 @@ export default function Login() {
 
     try {
       await api.get("/sanctum/csrf-cookie");
-      await api.post("/api/login", { email, password });
+      const { data } = await api.post("/api/login", { email, password, remember });
+      login(data);
       navigate("/adoptions");
     } catch (err) {
       setErrors(err.response?.data?.errors ?? { email: ["Erro ao entrar."] });
@@ -43,6 +47,16 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {errors.password && <p>{errors.password[0]}</p>}
+      </div>
+
+      <div>
+        <input
+          id="remember"
+          type="checkbox"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+        />
+        <label htmlFor="remember">Manter conectado</label>
       </div>
 
       <button type="submit">Entrar</button>

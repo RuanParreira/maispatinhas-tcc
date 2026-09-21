@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\AdoptionStatus;
 use App\Models\Adoption;
-use App\Models\Listing;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,9 +21,7 @@ class AdoptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'listing_id' => Listing::factory(),
-            'donor_id' => fn (array $attributes) => Listing::find($attributes['listing_id'])->user_id,
-            'animal_id' => fn (array $attributes) => Listing::find($attributes['listing_id'])->animal_id,
+            'post_id' => Post::factory(),
             'adopter_id' => User::factory(),
         ];
     }

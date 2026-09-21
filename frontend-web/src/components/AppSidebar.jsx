@@ -1,6 +1,6 @@
 import { Home, PawPrint, Heart, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import api from "@/api/axios";
+import { useAuth } from "@/auth/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -23,9 +23,19 @@ const items = [
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join("")
+    : "US";
 
   async function handleLogout() {
-    await api.post("/api/logout");
+    await logout();
     navigate("/login");
   }
 
@@ -68,11 +78,11 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 p-1 group-data-[collapsible=icon]:hidden">
           <Avatar className="size-8 shrink-0">
             <AvatarFallback className="bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
-              US
+              {initials}
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-sm font-medium">Usuário</span>
+            <span className="truncate text-sm font-medium">{user?.name ?? "Usuário"}</span>
           </div>
           <button
             type="button"

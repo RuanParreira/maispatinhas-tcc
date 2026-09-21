@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Conversation;
-use App\Models\Listing;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,8 +20,8 @@ class ConversationFactory extends Factory
     public function definition(): array
     {
         return [
-            'listing_id' => Listing::factory(),
-            'advertiser_id' => fn (array $attributes) => Listing::find($attributes['listing_id'])->user_id,
+            'post_id' => Post::factory(),
+            'advertiser_id' => fn (array $attributes) => Post::find($attributes['post_id'])->user_id,
             'interested_id' => User::factory(),
         ];
     }

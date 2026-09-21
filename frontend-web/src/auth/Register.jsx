@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
+import { useAuth } from "@/auth/useAuth";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -12,6 +13,7 @@ export default function Register() {
   const [municipalities, setMunicipalities] = useState([]);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     api.get("/api/municipalities").then((res) => setMunicipalities(res.data));
@@ -23,7 +25,7 @@ export default function Register() {
 
     try {
       await api.get("/sanctum/csrf-cookie");
-      await api.post("/api/register", {
+      const { data } = await api.post("/api/register", {
         name,
         email,
         phone,
@@ -31,6 +33,7 @@ export default function Register() {
         password_confirmation: passwordConfirmation,
         municipality_id: municipalityId,
       });
+      login(data);
       navigate("/adoptions");
     } catch (err) {
       setErrors(err.response?.data?.errors ?? { email: ["Erro ao registrar."] });

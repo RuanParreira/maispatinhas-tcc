@@ -1,9 +1,9 @@
 <?php
 
 use App\Enums\AdoptionStatus;
-use App\Enums\ListingStatus;
+use App\Enums\PostStatus;
 use App\Models\Adoption;
-use App\Models\Listing;
+use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
 use Database\Seeders\MunicipalitySeeder;
@@ -25,14 +25,14 @@ it('creates the four accounts with the default password and a single admin', fun
 
 it('attributes every approval to the seeded admin', function () {
     $admin = User::where('email', 'admin@gmail.com')->first();
-    $approved = Listing::whereNotNull('approved_at')->get();
+    $approved = Post::whereNotNull('approved_at')->get();
 
     expect($approved)->not->toBeEmpty()
         ->and($approved->pluck('approved_by')->unique()->all())->toBe([$admin->id]);
 });
 
-it('spreads active listings across cities inside and outside a 100 km radius of Uberaba', function () {
-    $cities = Listing::where('status', ListingStatus::Active)
+it('spreads active posts across cities inside and outside a 100 km radius of Uberaba', function () {
+    $cities = Post::where('status', PostStatus::Active)
         ->with('municipality')
         ->get()
         ->pluck('municipality.name')
@@ -48,5 +48,5 @@ it('reviews only the completed adoption, once by each side', function () {
 
     expect($completed->reviews)->toHaveCount(2)
         ->and($completed->reviews->pluck('reviewer_id')->sort()->values()->all())
-        ->toBe(collect([$completed->donor_id, $completed->adopter_id])->sort()->values()->all());
+        ->toBe(collect([$completed->post->user_id, $completed->adopter_id])->sort()->values()->all());
 });

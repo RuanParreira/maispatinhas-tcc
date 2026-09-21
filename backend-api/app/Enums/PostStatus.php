@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum ListingStatus: string
+enum PostStatus: string
 {
     case Draft = 'draft';
     case PendingApproval = 'pending_approval';

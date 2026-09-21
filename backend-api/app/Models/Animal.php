@@ -59,11 +59,11 @@ class Animal extends Model
     }
 
     /**
-     * @return HasMany<Listing, $this>
+     * @return HasMany<Post, $this>
      */
-    public function listings(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(Listing::class);
+        return $this->hasMany(Post::class);
     }
 
     /**

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Append-only audit log of moderation decisions.
  */
-#[Fillable(['listing_id', 'moderator_id', 'action', 'reason'])]
+#[Fillable(['post_id', 'moderator_id', 'action', 'reason'])]
 class Moderation extends Model
 {
     /** @use HasFactory<ModerationFactory> */
@@ -33,11 +33,11 @@ class Moderation extends Model
     }
 
     /**
-     * @return BelongsTo<Listing, $this>
+     * @return BelongsTo<Post, $this>
      */
-    public function listing(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Listing::class);
+        return $this->belongsTo(Post::class);
     }
 
     /**

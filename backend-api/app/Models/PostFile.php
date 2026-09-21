@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use Database\Factories\ListingFileFactory;
+use Database\Factories\PostFileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['listing_id', 'original_name', 'path', 'disk', 'hash', 'size', 'mime_type', 'position'])]
-class ListingFile extends Model
+#[Fillable(['post_id', 'original_name', 'path', 'disk', 'hash', 'size', 'mime_type', 'position'])]
+class PostFile extends Model
 {
-    /** @use HasFactory<ListingFileFactory> */
+    /** @use HasFactory<PostFileFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -29,10 +29,10 @@ class ListingFile extends Model
     }
 
     /**
-     * @return BelongsTo<Listing, $this>
+     * @return BelongsTo<Post, $this>
      */
-    public function listing(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Listing::class);
+        return $this->belongsTo(Post::class);
     }
 }

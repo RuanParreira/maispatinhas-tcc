@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('moderations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('listing_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('moderator_id')->constrained('users')->restrictOnDelete();
             $table->enum('action', ['approval', 'rejection']);
             $table->text('reason')->nullable();

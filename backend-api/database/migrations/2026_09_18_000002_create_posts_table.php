@@ -9,12 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * occurred_at only applies to lost/found listings.
-     * published_at is set on approval and reset when an expired listing is renewed.
+     * occurred_at only applies to lost/found posts.
+     * published_at is set on approval and reset when an expired post is renewed.
+     * user_id and animal_id are locked after creation: adoptions snapshots depend on them
+     * never changing, so they are intentionally left out of the model's fillable list.
      */
     public function up(): void
     {
-        Schema::create('listings', function (Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->foreignId('animal_id')->constrained()->restrictOnDelete();
@@ -50,6 +52,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('listings');
+        Schema::dropIfExists('posts');
     }
 };

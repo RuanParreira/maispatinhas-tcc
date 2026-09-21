@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\ModerationAction;
-use App\Models\Listing;
 use App\Models\Moderation;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +21,7 @@ class ModerationFactory extends Factory
     public function definition(): array
     {
         return [
-            'listing_id' => Listing::factory(),
+            'post_id' => Post::factory(),
             'moderator_id' => User::factory(),
             'action' => ModerationAction::Approval,
             'reason' => null,
@@ -29,7 +29,7 @@ class ModerationFactory extends Factory
     }
 
     /**
-     * Indicate that the moderator rejected the listing.
+     * Indicate that the moderator rejected the post.
      */
     public function rejection(): static
     {

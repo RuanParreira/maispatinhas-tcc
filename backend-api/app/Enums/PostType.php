@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum ListingType: string
+enum PostType: string
 {
     case Adoption = 'adoption';
     case Lost = 'lost';

@@ -21,7 +21,7 @@ class ReviewFactory extends Factory
         return [
             'adoption_id' => Adoption::factory(),
             'reviewer_id' => fn (array $attributes) => Adoption::find($attributes['adoption_id'])->adopter_id,
-            'reviewee_id' => fn (array $attributes) => Adoption::find($attributes['adoption_id'])->donor_id,
+            'reviewee_id' => fn (array $attributes) => Adoption::find($attributes['adoption_id'])->post->user_id,
             'rating' => fake()->numberBetween(1, 5),
             'comment' => fake()->sentence(),
         ];
