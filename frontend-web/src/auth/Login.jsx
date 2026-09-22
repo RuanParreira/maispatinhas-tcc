@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { useAuth } from "@/auth/useAuth";
 
@@ -17,7 +17,11 @@ export default function Login() {
 
     try {
       await api.get("/sanctum/csrf-cookie");
-      const { data } = await api.post("/api/login", { email, password, remember });
+      const { data } = await api.post("/api/login", {
+        email,
+        password,
+        remember,
+      });
       login(data);
       navigate("/adoptions");
     } catch (err) {
@@ -60,6 +64,12 @@ export default function Login() {
       </div>
 
       <button type="submit">Entrar</button>
+
+      <p>
+        <Link to="/forgot-password" className="text-blue-500">
+          Esqueci minha senha
+        </Link>
+      </p>
     </form>
   );
 }

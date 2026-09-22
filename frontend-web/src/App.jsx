@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./auth/Login.jsx";
 import Register from "./auth/Register.jsx";
+import ForgotPassword from "./auth/ForgotPassword.jsx";
+import ResetPassword from "./auth/ResetPassword.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { AuthGate } from "./auth/AuthProvider.jsx";
@@ -12,6 +14,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/home" replace />} />
+
       <Route element={<GuestLayout />}>
         <Route path="/home" element={<Home />} />
 
@@ -21,6 +24,8 @@ export default function App() {
         >
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
       </Route>
 
