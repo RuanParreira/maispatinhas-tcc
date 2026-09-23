@@ -4,6 +4,8 @@ import Login from "./auth/Login.jsx";
 import Register from "./auth/Register.jsx";
 import ForgotPassword from "./auth/ForgotPassword.jsx";
 import ResetPassword from "./auth/ResetPassword.jsx";
+import EmailVerified from "./auth/EmailVerified.jsx";
+import VerifyEmailNotice from "./auth/VerifyEmailNotice.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { AuthGate } from "./auth/AuthProvider.jsx";
@@ -17,6 +19,7 @@ export default function App() {
 
       <Route element={<GuestLayout />}>
         <Route path="/home" element={<Home />} />
+        <Route path="/email-verified" element={<EmailVerified />} />
 
         {/* Bloqueia acesso de quem já está autenticado */}
         <Route
@@ -33,6 +36,7 @@ export default function App() {
       <Route element={<AuthGate when="guest" redirectTo="/login" />}>
         <Route element={<AppLayout />}>
           <Route path="/adoptions" element={<Adoptions />} />
+          <Route path="/verify-email" element={<VerifyEmailNotice />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
