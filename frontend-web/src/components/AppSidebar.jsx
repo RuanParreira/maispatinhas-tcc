@@ -1,4 +1,15 @@
-import { Home, PawPrint, Heart, LogOut } from "lucide-react";
+import {
+  Home,
+  PawPrint,
+  Heart,
+  LogOut,
+  MapPin,
+  ScanSearch,
+  FileText,
+  MessageSquare,
+  User,
+  Settings,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,11 +24,33 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-const items = [
-  { title: "Início", url: "/home", icon: Home },
-  { title: "Adoções", url: "/adoptions", icon: Heart },
+const groups = [
+  {
+    label: "Principal",
+    items: [
+      { title: "Início", url: "/home", icon: Home },
+      { title: "Adoções", url: "/adoptions", icon: Heart },
+      { title: "Perdidos", url: "/lost", icon: MapPin },
+      { title: "Encontrados", url: "/found", icon: ScanSearch },
+    ],
+  },
+  {
+    label: "Gerenciar",
+    items: [
+      { title: "Meus anúncios", url: "/my-posts", icon: FileText },
+      { title: "Mensagens", url: "/messages", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "Conta",
+    items: [
+      { title: "Meu perfil", url: "/profile", icon: User },
+      { title: "Configurações", url: "/settings", icon: Settings },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -42,37 +75,42 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
-            <PawPrint className="size-4" />
-          </span>
-          <span className="font-heading text-lg leading-tight whitespace-nowrap group-data-[collapsible=icon]:hidden">
-            Mais Patinhas
-          </span>
+        <div className="flex items-center justify-between gap-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1">
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
+              <PawPrint className="size-4" />
+            </span>
+            <span className="font-heading text-lg leading-tight whitespace-nowrap group-data-[collapsible=icon]:hidden">
+              Mais Patinhas
+            </span>
+          </div>
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === item.url}
-                    className="data-active:bg-primary data-active:text-primary-foreground data-active:hover:bg-primary data-active:hover:text-primary-foreground"
-                  >
-                    <Link to={item.url}>
-                      <item.icon data-icon="inline-start" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname === item.url}
+                      className="data-active:bg-primary data-active:text-primary-foreground data-active:hover:bg-primary data-active:hover:text-primary-foreground"
+                    >
+                      <Link to={item.url}>
+                        <item.icon data-icon="inline-start" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
       <SidebarFooter>
         <div className="flex items-center gap-2 p-1 group-data-[collapsible=icon]:hidden">
@@ -82,7 +120,9 @@ export function AppSidebar() {
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-sm font-medium">{user?.name ?? "Usuário"}</span>
+            <span className="truncate text-sm font-medium">
+              {user?.name ?? "Usuário"}
+            </span>
           </div>
           <button
             type="button"
