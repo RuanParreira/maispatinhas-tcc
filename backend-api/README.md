@@ -35,7 +35,25 @@ Credenciais do banco do Docker (já configuradas no Compose):
 
 Para execução local fora do Docker, use `DB_HOST=127.0.0.1` e as mesmas credenciais do banco.
 
-Comandos comuns dentro do container:
+## Configurar o MailTrap
+
+- Vá no site do mailtrap: https://mailtrap.io/
+- Depois vá nos sandoboxes e projects: https://mailtrap.io/sandboxes/projects
+- Crie um novo projeto, ele dará as informações para colocar no .env
+
+Exemplo:
+
+```
+    HOST: sandbox.smtp.mailtrap.io
+    PORT: 25, 465, 587 or 2525
+    USERNAME: d9bcb6c6a123123
+    PASSWORD: ****44b3
+    AUTH: PLAIN, LOGIN and CRAM-MD5
+    TLS: Optional (STARTTLS on all ports)
+```
+
+
+## Comandos comuns dentro do container:
 
 ```bash
 docker compose exec backend php artisan key:generate
