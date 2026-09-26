@@ -51,6 +51,12 @@ Exemplo:
     AUTH: PLAIN, LOGIN and CRAM-MD5
     TLS: Optional (STARTTLS on all ports)
 ```
+- Coloque `MAIL_MAILER=smtp`
+- Vá até o phpMyAdmin e no seu usuário remova a data da coluna `email_verified_at` e deixe nulo
+- Acesse a rota: `/verify-email`
+- E clique em `Reenviar e-mail de verificação`
+- Se o email aparecer na tela do MailTrap deu tudo certo
+- Clique no botão de `verificar e-mail` e pronto
 
 
 ## Comandos comuns dentro do container:
