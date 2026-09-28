@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
+use App\Http\Controllers\AnimalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,3 +35,9 @@ Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware(['auth:sanctum', 'throttle:6,1'])
     ->name('verification.send');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/animals', [AnimalController::class, 'index']);
+    Route::post('/animals', [AnimalController::class, 'store']);
+    Route::get('/animals/{animal}', [AnimalController::class, 'show']);
+});

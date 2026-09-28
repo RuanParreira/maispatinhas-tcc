@@ -4,6 +4,7 @@
 /.agents/
 .DS_Store
 Thumbs.db
+.vscode/settings.json
 
 # Obsidian — estado de interface, muda a cada abertura do vault
 docs/**/.obsidian/workspace.json
