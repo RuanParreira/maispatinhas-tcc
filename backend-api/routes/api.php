@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\AnimalController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -36,8 +37,17 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
     ->middleware(['auth:sanctum', 'throttle:6,1'])
     ->name('verification.send');
 
+// rota publica para qualquer pessoa ver o catalogo de anuncios aprovados
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{post}', [PostController::class, 'show']);
+
+// rotas protegidas (apenas usuários autenticados)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/animals', [AnimalController::class, 'index']);
     Route::post('/animals', [AnimalController::class, 'store']);
     Route::get('/animals/{animal}', [AnimalController::class, 'show']);
+
+    // Rotas de Post
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::get('/my-posts', [PostController::class, 'myPosts']);
 });
