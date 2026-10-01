@@ -1,30 +1,70 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import NotificationBell from "@/components/NotificationBell";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
-const TITLES = {
-  "/adoptions": "Adoções",
-  "/lost": "Perdidos",
-  "/found": "Encontrados",
-  "/my-posts": "Meus anúncios",
-  "/messages": "Mensagens",
-  "/profile": "Meu perfil",
-  "/settings": "Configurações",
-  "/verify-email": "Verificar e-mail",
+const PAGES = {
+  "/adoptions": {
+    title: "Adotar",
+    description:
+      "Pets esperando por uma nova história de afeto e cuidado mútuo.",
+  },
+  "/lost": {
+    title: "Perdidos",
+    description: "Ajude alguém a reencontrar seu companheiro desaparecido.",
+  },
+  "/found": {
+    title: "Encontrados",
+    description: "Animais encontrados na rua, à espera do tutor.",
+  },
+  "/my-posts": {
+    title: "Meus anúncios",
+    description: "Acompanhe e gerencie os anúncios que você publicou.",
+  },
+  "/my-adoptions": {
+    title: "Minhas adoções",
+    description: "Pedidos de adoção que você fez e recebeu.",
+  },
+  "/messages": {
+    title: "Mensagens",
+    description: "Suas conversas com tutores, protetores e interessados.",
+  },
+  "/profile": { title: "Meu perfil" },
+  "/settings": { title: "Configurações" },
+  "/verify-email": { title: "Verificar e-mail" },
 };
 
 export default function AppLayout() {
   const { pathname } = useLocation();
-  const title = TITLES[pathname];
+  const page = PAGES[pathname];
 
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 items-center border-b px-4">
-          {title && <h1 className="font-heading text-4xl">{title}</h1>}
+        <header className="flex items-start justify-between gap-4 px-6 pt-8 lg:px-8">
+          <div className="flex min-w-0 items-start gap-3">
+            <SidebarTrigger className="mt-1.5 md:hidden" />
+            {page && (
+              <div className="min-w-0">
+                <h1 className="font-heading text-4xl tracking-tight">
+                  {page.title}
+                </h1>
+                {page.description && (
+                  <p className="mt-1 text-muted-foreground">
+                    {page.description}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+          <NotificationBell />
         </header>
-        <main className="flex-1 flex flex-col p-4">
+        <main className="flex flex-1 flex-col p-6 lg:px-8">
           <Outlet />
         </main>
       </SidebarInset>

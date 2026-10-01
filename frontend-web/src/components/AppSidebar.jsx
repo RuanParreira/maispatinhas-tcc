@@ -1,7 +1,7 @@
 import {
-  Home,
   PawPrint,
   Heart,
+  HandHeart,
   LogOut,
   MapPin,
   ScanSearch,
@@ -31,8 +31,7 @@ const groups = [
   {
     label: "Principal",
     items: [
-      { title: "Início", url: "/home", icon: Home },
-      { title: "Adoções", url: "/adoptions", icon: Heart },
+      { title: "Adotar", url: "/adoptions", icon: Heart },
       { title: "Perdidos", url: "/lost", icon: MapPin },
       { title: "Encontrados", url: "/found", icon: ScanSearch },
     ],
@@ -41,6 +40,7 @@ const groups = [
     label: "Gerenciar",
     items: [
       { title: "Meus anúncios", url: "/my-posts", icon: FileText },
+      { title: "Minhas adoções", url: "/my-adoptions", icon: HandHeart },
       { title: "Mensagens", url: "/messages", icon: MessageSquare },
     ],
   },
