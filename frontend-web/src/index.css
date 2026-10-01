@@ -168,7 +168,7 @@
     @apply bg-background text-foreground text-body;
     }
   html {
-    @apply font-sans;
+    @apply font-sans motion-safe:scroll-smooth;
     }
   h1, h2, h3, .font-heading {
     @apply font-heading;
