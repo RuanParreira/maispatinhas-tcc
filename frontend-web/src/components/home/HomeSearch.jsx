@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { MapPin, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const intents = ["Quero adotar", "Pet perdido", "Pet encontrado"];
 
@@ -10,49 +14,44 @@ export default function HomeSearch() {
   const [intent, setIntent] = useState(intents[0]);
 
   return (
-    <section className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:-mt-10 lg:px-12">
+    <section className="relative z-10 mx-auto mt-4 w-full max-w-7xl px-6 lg:px-12">
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="mx-auto flex max-w-232 flex-col gap-6 rounded-2xl bg-card p-6 shadow-md sm:p-8"
+        className="mx-auto flex max-w-232 flex-col gap-3 rounded-2xl bg-card px-5 py-4 shadow-md"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl leading-7">Encontre um pet perto de você</h2>
-            <p className="text-[0.8125rem] leading-5 text-muted-foreground">
-              Filtre por intenção e descubra companheiros na sua vizinhança
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {intents.map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={intent === option}
-                onClick={() => setIntent(option)}
-                className={cn(
-                  "cursor-pointer rounded-full px-4 py-2 text-[0.8125rem] leading-5 transition-colors",
-                  intent === option
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "bg-secondary/50 hover:bg-secondary",
-                )}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
+        <h2 className="text-lg leading-6">Encontre um pet perto de você</h2>
 
-        <div className="grid gap-3 sm:grid-cols-12">
-          <div className="relative sm:col-span-8">
-            <MapPin className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
-            <Input
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+          <InputGroup className="h-10 lg:min-w-0 lg:flex-1">
+            <InputGroupInput
               type="text"
               aria-label="Cidade ou região"
-              placeholder="Digite sua cidade ou região (ex: São Paulo, SP)"
-              className="h-14 rounded-xl border-transparent bg-secondary/50 pr-4 pl-12 text-body md:text-body"
+              placeholder="Digite sua cidade ou região"
+              className="pr-4 text-[0.8125rem] md:text-[0.8125rem]"
             />
-          </div>
-          <Button type="submit" size="xl" className="sm:col-span-4">
+            <InputGroupAddon className="pl-3.5">
+              <MapPin />
+            </InputGroupAddon>
+          </InputGroup>
+          <ToggleGroup
+            type="single"
+            variant="solid"
+            aria-label="Intenção"
+            value={intent}
+            onValueChange={(value) => value && setIntent(value)}
+            className="flex-wrap"
+          >
+            {intents.map((option) => (
+              <ToggleGroupItem
+                key={option}
+                value={option}
+                className="h-10 rounded-xl bg-secondary/50 px-4 text-[0.8125rem]"
+              >
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <Button type="submit" className="h-10 px-5">
             <Search />
             Buscar
           </Button>

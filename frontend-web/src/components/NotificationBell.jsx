@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bell, CircleCheck, HandHeart, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -48,20 +49,22 @@ export default function NotificationBell() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="icon-lg"
           aria-label={
             unreadCount > 0
               ? `Notificações, ${unreadCount} não lidas`
               : "Notificações"
           }
-          className="relative flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-secondary outline-none transition-colors hover:bg-border focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="relative size-10 rounded-full"
         >
           <Bell className="size-4.5" />
           {unreadCount > 0 && (
             <span className="absolute top-2 right-2.5 size-2.5 rounded-full border-2 border-secondary bg-primary" />
           )}
-        </button>
+        </Button>
       </PopoverTrigger>
 
       <PopoverContent
@@ -72,13 +75,15 @@ export default function NotificationBell() {
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <p className="font-heading text-xl">Notificações</p>
           {unreadCount > 0 && (
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="xs"
               onClick={markAllAsRead}
-              className="cursor-pointer text-xs font-medium text-warning hover:underline"
+              className="px-0 text-warning"
             >
               Marcar todas como lidas
-            </button>
+            </Button>
           )}
         </div>
 

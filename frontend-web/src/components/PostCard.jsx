@@ -1,11 +1,12 @@
 import { MapPin, Calendar, PawPrint } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function PostCard({ post, showStatus = false }) {
     // cores e rotulos
     const typeBadges = {
-    adoption: { label: "Adoção", bg: "bg-emerald-100 text-emerald-700 border-emerald-300" },
-    lost: { label: "Perdido", bg: "bg-rose-100 text-rose-700 border-rose-300" },
-    found: { label: "Encontrado", bg: "bg-sky-100 text-sky-700 border-sky-300" },
+    adoption: { label: "Adoção", variant: "success" },
+    lost: { label: "Perdido", variant: "destructive" },
+    found: { label: "Encontrado", variant: "info" },
   };
 
   // Rótulos para o status de moderação
@@ -17,20 +18,18 @@ export default function PostCard({ post, showStatus = false }) {
     paused: "Pausado",
   };
 
-  const badge = typeBadges[post.type] || { label: post.type, bg: "bg-gray-100 text-gray-700" };
+  const badge = typeBadges[post.type] || { label: post.type, variant: "muted" };
 
   return (
     <div className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md">
       <div>
         {/* Cabeçalho do Card: Tipo do anúncio e Status (se aplicável) */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badge.bg}`}>
-            {badge.label}
-          </span>
+          <Badge variant={badge.variant}>{badge.label}</Badge>
           {showStatus && (
-            <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+            <Badge variant="warning">
               {statusLabels[post.status] || post.status}
-            </span>
+            </Badge>
           )}
         </div>
         {/* Título e Descrição */}

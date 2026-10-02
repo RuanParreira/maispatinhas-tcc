@@ -6,6 +6,9 @@ import { useAuth } from "@/auth/useAuth";
 import AuthShell from "@/components/auth/AuthShell";
 import { AuthField, PasswordField } from "@/components/auth/AuthField";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import loginImage from "@/assets/auth/login.jpg";
 
 export default function Login() {
@@ -75,15 +78,14 @@ export default function Login() {
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          <label className="flex cursor-pointer items-center gap-2 text-[0.8125rem] text-muted-foreground">
-            <input
-              type="checkbox"
+          <Label className="cursor-pointer text-[0.8125rem] font-normal text-muted-foreground">
+            <Checkbox
               checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="size-4.5 cursor-pointer rounded accent-primary"
+              onCheckedChange={(checked) => setRemember(checked === true)}
+              className="cursor-pointer"
             />
             Manter conectado
-          </label>
+          </Label>
           <Link
             to="/forgot-password"
             className="text-[0.8125rem] font-medium text-warning underline decoration-warning/30 underline-offset-2 hover:decoration-warning"
@@ -95,10 +97,15 @@ export default function Login() {
         <Button
           type="submit"
           disabled={submitting}
-          className="mt-1 h-12 w-full gap-2 rounded-xl text-base font-semibold shadow-xs"
+          size="field"
+          className="mt-1 w-full"
         >
-          {submitting ? "Entrando..." : "Entrar na minha conta"}
-          <ArrowRight />
+          {submitting ? "Entrando" : "Entrar na minha conta"}
+          {submitting ? (
+            <Spinner />
+          ) : (
+            <ArrowRight className="transition-transform group-hover/button:translate-x-0.5" />
+          )}
         </Button>
       </form>
 

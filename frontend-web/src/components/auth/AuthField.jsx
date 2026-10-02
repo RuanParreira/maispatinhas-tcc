@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 const strengthLevels = [
   { label: "Inicial", color: "bg-border" },
@@ -35,31 +41,30 @@ export function AuthField({
   ...props
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <Field data-invalid={Boolean(error)} className="gap-1.5">
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-xs font-medium tracking-wide">
+        <FieldLabel htmlFor={id} className="text-xs tracking-wide">
           {label}
-        </label>
+        </FieldLabel>
         {labelAction}
       </div>
-      <div className="relative">
-        <Icon className="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-muted-foreground" />
+      <InputGroup className="h-12">
         {children ?? (
-          <Input
+          <InputGroupInput
             id={id}
             aria-invalid={Boolean(error)}
-            className={cn(
-              "h-12 rounded-xl border-transparent bg-secondary/50 pr-4 pl-12 text-body md:text-body",
-              className,
-            )}
+            className={cn("pr-4 text-body md:text-body", className)}
             {...props}
           />
         )}
+        <InputGroupAddon className="pl-4">
+          <Icon className="size-4.5" />
+        </InputGroupAddon>
         {trailing}
-      </div>
+      </InputGroup>
       {footer}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
+      {error && <FieldError className="text-xs">{error}</FieldError>}
+    </Field>
   );
 }
 
@@ -74,7 +79,7 @@ export function PasswordField({ showStrength = false, ...props }) {
       {...props}
       icon={Lock}
       type={visible ? "text" : "password"}
-      className="pr-12"
+      className="pr-1.5"
       labelAction={
         showStrength ? (
           <span className="text-[0.6875rem] text-muted-foreground">
@@ -100,14 +105,15 @@ export function PasswordField({ showStrength = false, ...props }) {
         )
       }
       trailing={
-        <button
-          type="button"
-          onClick={() => setVisible((current) => !current)}
-          aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
-          className="absolute top-1/2 right-3 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ToggleIcon className="size-4.5" />
-        </button>
+        <InputGroupAddon align="inline-end" className="pr-3">
+          <InputGroupButton
+            size="icon-sm"
+            onClick={() => setVisible((current) => !current)}
+            aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
+          >
+            <ToggleIcon className="size-4.5" />
+          </InputGroupButton>
+        </InputGroupAddon>
       }
     />
   );

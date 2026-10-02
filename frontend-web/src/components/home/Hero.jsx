@@ -1,5 +1,6 @@
 import { ArrowRight, Heart, Home, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/home/hero.jpg";
 
@@ -26,7 +27,7 @@ export default function Hero() {
             <Button asChild size="xl">
               <Link to="/adoptions">
                 Encontrar um pet
-                <ArrowRight />
+                <ArrowRight className="transition-transform group-hover/button:translate-x-0.5" />
               </Link>
             </Button>
             <Button
@@ -78,9 +79,7 @@ export default function Hero() {
                 </p>
               </div>
             </div>
-            <span className="rounded-full bg-secondary px-2.5 py-1 text-[0.6875rem] font-medium tracking-wide whitespace-nowrap text-warning">
-              História Real
-            </span>
+            <Badge variant="warning">História Real</Badge>
           </div>
         </div>
       </div>

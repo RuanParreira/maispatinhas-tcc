@@ -8,6 +8,7 @@ import { AuthField, PasswordField } from "@/components/auth/AuthField";
 import CityCombobox from "@/components/auth/CityCombobox";
 import { formatPhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import registerImage from "@/assets/auth/register.jpg";
 
 export default function Register() {
@@ -137,10 +138,15 @@ export default function Register() {
         <Button
           type="submit"
           disabled={submitting}
-          className="mt-1 h-12 w-full gap-2 rounded-xl text-base font-semibold shadow-xs"
+          size="field"
+          className="mt-1 w-full"
         >
-          {submitting ? "Criando conta..." : "Criar minha conta"}
-          <ArrowRight />
+          {submitting ? "Criando conta" : "Criar minha conta"}
+          {submitting ? (
+            <Spinner />
+          ) : (
+            <ArrowRight className="transition-transform group-hover/button:translate-x-0.5" />
+          )}
         </Button>
       </form>
 

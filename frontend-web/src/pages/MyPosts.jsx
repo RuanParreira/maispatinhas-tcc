@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import api from "@/api/axios";
 import PostCard from "@/components/PostCard";
 
@@ -12,7 +13,7 @@ export default function MyPosts() {
         // res.data é direto um array
         setPosts(res.data || []);
       })
-      .catch((err) => console.error("Erro ao carregar meus anúncios:", err))
+      .catch(() => toast.error("Erro ao carregar seus anúncios."))
       .finally(() => setLoading(false));
   }, []);
 

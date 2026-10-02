@@ -1,6 +1,7 @@
 import { HandHeart, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import simbaImage from "@/assets/home/simba.jpg";
 import cachorrinhoImage from "@/assets/home/cachorrinho.jpg";
@@ -8,7 +9,7 @@ import cachorrinhoImage from "@/assets/home/cachorrinho.jpg";
 const blocks = [
   {
     badge: "Alerta",
-    badgeClass: "bg-destructive-subtle text-destructive",
+    badgeVariant: "destructive",
     title: "Pets perdidos",
     description:
       "Ajude a procurar animais desaparecidos recentemente em sua região.",
@@ -25,7 +26,7 @@ const blocks = [
   },
   {
     badge: "Resgate",
-    badgeClass: "bg-primary text-primary-foreground",
+    badgeVariant: "default",
     title: "Pets encontrados",
     description:
       "Encontrou um pet perdido? Cadastre aqui para que o tutor o encontre.",
@@ -66,14 +67,7 @@ export default function LostFound() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <span
-                  className={cn(
-                    "inline-block rounded-full px-3 py-1 text-xs leading-4 font-bold tracking-wide",
-                    block.badgeClass,
-                  )}
-                >
-                  {block.badge}
-                </span>
+                <Badge variant={block.badgeVariant}>{block.badge}</Badge>
                 <h3 className="mt-3 text-2xl">{block.title}</h3>
                 <p className="mt-1 max-w-md text-muted-foreground">
                   {block.description}

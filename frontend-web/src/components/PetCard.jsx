@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ArrowRight, Heart, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function PetCard({ pet, to = "/adoptions" }) {
   const [favorite, setFavorite] = useState(false);
@@ -14,15 +16,20 @@ export default function PetCard({ pet, to = "/adoptions" }) {
           alt={`${pet.name} para adoção`}
           className="h-70 w-full object-cover"
         />
-        <span className="absolute top-4 left-4 rounded-full bg-success-subtle px-3 py-1 text-[0.6875rem] leading-4 font-medium tracking-wide text-success shadow-xs">
+        <Badge
+          variant="success"
+          className="absolute top-4 left-4 h-6 px-3 shadow-xs"
+        >
           Disponível para adoção
-        </span>
-        <button
+        </Badge>
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           aria-label={`Favoritar ${pet.name}`}
           aria-pressed={favorite}
           onClick={() => setFavorite((current) => !current)}
-          className="absolute top-4 right-4 flex size-9 cursor-pointer items-center justify-center rounded-full bg-background/80 shadow-xs backdrop-blur-xs transition-colors hover:bg-background"
+          className="absolute top-4 right-4 rounded-full bg-background/80 shadow-xs backdrop-blur-xs hover:bg-background"
         >
           <Heart
             className={cn(
@@ -30,7 +37,7 @@ export default function PetCard({ pet, to = "/adoptions" }) {
               favorite && "fill-destructive text-destructive",
             )}
           />
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -50,9 +57,7 @@ export default function PetCard({ pet, to = "/adoptions" }) {
 
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
-            <span className="rounded-full bg-secondary px-2.5 py-1 text-[0.6875rem] leading-4 font-semibold tracking-wide text-muted-foreground">
-              {pet.tag}
-            </span>
+            <Badge variant="muted">{pet.tag}</Badge>
             <Link
               to={to}
               className="group inline-flex items-center gap-1 text-base font-semibold text-warning"

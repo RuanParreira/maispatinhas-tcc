@@ -3,7 +3,17 @@ import { ChevronRight, PawPrint, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -11,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { mockPets } from "@/data/mockPets";
 
 const speciesOptions = [
@@ -69,6 +80,8 @@ const initialFilters = {
 const selectTriggerClass =
   "h-11 gap-2 rounded-xl border-transparent bg-secondary/50 px-4 text-sm data-[size=default]:h-11";
 
+const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
+
 function normalize(text) {
   return text
     .normalize("NFD")
@@ -108,35 +121,40 @@ export default function Adoptions() {
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-xs sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-60 flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <InputGroup className="h-11 min-w-60 flex-1">
+            <InputGroupInput
               type="search"
               aria-label="Buscar pets"
               placeholder="Busque por nome, raça ou cidade"
               value={values.search}
               onChange={(e) => setFilter("search", e.target.value)}
-              className="h-11 rounded-xl border-transparent bg-secondary/50 pr-4 pl-11 text-body md:text-body"
+              className="pr-4 text-body md:text-body"
             />
-          </div>
+            <InputGroupAddon className="pl-4">
+              <Search className="size-4.5" />
+            </InputGroupAddon>
+          </InputGroup>
 
           <div className="flex items-center gap-1 rounded-xl bg-secondary/50 p-1">
-            {speciesOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={values.species === option.value}
-                onClick={() => setFilter("species", option.value)}
-                className={cn(
-                  "h-9 cursor-pointer rounded-lg px-3.5 text-sm font-medium transition-colors",
-                  values.species === option.value
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+            <ToggleGroup
+              type="single"
+              variant="solid"
+              size="lg"
+              spacing={1}
+              aria-label="Espécie"
+              value={isOtherSpecies ? "" : values.species}
+              onValueChange={(value) => value && setFilter("species", value)}
+            >
+              {speciesOptions.map((option) => (
+                <ToggleGroupItem
+                  key={option.value}
+                  value={option.value}
+                  className="px-3.5 text-muted-foreground hover:bg-transparent"
+                >
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
             <Select
               value={isOtherSpecies ? values.species : ""}
               onValueChange={(value) => setFilter("species", value)}
@@ -236,36 +254,33 @@ export default function Adoptions() {
       )}
 
       {pets.length > 0 && (
-        <nav
-          aria-label="Paginação"
-          className="flex flex-wrap items-center justify-between gap-4"
-        >
+        <Pagination className="flex-wrap items-center justify-between gap-4">
           <p className="text-[0.8125rem] text-muted-foreground">Página 1 de 4</p>
-          <div className="flex items-center gap-2">
+          <PaginationContent className="gap-2">
             {[1, 2, 3].map((page) => (
-              <button
-                key={page}
-                type="button"
-                aria-current={page === 1 ? "page" : undefined}
-                className={cn(
-                  "size-10 cursor-pointer rounded-xl text-sm font-semibold transition-colors",
-                  page === 1
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "bg-card shadow-xs hover:bg-secondary",
-                )}
-              >
-                {page}
-              </button>
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  isActive={page === 1}
+                  onClick={(e) => e.preventDefault()}
+                  className={cn(pageLinkClass, page !== 1 && "bg-card")}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
             ))}
-            <button
-              type="button"
-              aria-label="Próxima página"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-xl bg-card shadow-xs transition-colors hover:bg-secondary"
-            >
-              <ChevronRight className="size-4" />
-            </button>
-          </div>
-        </nav>
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                aria-label="Próxima página"
+                onClick={(e) => e.preventDefault()}
+                className={cn(pageLinkClass, "bg-card")}
+              >
+                <ChevronRight />
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
