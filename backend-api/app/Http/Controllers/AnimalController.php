@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Animal\StoreAnimalRequest;
 use App\Models\Animal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class AnimalController extends Controller
 {
@@ -34,10 +35,9 @@ class AnimalController extends Controller
     /**
      * Exibir os dados de um animal específico (garantindo que seja dele).
      */
-    public function show(Request $request, Animal $animal)
+    public function show(Animal $animal)
     {
-        // Impede que um usuário veja detalhes de um animal que não é dele
-        abort_if($animal->user_id !== $request->user()->id, 403);
+        Gate::authorize('view', $animal);
         return response()->json($animal);
     }
 }
