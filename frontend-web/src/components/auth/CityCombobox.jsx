@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { MapPin, Search } from "lucide-react";
 import { Command as CommandPrimitive } from "cmdk";
+import { normalize } from "@/lib/text";
 import { AuthField } from "@/components/auth/AuthField";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,14 +15,6 @@ import { InputGroupAddon } from "@/components/ui/input-group";
 
 const MAX_RESULTS = 8;
 const MIN_QUERY = 2;
-
-function normalize(text) {
-  return text
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
 
 // Campo de busca de município: filtra por nome (sem acento) e guarda o ibge_code.
 export default function CityCombobox({

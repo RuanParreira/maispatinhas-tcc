@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, PawPrint, Search } from "lucide-react";
+import { normalize } from "@/lib/text";
 import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
 import { Button } from "@/components/ui/button";
@@ -82,13 +83,6 @@ const selectTriggerClass =
 
 const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
 
-function normalize(text) {
-  return text
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-}
-
 export default function Adoptions() {
   const [values, setValues] = useState(initialFilters);
   const [sort, setSort] = useState("recent");
@@ -102,7 +96,7 @@ export default function Adoptions() {
   }
 
   const pets = useMemo(() => {
-    const term = normalize(values.search.trim());
+    const term = normalize(values.search);
     const filtered = mockPets.filter(
       (pet) =>
         (values.species === "all" || pet.species === values.species) &&
