@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -88,5 +89,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function reviewsReceived(): HasMany
     {
         return $this->hasMany(Review::class, 'reviewee_id');
+    }
+
+    /**
+     * Posts the user marked as favorite, most recent first.
+     *
+     * @return BelongsToMany<Post, $this>
+     */
+    public function favoritePosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'favorites')
+            ->withPivot('created_at')
+            ->orderByPivot('created_at', 'desc');
     }
 }
