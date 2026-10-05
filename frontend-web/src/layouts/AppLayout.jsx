@@ -34,7 +34,10 @@ const PAGES = {
     description: "Suas conversas com tutores, protetores e interessados.",
   },
   "/profile": { title: "Meu perfil" },
-  "/settings": { title: "Configurações" },
+  "/settings": {
+    title: "Configurações",
+    description: "Segurança e acesso da sua conta.",
+  },
   "/verify-email": { title: "Verificar e-mail" },
 };
 

@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /*
@@ -44,7 +46,17 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Inserts a row in the database session table, as if the user were logged in on another device.
+ */
+function createSession(User $user, string $id): void
 {
-    // ..
+    DB::table('sessions')->insert([
+        'id' => $id,
+        'user_id' => $user->id,
+        'ip_address' => '127.0.0.1',
+        'user_agent' => 'Mozilla/5.0 (X11; Linux x86_64) Firefox/140.0',
+        'payload' => '',
+        'last_activity' => now()->timestamp,
+    ]);
 }

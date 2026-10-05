@@ -8,6 +8,9 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\Settings\EmailController;
+use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\SessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +34,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Rotas de configurações da conta
+    Route::get('/user/sessions', [SessionController::class, 'index']);
+
+    Route::middleware('throttle:6,1')->group(function () {
+        Route::put('/user/password', [PasswordController::class, 'update']);
+        Route::put('/user/email', [EmailController::class, 'update']);
+        Route::delete('/user/sessions', [SessionController::class, 'destroy']);
+    });
 
     // Rotas de verificação de e-mail
     Route::middleware('throttle:6,1')->group(function () {

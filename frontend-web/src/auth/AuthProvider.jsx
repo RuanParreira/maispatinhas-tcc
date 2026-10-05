@@ -25,6 +25,10 @@ export function AuthProvider({ children }) {
     setStatus("authenticated");
   }
 
+  function updateUser(user) {
+    setUser(user);
+  }
+
   async function logout() {
     await api.post("/api/logout");
     setUser(null);
@@ -32,7 +36,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, status, login, logout }}>
+    <AuthContext.Provider value={{ user, status, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
