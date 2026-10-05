@@ -12,7 +12,7 @@ class VerifyEmailController extends Controller
     public function __invoke(EmailVerificationRequest $request): JsonResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return response()->json(['status' => __('E-mail ja verificado.')]);
+            return response()->json(['status' => __('E-mail já verificado.')]);
         }
 
         $request->user()->markEmailAsVerified();
