@@ -20,12 +20,8 @@ Route::get('/posts/{post}', [PostController::class, 'show']);
 // Rotas públicas com limite de requisições
 Route::middleware('throttle:6,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.update');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
+    Route::post('/reset-password', [NewPasswordController::class, 'store']);
 });
 
 // Rotas protegidas (apenas usuários autenticados)
@@ -42,8 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('signed')
             ->name('verification.verify');
 
-        Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-            ->name('verification.send');
+        Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store']);
     });
 
     // Rotas de Animais
