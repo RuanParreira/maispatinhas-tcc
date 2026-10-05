@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import AuthShell from "@/components/auth/AuthShell";
-import { PasswordField } from "@/components/auth/AuthField";
+import { PasswordField } from "@/components/form/IconField";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import loginImage from "@/assets/auth/login.jpg";

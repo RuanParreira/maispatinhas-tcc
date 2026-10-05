@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import AuthShell from "@/components/auth/AuthShell";
-import { AuthField } from "@/components/auth/AuthField";
+import { IconField } from "@/components/form/IconField";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import loginImage from "@/assets/auth/login.jpg";
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
       }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <AuthField
+        <IconField
           id="email"
           label="E-mail"
           icon={Mail}

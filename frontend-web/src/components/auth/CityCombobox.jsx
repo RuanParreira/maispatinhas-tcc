@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { MapPin, Search } from "lucide-react";
 import { Command as CommandPrimitive } from "cmdk";
 import { normalize } from "@/lib/text";
-import { AuthField } from "@/components/auth/AuthField";
+import { IconField } from "@/components/form/IconField";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
@@ -75,7 +75,7 @@ export default function CityCombobox({
       loop
       className="h-auto overflow-visible bg-transparent p-0"
     >
-      <AuthField
+      <IconField
         id={id}
         label={label}
         icon={MapPin}
@@ -128,7 +128,7 @@ export default function CityCombobox({
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
           className="h-full min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-muted-foreground"
         />
-      </AuthField>
+      </IconField>
     </Command>
   );
 }

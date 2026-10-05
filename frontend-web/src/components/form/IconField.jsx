@@ -28,7 +28,7 @@ function passwordScore(password) {
   return Math.max(1, checks.filter(Boolean).length);
 }
 
-export function AuthField({
+export function IconField({
   id,
   label,
   icon: Icon,
@@ -75,7 +75,7 @@ export function PasswordField({ showStrength = false, ...props }) {
   const level = strengthLevels[score];
 
   return (
-    <AuthField
+    <IconField
       {...props}
       icon={Lock}
       type={visible ? "text" : "password"}

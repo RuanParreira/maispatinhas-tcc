@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { useAuth } from "@/auth/useAuth";
 import AuthShell from "@/components/auth/AuthShell";
-import { AuthField, PasswordField } from "@/components/auth/AuthField";
+import { IconField, PasswordField } from "@/components/form/IconField";
 import CityCombobox from "@/components/auth/CityCombobox";
 import { formatPhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ export default function Register() {
       }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <AuthField
+        <IconField
           id="name"
           label="Nome completo"
           icon={User}
@@ -80,7 +80,7 @@ export default function Register() {
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <AuthField
+          <IconField
             id="email"
             label="E-mail"
             icon={Mail}
@@ -92,7 +92,7 @@ export default function Register() {
             error={errors.email?.[0]}
           />
 
-          <AuthField
+          <IconField
             id="phone"
             label="Telefone"
             icon={Phone}

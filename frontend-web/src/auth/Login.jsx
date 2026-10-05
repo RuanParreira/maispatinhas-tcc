@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { useAuth } from "@/auth/useAuth";
 import AuthShell from "@/components/auth/AuthShell";
-import { AuthField, PasswordField } from "@/components/auth/AuthField";
+import { IconField, PasswordField } from "@/components/form/IconField";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -55,7 +55,7 @@ export default function Login() {
       }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <AuthField
+        <IconField
           id="email"
           label="E-mail"
           icon={Mail}
