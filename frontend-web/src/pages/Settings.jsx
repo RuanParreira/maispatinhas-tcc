@@ -1,6 +1,6 @@
 import { KeyRound, Mail, MonitorSmartphone, TriangleAlert } from "lucide-react";
-import { toast } from "sonner";
 import AccountOverview from "@/components/settings/AccountOverview";
+import DeleteAccountDialog from "@/components/settings/DeleteAccountDialog";
 import EmailForm from "@/components/settings/EmailForm";
 import PasswordForm from "@/components/settings/PasswordForm";
 import SessionsCard from "@/components/settings/SessionsCard";
@@ -9,7 +9,6 @@ import {
   SettingsCard,
   SettingsFooter,
 } from "@/components/settings/SettingsCard";
-import { Button } from "@/components/ui/button";
 
 export default function Settings() {
   return (
@@ -58,14 +57,7 @@ export default function Settings() {
             </p>
           </SettingsBody>
           <SettingsFooter hint="Exige confirmação com senha.">
-            <Button
-              type="button"
-              variant="destructive"
-              className="h-10 px-4"
-              onClick={() => toast.info("Disponível em breve.")}
-            >
-              Excluir conta
-            </Button>
+            <DeleteAccountDialog />
           </SettingsFooter>
         </SettingsCard>
       </div>

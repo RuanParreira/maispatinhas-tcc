@@ -39,6 +39,14 @@ Restrições que decorrem disso:
 - No máximo uma adoção `EM_ANDAMENTO` ou `CONCLUIDA` por anúncio. Várias `SOLICITADA` podem coexistir — é o doador quem escolhe entre os interessados.
 - Uma adoção `CONCLUIDA` nunca volta atrás. Devolução do animal é um anúncio novo, não uma reversão de estado.
 
+## Exclusão de conta
+
+A exclusão de conta é o único caso que cancela adoções automaticamente:
+
+- Adotante exclui a conta: seus pedidos `SOLICITADA` e `EM_ANDAMENTO` viram `CANCELADA`. É a única forma de chegar em `CANCELADA` a partir de `SOLICITADA`.
+- Doador exclui a conta: pedidos `SOLICITADA` nos anúncios dele viram `RECUSADA`, e `EM_ANDAMENTO` vira `CANCELADA`.
+- `CONCLUIDA` nunca muda, porque libera avaliação e é histórico.
+
 Ver [[Fluxo Status de Anuncio]] para o ciclo de vida do anúncio.
 
 ## Por que `Animais` não tem status

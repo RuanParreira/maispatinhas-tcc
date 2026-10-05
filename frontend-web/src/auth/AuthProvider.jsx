@@ -29,6 +29,12 @@ export function AuthProvider({ children }) {
     setUser(user);
   }
 
+  // The server already ended the session (account deletion).
+  function clearUser() {
+    setUser(null);
+    setStatus("guest");
+  }
+
   async function logout() {
     await api.post("/api/logout");
     setUser(null);
@@ -36,7 +42,9 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, status, login, updateUser, logout }}>
+    <AuthContext.Provider
+      value={{ user, status, login, updateUser, clearUser, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

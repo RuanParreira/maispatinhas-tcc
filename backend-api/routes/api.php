@@ -10,6 +10,7 @@ use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Settings\EmailController;
 use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/user/password', [PasswordController::class, 'update']);
         Route::put('/user/email', [EmailController::class, 'update']);
         Route::delete('/user/sessions', [SessionController::class, 'destroy']);
+        Route::delete('/user', [ProfileController::class, 'destroy']);
     });
 
     // Rotas de verificação de e-mail

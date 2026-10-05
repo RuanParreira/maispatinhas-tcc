@@ -65,4 +65,10 @@ Além disso, o fato de ter sido aprovado não depende do campo de status: fica r
 
 O prazo é regra de aplicação, não do banco.
 
+## Exclusão de conta
+
+Quando o autor exclui a conta, todo anúncio aberto (`RASCUNHO`, `PENDENTE_APROVACAO`, `REJEITADO`, `ATIVO`, `PAUSADO`, `EXPIRADO`) vai direto para `CANCELADO`, inclusive os que normalmente não teriam essa transição. `RESOLVIDO` e `ENCERRADO` ficam como estão, porque são histórico.
+
+Pedidos de adoção `SOLICITADA` nesses anúncios viram `RECUSADA`, e adoções `EM_ANDAMENTO` viram `CANCELADA`. Ver [[Fluxo Status de Adocao]].
+
 Ver [[Tipos Anuncio]] para os tipos de post e [[Fluxo Status de Adocao]] para o ciclo da adoção.
