@@ -33,7 +33,10 @@ const PAGES = {
     title: "Mensagens",
     description: "Suas conversas com tutores, protetores e interessados.",
   },
-  "/profile": { title: "Meu perfil" },
+  "/profile": {
+    title: "Meu perfil",
+    description: "É assim que as outras pessoas veem você na plataforma.",
+  },
   "/settings": {
     title: "Configurações",
     description: "Segurança e acesso da sua conta.",
