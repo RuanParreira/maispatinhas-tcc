@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\LogoutOtherDevices;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\DestroySessionsRequest;
 use Illuminate\Http\JsonResponse;
@@ -9,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class SessionController extends Controller
 {
@@ -36,20 +36,9 @@ class SessionController extends Controller
         return response()->json($sessions);
     }
 
-    /**
-     * Rotating remember_token keeps "remember me" cookies from
-     * logging the other devices back in.
-     */
-    public function destroy(DestroySessionsRequest $request): Response
+    public function destroy(DestroySessionsRequest $request, LogoutOtherDevices $logoutOtherDevices): Response
     {
-        $user = $request->user();
-        $user->remember_token = Str::random(60);
-        $user->save();
-
-        DB::table('sessions')
-            ->where('user_id', $user->id)
-            ->where('id', '!=', $request->session()->getId())
-            ->delete();
+        $logoutOtherDevices->handle($request->user(), $request->session()->getId());
 
         return response()->noContent();
     }
