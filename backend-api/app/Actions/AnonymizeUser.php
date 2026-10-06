@@ -70,7 +70,8 @@ class AnonymizeUser
             // The .invalid TLD is reserved and never receives mail; the id keeps it unique.
             $user->name = 'Usuário removido';
             $user->email = "removido-{$user->id}@anonimizado.invalid";
-            $user->phone = '';
+            $user->phone = null;
+            $user->bio = null;
             $user->password = Hash::make(Str::random(64));
             $user->remember_token = null;
             $user->email_verified_at = null;

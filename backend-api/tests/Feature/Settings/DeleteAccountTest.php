@@ -28,7 +28,7 @@ it('requires the current password', function () {
 });
 
 it('overwrites personal data and logs the user out', function () {
-    $user = User::factory()->create(['password' => Hash::make('secret-123')]);
+    $user = User::factory()->create(['password' => Hash::make('secret-123'), 'bio' => 'Bio pessoal']);
     $email = $user->email;
 
     $this->actingAs($user)->deleteJson('/api/user', ['current_password' => 'secret-123'])->assertNoContent();
@@ -37,7 +37,8 @@ it('overwrites personal data and logs the user out', function () {
     expect($user->anonymized_at)->not->toBeNull()
         ->and($user->name)->toBe('Usuário removido')
         ->and($user->email)->toBe("removido-{$user->id}@anonimizado.invalid")
-        ->and($user->phone)->toBe('')
+        ->and($user->phone)->toBeNull()
+        ->and($user->bio)->toBeNull()
         ->and($user->remember_token)->toBeNull()
         ->and(Hash::check('secret-123', $user->password))->toBeFalse()
         ->and(User::where('email', $email)->exists())->toBeFalse();

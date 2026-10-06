@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\Profile;
 use App\Http\Controllers\Settings\EmailController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -20,6 +21,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/municipalities', [MunicipalityController::class, 'index']);
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
+
+// Perfil público (contas anonimizadas respondem 404 via UserPolicy)
+Route::middleware(['throttle:60,1', 'can:view,user'])->group(function () {
+    Route::get('/users/{user}', [Profile\ProfileController::class, 'show']);
+    Route::get('/users/{user}/adoptions', [Profile\AdoptionController::class, 'index']);
+    Route::get('/users/{user}/reviews', [Profile\ReviewController::class, 'index']);
+});
 
 // Rotas públicas com limite de requisições
 Route::middleware('throttle:6,1')->group(function () {
@@ -37,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Rotas de configurações da conta
+    Route::put('/user/profile', [ProfileController::class, 'update']);
     Route::get('/user/sessions', [SessionController::class, 'index']);
 
     Route::middleware('throttle:6,1')->group(function () {

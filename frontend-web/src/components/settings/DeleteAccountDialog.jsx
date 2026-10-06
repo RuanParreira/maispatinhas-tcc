@@ -17,7 +17,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 
 const consequences = [
-  "Nome, e-mail e telefone são apagados.",
+  "Nome, e-mail, telefone e bio são apagados.",
   "Anúncios abertos são cancelados.",
   "Adoções em andamento são canceladas.",
   "Conversas são arquivadas e favoritos removidos.",
