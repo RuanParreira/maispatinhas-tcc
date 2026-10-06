@@ -47,6 +47,8 @@ class DemoSeeder extends Seeder
         $luna = $this->animal($walysson, 'Luna', AnimalSpecies::Cat, AnimalSex::Female, AnimalSize::Small);
         $caramelo = $this->animal($walysson, null, AnimalSpecies::Dog, AnimalSex::Male, AnimalSize::Medium);
         $fred = $this->animal($walysson, 'Fred', AnimalSpecies::Dog, AnimalSex::Male, AnimalSize::Large);
+        $bento = $this->animal($ruan, 'Bento', AnimalSpecies::Cat, AnimalSex::Male, AnimalSize::Small);
+        $mel = $this->animal($leandro, 'Mel', AnimalSpecies::Dog, AnimalSex::Female, AnimalSize::Small);
 
         $thorPost = $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($ruan)->for($thor)->create([
             'municipality_id' => UserSeeder::UBERABA,
@@ -88,6 +90,18 @@ class DemoSeeder extends Seeder
             'description' => 'Carinhosa e acostumada com apartamento.',
         ]));
 
+        $bentoPost = $this->recordApproval(Post::factory()->recycle($this->admin)->resolved()->for($ruan)->for($bento)->create([
+            'municipality_id' => UserSeeder::UBERABA,
+            'title' => 'Bento, gato tranquilo de 2 anos',
+            'description' => 'Castrado, vacinado e muito companheiro.',
+        ]));
+
+        $melPost = $this->recordApproval(Post::factory()->recycle($this->admin)->resolved()->for($leandro)->for($mel)->create([
+            'municipality_id' => UserSeeder::UBERLANDIA,
+            'title' => 'Mel, filhote de porte pequeno',
+            'description' => 'Brincalhona e já sabe fazer as necessidades no lugar certo.',
+        ]));
+
         $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([
             'municipality_id' => self::BELO_HORIZONTE,
             'title' => 'Fred precisa de um quintal',
@@ -107,6 +121,31 @@ class DemoSeeder extends Seeder
             'reviewee_id' => $ruan->id,
             'rating' => 5,
             'comment' => 'Ruan foi muito atencioso e manda notícias da Luna.',
+        ]);
+
+        // Each account has donated one pet, so every profile has a happy ending.
+        $bentoAdoption = Adoption::factory()->completed()->for($bentoPost)->create(['adopter_id' => $walysson->id]);
+        Review::factory()->for($bentoAdoption)->create([
+            'rating' => 4,
+            'comment' => 'Bento se adaptou rápido. Ruan tirou todas as dúvidas antes da entrega.',
+        ]);
+        Review::factory()->for($bentoAdoption)->create([
+            'reviewer_id' => $ruan->id,
+            'reviewee_id' => $walysson->id,
+            'rating' => 5,
+            'comment' => 'Walysson preparou a casa toda para receber o Bento.',
+        ]);
+
+        $melAdoption = Adoption::factory()->completed()->for($melPost)->create(['adopter_id' => $ruan->id]);
+        Review::factory()->for($melAdoption)->create([
+            'rating' => 5,
+            'comment' => 'A Mel veio com a carteirinha de vacinação em dia. Leandro foi muito cuidadoso.',
+        ]);
+        Review::factory()->for($melAdoption)->create([
+            'reviewer_id' => $leandro->id,
+            'reviewee_id' => $ruan->id,
+            'rating' => 5,
+            'comment' => 'Ruan mandou fotos da Mel na primeira semana. Adoção tranquila.',
         ]);
 
         $this->conversation($thorPost, $leandro, [

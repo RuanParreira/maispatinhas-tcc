@@ -89,7 +89,10 @@ Edite `.env`:
 
 ```bash
 php artisan migrate
+php artisan storage:link
 ```
+
+O `storage:link` cria o atalho `public/storage` → `storage/app/public`, por onde a API serve as fotos enviadas (avatares, fotos dos posts). Ele não vai para o Git, então cada máquina precisa rodar uma vez. Se você também usa o Docker, rode `php artisan storage:link --force` ao voltar para o modo manual: o container recria o link com o caminho de dentro dele, que não existe no seu PC.
 
 ### Rodando
 

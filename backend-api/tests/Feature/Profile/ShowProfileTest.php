@@ -19,6 +19,8 @@ it('shows the public profile with stats', function () {
     Adoption::factory()->completed()->for($trashedPost)->create();
     $trashedPost->delete();
     Adoption::factory()->inProgress()->for(Post::factory()->for($user))->create();
+    Adoption::factory()->completed()->create(['adopter_id' => $user->id]);
+    Adoption::factory()->inProgress()->create(['adopter_id' => $user->id]);
 
     Review::factory()->create(['adoption_id' => $donated->id, 'rating' => 5]);
     Review::factory()->create(['reviewee_id' => $user->id, 'rating' => 4]);
@@ -28,7 +30,9 @@ it('shows the public profile with stats', function () {
         ->assertJsonPath('data.name', $user->name)
         ->assertJsonPath('data.bio', 'Protetora em Franca.')
         ->assertJsonPath('data.municipality.name', $user->municipality->name)
-        ->assertJsonPath('data.stats.adoptions_completed', 2)
+        ->assertJsonPath('data.stats.adoptions_completed', 3)
+        ->assertJsonPath('data.stats.adoptions_donated', 2)
+        ->assertJsonPath('data.stats.adoptions_adopted', 1)
         ->assertJsonPath('data.stats.active_posts', 2)
         ->assertJsonPath('data.stats.reviews_count', 2)
         ->assertJsonPath('data.stats.rating', 4.5);

@@ -13,7 +13,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/auth/useAuth";
 import { initialsOf } from "@/lib/initials";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -115,6 +115,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border py-3">
         <div className="flex items-center gap-2.5 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
           <Avatar className="size-8 shrink-0">
+            {user?.avatar_url && <AvatarImage src={user.avatar_url} alt="" />}
             <AvatarFallback className="bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
               {initials}
             </AvatarFallback>

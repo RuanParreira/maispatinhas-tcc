@@ -16,7 +16,7 @@ class PostController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $posts = Post::with(['animal', 'municipality:ibge_code,name,state', 'user:id,name', 'cover'])
+        $posts = Post::with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
             ->where('status', PostStatus::Active)
             ->when($request->integer('user'), fn ($query, $userId) => $query->where('user_id', $userId))
             ->latest('published_at')
@@ -50,7 +50,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post->load(['animal', 'municipality', 'user:id,name']);
+        $post->load(['animal', 'municipality', 'user:id,name,avatar_path']);
 
         return response()->json($post);
     }

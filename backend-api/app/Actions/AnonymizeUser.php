@@ -11,6 +11,7 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -32,6 +33,8 @@ class AnonymizeUser
 
     public function handle(User $user): void
     {
+        $avatarPath = $user->avatar_path;
+
         DB::transaction(function () use ($user) {
             // Trashed posts count too: an adoption in progress may still point to one.
             $postIds = $user->posts()->withTrashed()->pluck('id');
@@ -72,6 +75,7 @@ class AnonymizeUser
             $user->email = "removido-{$user->id}@anonimizado.invalid";
             $user->phone = null;
             $user->bio = null;
+            $user->avatar_path = null;
             $user->password = Hash::make(Str::random(64));
             $user->remember_token = null;
             $user->email_verified_at = null;
@@ -79,5 +83,10 @@ class AnonymizeUser
             $user->anonymized_at = now();
             $user->save();
         });
+
+        // Only after the commit: a rollback must not leave the user without the file.
+        if ($avatarPath) {
+            Storage::disk('public')->delete($avatarPath);
+        }
     }
 }

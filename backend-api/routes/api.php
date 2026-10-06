@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Profile;
+use App\Http\Controllers\Settings\AvatarController;
 use App\Http\Controllers\Settings\EmailController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -47,6 +48,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de configurações da conta
     Route::put('/user/profile', [ProfileController::class, 'update']);
     Route::get('/user/sessions', [SessionController::class, 'index']);
+
+    Route::middleware('throttle:avatar')->group(function () {
+        Route::post('/user/avatar', [AvatarController::class, 'update']);
+        Route::delete('/user/avatar', [AvatarController::class, 'destroy']);
+    });
 
     Route::middleware('throttle:6,1')->group(function () {
         Route::put('/user/password', [PasswordController::class, 'update']);

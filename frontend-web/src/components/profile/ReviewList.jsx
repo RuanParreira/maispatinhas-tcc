@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { initialsOf } from "@/lib/initials";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const monthYear = new Intl.DateTimeFormat("pt-BR", {
   month: "short",
@@ -33,20 +33,28 @@ export default function ReviewList({ reviews }) {
           className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-xs sm:p-6"
         >
           <Stars rating={review.rating} />
-          <p className="flex-1 leading-relaxed text-foreground/90 italic">
+          <p className="flex-1 text-base leading-relaxed text-foreground/90 italic">
             “{review.comment}”
           </p>
           <div className="flex items-center gap-3 border-t border-border/50 pt-4">
             <Avatar className="size-10">
+              {review.reviewer.avatar_url && (
+                <AvatarImage src={review.reviewer.avatar_url} alt="" />
+              )}
               <AvatarFallback className="bg-secondary text-sm font-semibold text-warning">
-                {initialsOf(review.reviewer)}
+                {initialsOf(review.reviewer.name)}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="font-medium">{review.reviewer}</p>
+              <p className="font-medium">{review.reviewer.name}</p>
               <p className="text-xs text-muted-foreground">
-                Adotou {review.petName} ·{" "}
-                {monthYear.format(new Date(review.createdAt))}
+                {review.pet_name && (
+                  <>
+                    {review.reviewer_role === "adopter" ? "Adotante" : "Doador"}{" "}
+                    de {review.pet_name} ·{" "}
+                  </>
+                )}
+                {monthYear.format(new Date(review.created_at))}
               </p>
             </div>
           </div>

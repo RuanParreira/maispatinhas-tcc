@@ -24,7 +24,9 @@ class ReviewResource extends JsonResource
             'reviewer' => [
                 'id' => $this->reviewer->id,
                 'name' => $this->reviewer->name,
+                'avatar_url' => $this->reviewer->avatar_url,
             ],
+            'reviewer_role' => $this->reviewer_id === $this->adoption->adopter_id ? 'adopter' : 'donor',
             'pet_name' => $this->adoption->post->animal->name,
         ];
     }

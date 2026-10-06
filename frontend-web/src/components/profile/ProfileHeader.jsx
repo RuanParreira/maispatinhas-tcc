@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { initialsOf } from "@/lib/initials";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -34,6 +34,9 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
       <div className="flex flex-col gap-5 px-5 pb-6 sm:px-8">
         <div className="-mt-12 flex flex-wrap items-end justify-between gap-4 sm:-mt-14">
           <Avatar className="size-24 ring-4 ring-card sm:size-28">
+            {profile.avatar_url && (
+              <AvatarImage src={profile.avatar_url} alt={profile.name} />
+            )}
             <AvatarFallback className="bg-primary text-3xl font-semibold text-primary-foreground">
               {initialsOf(profile.name)}
             </AvatarFallback>
@@ -70,7 +73,7 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
             <h2 className="font-heading text-4xl leading-tight">
               {profile.name}
             </h2>
-            {profile.verified && (
+            {profile.email_verified && (
               <Badge variant="success" className="h-6 px-2.5">
                 <BadgeCheck />
                 E-mail verificado
@@ -80,14 +83,12 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <MapPin className="size-4 text-warning" />
-              {profile.city}
+              {profile.municipality.name}, {profile.municipality.state}
             </span>
-            {profile.createdAt && (
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="size-4 text-warning" />
-                Membro desde {monthYear.format(new Date(profile.createdAt))}
-              </span>
-            )}
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="size-4 text-warning" />
+              Membro desde {monthYear.format(new Date(profile.member_since))}
+            </span>
           </div>
         </div>
 
@@ -100,7 +101,7 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
             <button
               type="button"
               onClick={onEdit}
-              className="rounded-xl border border-dashed border-border p-4 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/40"
+              className="cursor-pointer rounded-xl border border-dashed border-border p-4 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/40"
             >
               Conte um pouco sobre você: sua casa, sua rotina e sua experiência
               com animais. Isso ajuda quem vai doar ou adotar a confiar em você.

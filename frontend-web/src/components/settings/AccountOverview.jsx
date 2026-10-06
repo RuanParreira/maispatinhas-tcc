@@ -1,7 +1,7 @@
 import { CalendarDays, MailCheck, MailWarning } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
 import { initialsOf } from "@/lib/initials";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const monthYear = new Intl.DateTimeFormat("pt-BR", {
   month: "long",
@@ -15,6 +15,7 @@ export default function AccountOverview() {
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-card p-5 shadow-xs sm:p-6">
       <Avatar className="size-14">
+        {user?.avatar_url && <AvatarImage src={user.avatar_url} alt="" />}
         <AvatarFallback className="bg-primary text-lg font-semibold text-primary-foreground">
           {user?.name ? initialsOf(user.name) : "US"}
         </AvatarFallback>

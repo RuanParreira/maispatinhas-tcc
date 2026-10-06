@@ -43,10 +43,20 @@ it('spreads active posts across cities inside and outside a 100 km radius of Ube
     expect($cities)->toBe(['Belo Horizonte', 'Igarapava', 'Uberaba', 'Uberlândia']);
 });
 
-it('reviews only the completed adoption, once by each side', function () {
-    $completed = Adoption::where('status', AdoptionStatus::Completed)->sole();
+it('reviews every completed adoption once by each side', function () {
+    $completed = Adoption::where('status', AdoptionStatus::Completed)->with('post', 'reviews')->get();
 
-    expect($completed->reviews)->toHaveCount(2)
-        ->and($completed->reviews->pluck('reviewer_id')->sort()->values()->all())
-        ->toBe(collect([$completed->post->user_id, $completed->adopter_id])->sort()->values()->all());
+    expect($completed)->not->toBeEmpty();
+
+    $completed->each(fn (Adoption $adoption) => expect($adoption->reviews->pluck('reviewer_id')->sort()->values()->all())
+        ->toBe(collect([$adoption->post->user_id, $adoption->adopter_id])->sort()->values()->all()));
+
+    expect(Adoption::whereNot('status', AdoptionStatus::Completed)->whereHas('reviews')->exists())->toBeFalse();
+});
+
+it('gives every regular account a donated pet and a bio', function () {
+    User::where('email', '!=', 'admin@gmail.com')->get()->each(
+        fn (User $user) => expect($user->bio)->not->toBeEmpty()
+            ->and($user->donatedAdoptions()->where('adoptions.status', AdoptionStatus::Completed)->count())->toBe(1)
+    );
 });

@@ -21,7 +21,7 @@ cd maispatinhas-tcc
 docker compose up -d --build
 ```
 
-O primeiro `up` builda as imagens, sobe o MySQL, espera o banco ficar pronto e roda as migrations sozinho. Nada mais precisa ser instalado no seu PC — nem PHP, nem Composer, nem Node.
+O primeiro `up` builda as imagens, sobe o MySQL, espera o banco ficar pronto, roda as migrations e cria o link `public/storage` (usado pelas fotos enviadas) sozinho. Nada mais precisa ser instalado no seu PC — nem PHP, nem Composer, nem Node.
 
 | Serviço      | URL                        | O que é                                                                                                                  |
 | ------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |

@@ -8,21 +8,26 @@ use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * role and status are not fillable: they only change through admin actions.
  */
 #[Fillable(['name', 'email', 'phone', 'password', 'municipality_id'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'avatar_path'])]
+#[Appends(['avatar_url'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -43,6 +48,23 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => 'datetime',
             'anonymized_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return Attribute<string|null, never>
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            if (! $this->avatar_path) {
+                return null;
+            }
+
+            /** @var FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+
+            return $disk->url($this->avatar_path);
+        });
     }
 
     public function isAdmin(): bool
@@ -82,6 +104,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Adoptions the user requested, where the user is the adopter.
+     *
+     * @return HasMany<Adoption, $this>
+     */
+    public function adoptions(): HasMany
+    {
+        return $this->hasMany(Adoption::class, 'adopter_id');
     }
 
     /**

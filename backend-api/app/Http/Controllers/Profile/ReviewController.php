@@ -16,7 +16,7 @@ class ReviewController extends Controller
     {
         $reviews = $user->reviewsReceived()
             ->with([
-                'reviewer:id,name',
+                'reviewer:id,name,avatar_path',
                 'adoption.post' => fn ($query) => $query->withTrashed(),
                 'adoption.post.animal' => fn ($query) => $query->withTrashed(),
             ])

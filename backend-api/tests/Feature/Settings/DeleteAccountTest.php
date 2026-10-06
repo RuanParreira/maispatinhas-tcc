@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -44,6 +45,17 @@ it('overwrites personal data and logs the user out', function () {
         ->and(User::where('email', $email)->exists())->toBeFalse();
 
     $this->assertGuest('web');
+});
+
+it('deletes the avatar file', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('avatars/foto.webp', 'image');
+    $user = User::factory()->create(['password' => Hash::make('secret-123'), 'avatar_path' => 'avatars/foto.webp']);
+
+    $this->actingAs($user)->deleteJson('/api/user', ['current_password' => 'secret-123'])->assertNoContent();
+
+    Storage::disk('public')->assertMissing('avatars/foto.webp');
+    expect($user->fresh()->avatar_path)->toBeNull();
 });
 
 it('cancels open posts and keeps resolved ones', function () {

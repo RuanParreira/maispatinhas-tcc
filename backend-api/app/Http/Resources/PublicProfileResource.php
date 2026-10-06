@@ -22,6 +22,7 @@ class PublicProfileResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'bio' => $this->bio,
+            'avatar_url' => $this->avatar_url,
             'municipality' => [
                 'name' => $this->municipality->name,
                 'state' => $this->municipality->state,
@@ -29,7 +30,9 @@ class PublicProfileResource extends JsonResource
             'email_verified' => $this->email_verified_at !== null,
             'member_since' => $this->created_at->toIso8601String(),
             'stats' => [
-                'adoptions_completed' => $this->adoptions_completed_count,
+                'adoptions_completed' => $this->adoptions_donated_count + $this->adoptions_adopted_count,
+                'adoptions_donated' => $this->adoptions_donated_count,
+                'adoptions_adopted' => $this->adoptions_adopted_count,
                 'active_posts' => $this->active_posts_count,
                 'reviews_count' => $this->reviews_count,
                 'rating' => $this->rating === null ? null : round((float) $this->rating, 1),

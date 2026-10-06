@@ -23,9 +23,10 @@ export default function CityCombobox({
   error,
   municipalities,
   value,
+  initialLabel = "",
   onChange,
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialLabel);
   const [open, setOpen] = useState(false);
 
   const options = useMemo(

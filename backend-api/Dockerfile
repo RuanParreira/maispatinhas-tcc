@@ -5,7 +5,11 @@ RUN apk add --no-cache \
         unzip \
         libzip-dev \
         oniguruma-dev \
-    && docker-php-ext-install pdo_mysql mbstring bcmath zip \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        libwebp-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip gd exif \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html

@@ -31,18 +31,21 @@ class UserSeeder extends Seeder
             'name' => 'Ruan',
             'email' => 'ruan@gmail.com',
             'municipality_id' => self::UBERABA,
+            'bio' => 'Moro em casa com quintal em Uberaba e já tive cachorro e gato. Gosto de acompanhar os bichos depois da adoção.',
         ]);
 
         User::factory()->create([
             'name' => 'Leandro',
             'email' => 'leandro@gmail.com',
             'municipality_id' => self::UBERLANDIA,
+            'bio' => 'Ajudo a ONG do bairro com lar temporário. Sempre tenho algum filhote ou coelho procurando família.',
         ]);
 
         User::factory()->create([
             'name' => 'Walysson',
             'email' => 'walysson@gmail.com',
             'municipality_id' => self::DELTA,
+            'bio' => 'Resgato gatos em Delta e região. Entrego castrados, vacinados e com orientação sobre a adaptação.',
         ]);
     }
 }

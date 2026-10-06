@@ -17,8 +17,10 @@ class ProfileController extends Controller
     {
         $user->load('municipality:ibge_code,name,state')
             ->loadCount([
-                'donatedAdoptions as adoptions_completed_count' => fn ($query) => $query
+                'donatedAdoptions as adoptions_donated_count' => fn ($query) => $query
                     ->where('adoptions.status', AdoptionStatus::Completed),
+                'adoptions as adoptions_adopted_count' => fn ($query) => $query
+                    ->where('status', AdoptionStatus::Completed),
                 'posts as active_posts_count' => fn ($query) => $query
                     ->where('status', PostStatus::Active),
                 'reviewsReceived as reviews_count',
