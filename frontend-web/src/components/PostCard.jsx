@@ -1,67 +1,109 @@
-import { MapPin, Calendar, PawPrint } from "lucide-react";
+import { ArrowRight, Calendar, MapPin, PawPrint } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
-export default function PostCard({ post, showStatus = false }) {
-    // cores e rotulos
-    const typeBadges = {
+export default function PostCard({ post }) {
+  // Configuração dos Badges de Tipo
+  const typeConfig = {
     adoption: { label: "Adoção", variant: "success" },
     lost: { label: "Perdido", variant: "destructive" },
     found: { label: "Encontrado", variant: "info" },
   };
 
-  // Rótulos para o status de moderação
-  const statusLabels = {
-    draft: "Rascunho",
-    pending_approval: "Aguardando Aprovação",
-    active: "Ativo / Publicado",
-    rejected: "Rejeitado",
-    paused: "Pausado",
+  // Configuração dos Badges de Status da Moderação
+    const statusConfig = {
+    draft: { label: "Rascunho", variant: "muted" },
+    pending_approval: { label: "Aguardando Moderação", variant: "warning" },
+    active: { label: "Ativo / Publicado", variant: "success" },
+    rejected: { label: "Rejeitado", variant: "destructive" },
+    paused: { label: "Pausado", variant: "secondary" },
+    // Adicione a linha abaixo:
+    resolved: { label: "Resolvido", variant: "muted" },
   };
 
-  const badge = typeBadges[post.type] || { label: post.type, variant: "muted" };
+    const speciesConfig = {
+    dog: "Cachorro",
+    cat: "Gato"
+  };
+
+  const type = typeConfig[post.type] || { label: post.type, variant: "muted" };
+  const status = statusConfig[post.status] || { label: post.status, variant: "muted" };
+
+  // Imagem enviada pelo backend (ou pega a primeira foto dos arquivos)
+  const imageUrl = post.image_url || post.files?.[0]?.url;
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md">
-      <div>
-        {/* Cabeçalho do Card: Tipo do anúncio e Status (se aplicável) */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <Badge variant={badge.variant}>{badge.label}</Badge>
-          {showStatus && (
-            <Badge variant="warning">
-              {statusLabels[post.status] || post.status}
-            </Badge>
-          )}
-        </div>
-        {/* Título e Descrição */}
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{post.title}</h3>
-        <p className="mt-1 text-sm text-gray-600 line-clamp-2">{post.description}</p>
-        {/* Informações do Animal */}
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-500">
-          <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-            <PawPrint className="size-3.5 text-gray-400" />
-            {post.animal?.name || "Sem nome"} ({post.animal?.breed})
-          </span>
-          <span className="bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-            Porte {post.animal?.size}
-          </span>
-          <span className="bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-            {post.animal?.sex === "male" ? "Macho" : "Fêmea"}
-          </span>
-        </div>
-      </div>
-      {/* Rodapé: Cidade e Data */}
-      <div className="mt-5 border-t border-gray-100 pt-3 flex items-center justify-between text-xs text-gray-400">
-        <span className="flex items-center gap-1 text-gray-600 font-medium">
-          <MapPin className="size-3.5 text-amber-500" />
-          {post.municipality?.name} - {post.municipality?.state}
-        </span>
-        {post.occurred_at && (
-          <span className="flex items-center gap-1">
-            <Calendar className="size-3.5" />
-            {new Date(post.occurred_at).toLocaleDateString("pt-BR")}
-          </span>
+    <article className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-xs transition-shadow hover:shadow-md">
+      {/* Imagem de Capa com Badges Flutuantes */}
+      <div className="relative h-70 w-full overflow-hidden bg-secondary/50">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={post.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          // Placeholder elegante com patinha quando não houver foto enviada
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground/30">
+            <PawPrint className="size-16" />
+          </div>
         )}
+
+        {/* Badge do Tipo (Canto Superior Esquerdo) */}
+        <Badge
+          variant={type.variant}
+          className="absolute top-4 left-4 h-6 px-3 shadow-xs"
+        >
+          {type.label}
+        </Badge>
+
+        {/* Badge do Status da Moderação (Canto Superior Direito) */}
+        <Badge
+          variant={status.variant}
+          className="absolute top-4 right-4 h-6 px-3 shadow-xs"
+        >
+          {status.label}
+        </Badge>
       </div>
-    </div>
+
+      {/* Conteúdo do Card */}
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-xl leading-7 font-bold text-foreground line-clamp-1">
+            {post.title}
+          </h3>
+          <span className="text-xs font-medium tracking-wide text-warning shrink-0">
+            {speciesConfig[post.animal?.species] || post.animal?.species || "Pet"}
+          </span>
+        </div>
+
+        <p className="mt-2 flex items-center gap-1 text-[0.8125rem] leading-5 text-muted-foreground">
+          <MapPin className="size-3.5" />
+          {post.municipality?.name} - {post.municipality?.state}
+        </p>
+
+        <p className="mt-4 text-[0.8125rem] leading-5 text-muted-foreground line-clamp-2">
+          {post.description}
+        </p>
+
+        {/* Rodapé com detalhes e link */}
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Calendar className="size-3.5" />
+              {new Date(post.created_at).toLocaleDateString("pt-BR")}
+            </span>
+
+            <Link
+              to={`/posts/${post.id}`}
+              className="group inline-flex items-center gap-1 text-sm font-semibold text-warning hover:underline"
+            >
+              Ver detalhes
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }

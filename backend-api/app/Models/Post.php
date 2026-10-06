@@ -128,4 +128,10 @@ class Post extends Model
     {
         return $this->belongsToMany(User::class, 'favorites');
     }
+
+    protected $appends = ['image_url'];
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->files->first()?->url;
+    }
 }
