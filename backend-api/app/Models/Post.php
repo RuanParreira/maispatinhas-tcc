@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -84,6 +85,16 @@ class Post extends Model
     public function files(): HasMany
     {
         return $this->hasMany(PostFile::class)->orderBy('position');
+    }
+
+    /**
+     * First photo of the post, used as the card cover.
+     *
+     * @return HasOne<PostFile, $this>
+     */
+    public function cover(): HasOne
+    {
+        return $this->hasOne(PostFile::class)->ofMany('position', 'min');
     }
 
     /**

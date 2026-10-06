@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Enums\PostStatus;
 use App\Http\Requests\Post\StorePostRequest;
+use App\Http\Resources\PostCardResource;
 use App\Models\Post;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PostController extends Controller
 {
     /**
-     * Listar anuncios publicos (apenas aprovados/ativos)
+     * Listar anuncios publicos (apenas aprovados/ativos), com filtro opcional por anunciante.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return Post::with(['animal', 'municipality', 'user:id,name'])
+        $posts = Post::with(['animal', 'municipality:ibge_code,name,state', 'user:id,name', 'cover'])
             ->where('status', PostStatus::Active)
+            ->when($request->integer('user'), fn ($query, $userId) => $query->where('user_id', $userId))
             ->latest('published_at')
             ->paginate(15);
+
+        return PostCardResource::collection($posts);
     }
 
     /**
