@@ -47,7 +47,7 @@ expect()->extend('toBeOne', function () {
 */
 
 /**
- * Inserts a row in the database session table, as if the user were logged in on another device.
+ * Insere uma linha na tabela de sessões, como se o usuário estivesse logado em outro dispositivo.
  */
 function createSession(User $user, string $id): void
 {

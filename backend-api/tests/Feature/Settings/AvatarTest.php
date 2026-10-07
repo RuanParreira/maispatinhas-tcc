@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-// Stateful requests (with a session) only start when they come from the SPA.
+// Requisições com sessão (stateful) só começam quando vêm do SPA.
 beforeEach(function () {
     $this->withHeader('Referer', config('app.frontend_url'));
     Storage::fake('public');

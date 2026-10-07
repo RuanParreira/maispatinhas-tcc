@@ -8,7 +8,7 @@ use Illuminate\Validation\Rules\Password;
 class RegisterRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Define se o usuário pode fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -16,7 +16,7 @@ class RegisterRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação da requisição.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

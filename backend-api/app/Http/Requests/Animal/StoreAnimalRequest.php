@@ -2,17 +2,17 @@
 
 namespace App\Http\Requests\Animal;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreAnimalRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Define se o usuário pode fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -20,7 +20,7 @@ class StoreAnimalRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação da requisição.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

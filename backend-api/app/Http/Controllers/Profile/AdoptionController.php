@@ -12,9 +12,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class AdoptionController extends Controller
 {
     /**
-     * Completed adoptions on both sides: pets the user donated and pets the
-     * user adopted. The post and animal may have been deleted since, so
-     * trashed ones are loaded too.
+     * Adoções concluídas dos dois lados: pets que o usuário doou e pets que
+     * ele adotou. O post e o animal podem ter sido excluídos depois, por isso
+     * os excluídos (soft delete) também são carregados.
      */
     public function index(User $user): AnonymousResourceCollection
     {

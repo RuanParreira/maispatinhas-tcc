@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 
 /**
- * Local development accounts. Every password is "password".
+ * Contas de desenvolvimento local. Todas as senhas são "password".
  */
 class UserSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     public const DELTA = 3121258;
 
     /**
-     * Run the database seeds.
+     * Popula o banco de dados.
      */
     public function run(): void
     {

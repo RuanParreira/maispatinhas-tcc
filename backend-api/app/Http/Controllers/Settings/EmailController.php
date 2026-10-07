@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 class EmailController extends Controller
 {
     /**
-     * The new address must be verified again before it is trusted.
+     * O novo endereço precisa ser verificado de novo antes de ser considerado confiável.
      */
     public function update(UpdateEmailRequest $request): JsonResponse
     {

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Read-only reference data, loaded by MunicipalitySeeder.
+ * Dados de referência somente leitura, carregados pelo MunicipalitySeeder.
  */
 #[Table(key: 'ibge_code', keyType: 'int', incrementing: false, timestamps: false)]
 class Municipality extends Model
@@ -18,7 +18,7 @@ class Municipality extends Model
     use HasFactory;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */

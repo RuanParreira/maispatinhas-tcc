@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Account deletion. The row is kept because posts, adoptions, reviews and
- * moderations reference it with RESTRICT, and a hard delete would cascade
- * into the other party's conversations. Personal data is overwritten instead,
- * which the LGPD accepts as elimination.
+ * Exclusão de conta. A linha é mantida porque posts, adoções, avaliações e
+ * moderações a referenciam com RESTRICT, e um delete físico apagaria em cascata
+ * as conversas da outra parte. Os dados pessoais são sobrescritos, o que a
+ * LGPD aceita como eliminação.
  */
 class AnonymizeUser
 {
@@ -36,10 +36,10 @@ class AnonymizeUser
         $avatarPath = $user->avatar_path;
 
         DB::transaction(function () use ($user) {
-            // Trashed posts count too: an adoption in progress may still point to one.
+            // Posts excluídos também contam: uma adoção em andamento pode apontar para um deles.
             $postIds = $user->posts()->withTrashed()->pluck('id');
 
-            // Requests on the user's posts are refused; accepted ones are canceled.
+            // Solicitações nos posts do usuário são recusadas; as aceitas são canceladas.
             Adoption::whereIn('post_id', $postIds)
                 ->where('status', AdoptionStatus::Requested)
                 ->update(['status' => AdoptionStatus::Refused]);
@@ -48,18 +48,18 @@ class AnonymizeUser
                 ->where('status', AdoptionStatus::InProgress)
                 ->update(['status' => AdoptionStatus::Canceled]);
 
-            // The user's own requests, accepted or not, are withdrawn.
+            // As solicitações do próprio usuário, aceitas ou não, são retiradas.
             Adoption::where('adopter_id', $user->id)
                 ->whereIn('status', [AdoptionStatus::Requested, AdoptionStatus::InProgress])
                 ->update(['status' => AdoptionStatus::Canceled]);
 
-            // Resolved and closed posts stay as history.
+            // Posts resolvidos e encerrados ficam como histórico.
             Post::withTrashed()
                 ->whereIn('id', $postIds)
                 ->whereIn('status', self::OPEN_POST_STATUSES)
                 ->update(['status' => PostStatus::Canceled]);
 
-            // Messages stay: they are also the other party's history.
+            // As mensagens ficam: também são histórico da outra parte.
             Conversation::where(fn ($query) => $query
                 ->where('advertiser_id', $user->id)
                 ->orWhere('interested_id', $user->id))
@@ -70,7 +70,7 @@ class AnonymizeUser
 
             DB::table('sessions')->where('user_id', $user->id)->delete();
 
-            // The .invalid TLD is reserved and never receives mail; the id keeps it unique.
+            // O TLD .invalid é reservado e nunca recebe e-mail; o id mantém o endereço único.
             $user->name = 'Usuário removido';
             $user->email = "removido-{$user->id}@anonimizado.invalid";
             $user->phone = null;
@@ -84,7 +84,7 @@ class AnonymizeUser
             $user->save();
         });
 
-        // Only after the commit: a rollback must not leave the user without the file.
+        // Só depois do commit: um rollback não pode deixar o usuário sem o arquivo.
         if ($avatarPath) {
             Storage::disk('public')->delete($avatarPath);
         }

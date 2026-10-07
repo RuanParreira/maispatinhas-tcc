@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-// Stateful requests (with a session) only start when they come from the SPA.
+// Requisições com sessão (stateful) só começam quando vêm do SPA.
 beforeEach(fn () => $this->withHeader('Referer', config('app.frontend_url')));
 
 it('updates the profile data', function () {

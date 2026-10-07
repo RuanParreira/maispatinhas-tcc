@@ -6,15 +6,15 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Loads all Brazilian municipalities (IBGE code, name, state and centre coordinates).
+ * Carrega todos os municípios brasileiros (código IBGE, nome, UF e coordenadas do centro).
  *
- * Source: https://github.com/kelvins/municipios-brasileiros (MIT), converted to
- * database/data/municipalities.csv with the state as a two-letter code.
+ * Fonte: https://github.com/kelvins/municipios-brasileiros (MIT), convertida para
+ * database/data/municipalities.csv com a UF como sigla de duas letras.
  */
 class MunicipalitySeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Popula o banco de dados.
      */
     public function run(): void
     {

@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
 class SessionController extends Controller
 {
     /**
-     * Session ids are never exposed: they work as authentication tokens.
-     * The key is a one-way hash, stable enough for the front to use as a list key.
+     * Os ids de sessão nunca são expostos: funcionam como tokens de autenticação.
+     * A chave é um hash de mão única, estável o bastante para o front usar como key da lista.
      */
     public function index(Request $request): JsonResponse
     {

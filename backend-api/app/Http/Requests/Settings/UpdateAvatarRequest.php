@@ -10,7 +10,7 @@ use Illuminate\Validation\Rules\File;
 class UpdateAvatarRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Define se o usuário pode fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -18,8 +18,8 @@ class UpdateAvatarRequest extends FormRequest
     }
 
     /**
-     * SVG is left out because it can carry scripts, and the dimension limit
-     * keeps a small file from expanding into a huge bitmap when decoded.
+     * SVG fica de fora porque pode carregar scripts, e o limite de dimensões
+     * impede que um arquivo pequeno vire um bitmap enorme ao ser decodificado.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * status and completed_at are not fillable: they follow the adoption flow.
- * locked_post_id is a generated column, never written by the application.
- * donor and animal are not stored here: read them through the post relation
- * ($adoption->post->user, $adoption->post->animal), which posts.fillable keeps immutable.
+ * status e completed_at não são fillable: seguem o fluxo da adoção.
+ * locked_post_id é uma coluna gerada, nunca escrita pela aplicação.
+ * doador e animal não ficam aqui: são lidos pela relação com o post
+ * ($adoption->post->user, $adoption->post->animal), que o fillable de posts mantém imutáveis.
  */
 #[Fillable(['post_id', 'adopter_id'])]
 #[Hidden(['locked_post_id'])]
@@ -25,7 +25,7 @@ class Adoption extends Model
     use HasFactory;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */

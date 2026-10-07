@@ -4,12 +4,11 @@ namespace App\Policies;
 
 use App\Models\Animal;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class AnimalPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Define se o usuário pode listar os animais.
      */
     public function viewAny(User $user): bool
     {
@@ -17,7 +16,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Define se o usuário pode ver o animal.
      */
     public function view(User $user, Animal $animal): bool
     {
@@ -25,7 +24,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Define se o usuário pode cadastrar animais.
      */
     public function create(User $user): bool
     {
@@ -33,7 +32,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Define se o usuário pode atualizar o animal.
      */
     public function update(User $user, Animal $animal): bool
     {
@@ -41,7 +40,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Define se o usuário pode excluir o animal.
      */
     public function delete(User $user, Animal $animal): bool
     {
@@ -49,7 +48,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Define se o usuário pode restaurar o animal.
      */
     public function restore(User $user, Animal $animal): bool
     {
@@ -57,7 +56,7 @@ class AnimalPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Define se o usuário pode excluir o animal permanentemente.
      */
     public function forceDelete(User $user, Animal $animal): bool
     {

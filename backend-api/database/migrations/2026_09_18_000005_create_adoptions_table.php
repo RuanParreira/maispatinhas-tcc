@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      *
-     * locked_post_id enforces at most one in_progress/completed adoption per post:
-     * it holds post_id only in those states and NULL otherwise, and UNIQUE ignores NULLs.
+     * locked_post_id garante no máximo uma adoção in_progress/completed por post:
+     * guarda o post_id só nesses estados e NULL nos demais, e o UNIQUE ignora NULLs.
      *
-     * donor and animal are not stored here: posts.user_id and posts.animal_id are locked
-     * against mass assignment, so they are read through the post relation instead of
-     * duplicating them into a column that could drift out of sync.
+     * doador e animal não ficam aqui: posts.user_id e posts.animal_id são protegidos contra
+     * mass assignment, então são lidos pela relação com o post em vez de duplicados numa
+     * coluna que poderia ficar dessincronizada.
      */
     public function up(): void
     {
@@ -34,7 +34,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Desfaz a migration.
      */
     public function down(): void
     {

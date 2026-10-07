@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      *
-     * Append-only audit log: rows are never updated, so there is no updated_at.
+     * Log de auditoria só de inserção: as linhas nunca são atualizadas, por isso não há updated_at.
      */
     public function up(): void
     {
@@ -24,7 +24,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Desfaz a migration.
      */
     public function down(): void
     {

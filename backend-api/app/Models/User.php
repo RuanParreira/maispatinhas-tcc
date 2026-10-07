@@ -23,7 +23,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * role and status are not fillable: they only change through admin actions.
+ * role e status não são fillable: só mudam por ações de admin.
  */
 #[Fillable(['name', 'email', 'phone', 'password', 'municipality_id'])]
 #[Hidden(['password', 'remember_token', 'avatar_path'])]
@@ -34,7 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */
@@ -107,7 +107,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Adoptions the user requested, where the user is the adopter.
+     * Adoções que o usuário solicitou, em que ele é o adotante.
      *
      * @return HasMany<Adoption, $this>
      */
@@ -117,8 +117,8 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Adoptions of the user's posts, where the user is the donor.
-     * Trashed posts still count: the adoption already happened.
+     * Adoções dos posts do usuário, em que ele é o doador.
+     * Posts excluídos ainda contam: a adoção já aconteceu.
      *
      * @return HasManyThrough<Adoption, Post, $this>
      */
@@ -136,7 +136,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Posts the user marked as favorite, most recent first.
+     * Posts que o usuário marcou como favorito, mais recentes primeiro.
      *
      * @return BelongsToMany<Post, $this>
      */

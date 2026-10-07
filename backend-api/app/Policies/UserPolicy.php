@@ -8,8 +8,8 @@ use Illuminate\Auth\Access\Response;
 class UserPolicy
 {
     /**
-     * Public profile visibility. The viewer is nullable because guests can see
-     * profiles too. Anonymized accounts answer 404 so their existence is not confirmed.
+     * Visibilidade do perfil público. O visitante é opcional porque quem não está logado
+     * também vê perfis. Contas anonimizadas respondem 404 para não confirmar que existem.
      */
     public function view(?User $viewer, User $user): Response
     {

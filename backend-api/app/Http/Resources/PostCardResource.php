@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Summary of a post for listing cards.
+ * Resumo de um post para os cards da listagem.
  *
  * @mixin Post
  */

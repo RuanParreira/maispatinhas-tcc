@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class ReviewController extends Controller
 {
     /**
-     * Reviews the user received, newest first.
+     * Avaliações que o usuário recebeu, mais recentes primeiro.
      */
     public function index(User $user): AnonymousResourceCollection
     {

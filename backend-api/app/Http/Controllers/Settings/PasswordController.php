@@ -10,8 +10,8 @@ use Illuminate\Http\Response;
 class PasswordController extends Controller
 {
     /**
-     * Changes the password and ends every other session of the user,
-     * so a leaked password stops working on other devices right away.
+     * Troca a senha e encerra todas as outras sessões do usuário, para que
+     * uma senha vazada pare de funcionar nos outros dispositivos na hora.
      */
     public function update(UpdatePasswordRequest $request, LogoutOtherDevices $logoutOtherDevices): Response
     {

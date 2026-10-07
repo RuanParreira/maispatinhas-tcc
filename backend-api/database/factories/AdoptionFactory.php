@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class AdoptionFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Estado padrão do model.
      *
      * @return array<string, mixed>
      */
@@ -27,7 +27,7 @@ class AdoptionFactory extends Factory
     }
 
     /**
-     * Indicate that the donor accepted the request.
+     * Indica que o doador aceitou a solicitação.
      */
     public function inProgress(): static
     {
@@ -37,7 +37,7 @@ class AdoptionFactory extends Factory
     }
 
     /**
-     * Indicate that the animal was handed over.
+     * Indica que o animal foi entregue.
      */
     public function completed(): static
     {
@@ -48,7 +48,7 @@ class AdoptionFactory extends Factory
     }
 
     /**
-     * Indicate that the donor refused the request.
+     * Indica que o doador recusou a solicitação.
      */
     public function refused(): static
     {

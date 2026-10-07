@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      *
-     * Read-only reference table, populated by MunicipalitySeeder.
+     * Tabela de referência somente leitura, populada pelo MunicipalitySeeder.
      */
     public function up(): void
     {
@@ -25,7 +25,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Desfaz a migration.
      */
     public function down(): void
     {

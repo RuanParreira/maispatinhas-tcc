@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Ends every session of the user except the current one. Rotating
- * remember_token also keeps "remember me" cookies from logging the
- * other devices back in.
+ * Encerra todas as sessões do usuário, exceto a atual. Trocar o
+ * remember_token também impede que cookies de "lembrar de mim" logem
+ * os outros dispositivos de novo.
  */
 class LogoutOtherDevices
 {

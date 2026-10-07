@@ -11,7 +11,7 @@ use App\Models\User;
 class ProfileController extends Controller
 {
     /**
-     * Public profile of any user. Visibility is checked by UserPolicy on the route.
+     * Perfil público de qualquer usuário. A visibilidade é checada pela UserPolicy na rota.
      */
     public function show(User $user): PublicProfileResource
     {

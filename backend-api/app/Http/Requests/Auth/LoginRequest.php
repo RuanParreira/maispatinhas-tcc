@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Define se o usuário pode fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -20,7 +20,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação da requisição.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

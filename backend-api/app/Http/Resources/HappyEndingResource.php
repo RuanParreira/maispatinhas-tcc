@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * A completed adoption shown on a profile. role tells which side the
- * profile owner was on: donor (gave the pet) or adopter (took it home).
+ * Uma adoção concluída exibida no perfil. role indica de que lado o dono
+ * do perfil estava: donor (doou o pet) ou adopter (levou para casa).
  *
  * @mixin Adoption
  */

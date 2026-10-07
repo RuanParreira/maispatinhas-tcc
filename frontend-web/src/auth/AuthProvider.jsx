@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     setUser(user);
   }
 
-  // The server already ended the session (account deletion).
+  // O servidor já encerrou a sessão (exclusão de conta).
   function clearUser() {
     setUser(null);
     setStatus("guest");

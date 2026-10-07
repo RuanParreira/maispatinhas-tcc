@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Append-only audit log of moderation decisions.
+ * Log de auditoria das decisões de moderação, só recebe inserções.
  */
 #[Fillable(['post_id', 'moderator_id', 'action', 'reason'])]
 class Moderation extends Model
@@ -21,7 +21,7 @@ class Moderation extends Model
     const UPDATED_AT = null;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */

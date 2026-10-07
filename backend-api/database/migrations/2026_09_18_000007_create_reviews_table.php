@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      *
-     * CHECK constraints are MySQL only: SQLite (test suite) cannot add them to an existing table.
+     * CHECK constraints só no MySQL: o SQLite (suíte de testes) não consegue adicioná-las a uma tabela existente.
      */
     public function up(): void
     {
@@ -34,7 +34,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Desfaz a migration.
      */
     public function down(): void
     {

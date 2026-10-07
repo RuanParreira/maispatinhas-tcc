@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class AnimalFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Estado padrão do model.
      *
      * @return array<string, mixed>
      */

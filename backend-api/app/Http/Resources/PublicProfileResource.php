@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * What anyone can see about a user. Contact data (email, phone) is never public.
+ * O que qualquer pessoa pode ver de um usuário. Dados de contato (e-mail, telefone) nunca são públicos.
  *
  * @mixin User
  */

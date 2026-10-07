@@ -33,7 +33,7 @@ class Animal extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ModerationFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Estado padrão do model.
      *
      * @return array<string, mixed>
      */
@@ -29,7 +29,7 @@ class ModerationFactory extends Factory
     }
 
     /**
-     * Indicate that the moderator rejected the post.
+     * Indica que o moderador rejeitou o post.
      */
     public function rejection(): static
     {

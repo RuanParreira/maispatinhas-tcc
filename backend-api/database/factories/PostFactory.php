@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class PostFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Estado padrão do model.
      *
      * @return array<string, mixed>
      */
@@ -33,7 +33,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post is about a lost animal.
+     * Indica que o post é sobre um animal perdido.
      */
     public function lost(): static
     {
@@ -44,7 +44,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post is about a found animal.
+     * Indica que o post é sobre um animal encontrado.
      */
     public function found(): static
     {
@@ -55,7 +55,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post is waiting for moderation.
+     * Indica que o post está aguardando moderação.
      */
     public function pendingApproval(): static
     {
@@ -65,7 +65,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post was approved and is visible in the catalogue.
+     * Indica que o post foi aprovado e está visível no catálogo.
      */
     public function active(): static
     {
@@ -78,7 +78,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post was rejected by a moderator.
+     * Indica que o post foi rejeitado por um moderador.
      */
     public function rejected(): static
     {
@@ -88,7 +88,7 @@ class PostFactory extends Factory
     }
 
     /**
-     * Indicate that the post was approved and has since been resolved.
+     * Indica que o post foi aprovado e depois resolvido.
      */
     public function resolved(): static
     {

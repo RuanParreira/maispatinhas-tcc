@@ -16,11 +16,11 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 
 /**
- * Sample animals, posts, adoptions and chats for local development.
+ * Animais, posts, adoções e conversas de exemplo para desenvolvimento local.
  *
- * Posts are spread over real municipalities at known distances from Uberaba, to exercise
- * the proximity search: Uberaba (0 km), Delta (30 km), Igarapava/SP (38 km),
- * Uberlândia (99 km) and Belo Horizonte (420 km, outside a 100 km radius).
+ * Os posts ficam espalhados por municípios reais a distâncias conhecidas de Uberaba, para
+ * testar a busca por proximidade: Uberaba (0 km), Delta (30 km), Igarapava/SP (38 km),
+ * Uberlândia (99 km) e Belo Horizonte (420 km, fora de um raio de 100 km).
  */
 class DemoSeeder extends Seeder
 {
@@ -31,7 +31,7 @@ class DemoSeeder extends Seeder
     private User $admin;
 
     /**
-     * Run the database seeds.
+     * Popula o banco de dados.
      */
     public function run(): void
     {
@@ -123,7 +123,7 @@ class DemoSeeder extends Seeder
             'comment' => 'Ruan foi muito atencioso e manda notícias da Luna.',
         ]);
 
-        // Each account has donated one pet, so every profile has a happy ending.
+        // Cada conta doou um pet, então todo perfil tem um final feliz.
         $bentoAdoption = Adoption::factory()->completed()->for($bentoPost)->create(['adopter_id' => $walysson->id]);
         Review::factory()->for($bentoAdoption)->create([
             'rating' => 4,
