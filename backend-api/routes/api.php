@@ -26,6 +26,7 @@ Route::get('/posts/{post}', [PostController::class, 'show']);
 // Perfil público (contas anonimizadas respondem 404 via UserPolicy)
 Route::middleware(['throttle:60,1', 'can:view,user'])->group(function () {
     Route::get('/users/{user}', [Profile\ProfileController::class, 'show']);
+    Route::get('/users/{user}/posts', [Profile\PostController::class, 'index']);
     Route::get('/users/{user}/adoptions', [Profile\AdoptionController::class, 'index']);
     Route::get('/users/{user}/reviews', [Profile\ReviewController::class, 'index']);
 });

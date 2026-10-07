@@ -1,4 +1,5 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { matchPath, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "@/auth/useAuth";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import {
@@ -6,6 +7,11 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+
+const OWN_PROFILE = {
+  title: "Meu perfil",
+  description: "É assim que as outras pessoas veem você na plataforma.",
+};
 
 const PAGES = {
   "/adoptions": {
@@ -33,9 +39,9 @@ const PAGES = {
     title: "Mensagens",
     description: "Suas conversas com tutores, protetores e interessados.",
   },
-  "/profile": {
-    title: "Meu perfil",
-    description: "É assim que as outras pessoas veem você na plataforma.",
+  "/users/:id": {
+    title: "Perfil",
+    description: "Conheça quem anuncia e adota na plataforma.",
   },
   "/settings": {
     title: "Configurações",
@@ -46,7 +52,11 @@ const PAGES = {
 
 export default function AppLayout() {
   const { pathname } = useLocation();
-  const page = PAGES[pathname];
+  const { user } = useAuth();
+  const page =
+    pathname === `/users/${user?.id}`
+      ? OWN_PROFILE
+      : Object.entries(PAGES).find(([path]) => matchPath(path, pathname))?.[1];
 
   return (
     <SidebarProvider>

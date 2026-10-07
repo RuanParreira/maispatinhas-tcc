@@ -9,6 +9,24 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
+it('lists only the published posts of the user, newest first', function () {
+    $user = User::factory()->create();
+    $older = Post::factory()->for($user)->active()->create(['published_at' => now()->subDays(2)]);
+    $newer = Post::factory()->for($user)->active()->create(['published_at' => now()->subDay()]);
+    Post::factory()->for($user)->pendingApproval()->create();
+    Post::factory()->for($user)->rejected()->create();
+    Post::factory()->active()->create();
+
+    $this->getJson("/api/users/{$user->id}/posts")
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.id', $newer->id)
+        ->assertJsonPath('data.0.animal.name', $newer->animal->name)
+        ->assertJsonMissingPath('data.0.status')
+        ->assertJsonPath('data.1.id', $older->id)
+        ->assertJsonStructure(['data', 'links', 'meta']);
+});
+
 it('lists completed adoptions on both sides', function () {
     $user = User::factory()->create();
     $donated = Adoption::factory()->completed()->for(Post::factory()->for($user))->create(['completed_at' => now()->subDays(3)]);
@@ -29,7 +47,8 @@ it('lists completed adoptions on both sides', function () {
         ->assertJsonPath('data.1.pet.name', $trashedPost->animal->name)
         ->assertJsonPath('data.2.id', $donated->id)
         ->assertJsonPath('data.2.role', 'donor')
-        ->assertJsonPath('data.2.adopter.name', $donated->adopter->name);
+        ->assertJsonPath('data.2.adopter.name', $donated->adopter->name)
+        ->assertJsonPath('data.2.adopter.removed', false);
 });
 
 it('lists reviews received with the reviewer and pet', function () {
@@ -79,11 +98,12 @@ it('shows anonymized reviewers as removed users', function () {
 
     $this->getJson("/api/users/{$user->id}/reviews")
         ->assertOk()
-        ->assertJsonPath('data.0.reviewer.name', 'Usuário removido');
+        ->assertJsonPath('data.0.reviewer.name', 'Usuário removido')
+        ->assertJsonPath('data.0.reviewer.removed', true);
 });
 
 it('hides every list of anonymized users', function (string $list) {
     $user = User::factory()->create(['anonymized_at' => now()]);
 
     $this->getJson("/api/users/{$user->id}/{$list}")->assertNotFound();
-})->with(['adoptions', 'reviews']);
+})->with(['posts', 'adoptions', 'reviews']);

@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 /**
  * Resumo de um post para os cards da listagem.
@@ -22,6 +23,7 @@ class PostCardResource extends JsonResource
             'id' => $this->id,
             'type' => $this->type,
             'title' => $this->title,
+            'description' => Str::limit($this->description, 160),
             'published_at' => $this->published_at?->toIso8601String(),
             'cover_url' => $this->cover?->url,
             'user' => $this->whenLoaded('user', fn () => [

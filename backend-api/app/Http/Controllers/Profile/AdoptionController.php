@@ -24,9 +24,9 @@ class AdoptionController extends Controller
                 ->where('adopter_id', $user->id)
                 ->orWhereHas('post', fn ($post) => $post->withTrashed()->where('user_id', $user->id)))
             ->with([
-                'adopter:id,name,avatar_path',
+                'adopter:id,name,avatar_path,anonymized_at',
                 'post' => fn ($query) => $query->withTrashed(),
-                'post.user:id,name,avatar_path',
+                'post.user:id,name,avatar_path,anonymized_at',
                 'post.animal' => fn ($query) => $query->withTrashed(),
                 'post.cover',
             ])

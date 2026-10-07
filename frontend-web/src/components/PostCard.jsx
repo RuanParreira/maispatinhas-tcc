@@ -8,7 +8,10 @@ const fallbackBadge = (label) => ({ label, variant: "muted" });
 
 export default function PostCard({ post }) {
   const type = postTypes[post.type] ?? fallbackBadge(post.type);
-  const status = postStatuses[post.status] ?? fallbackBadge(post.status);
+  // A listagem pública não traz status: lá todo anúncio está publicado.
+  const status = post.status
+    ? (postStatuses[post.status] ?? fallbackBadge(post.status))
+    : null;
   const imageUrl = post.cover_url ?? post.photos?.[0]?.url;
   const isPending = post.status === "pending_approval";
   const meta = [animalSpecies[post.animal?.species], post.animal?.name]
@@ -43,15 +46,17 @@ export default function PostCard({ post }) {
         >
           {type.label}
         </Badge>
-        <Badge
-          variant={status.variant}
-          className="absolute top-4 right-4 h-6 px-3 shadow-xs"
-        >
-          {isPending && (
-            <span className="size-1.5 rounded-full bg-warning motion-safe:animate-pulse" />
-          )}
-          {status.label}
-        </Badge>
+        {status && (
+          <Badge
+            variant={status.variant}
+            className="absolute top-4 right-4 h-6 px-3 shadow-xs"
+          >
+            {isPending && (
+              <span className="size-1.5 rounded-full bg-warning motion-safe:animate-pulse" />
+            )}
+            {status.label}
+          </Badge>
+        )}
         {isPending && (
           <p className="absolute inset-x-4 bottom-4 flex items-center gap-2 rounded-xl bg-background/85 px-3.5 py-2.5 text-xs leading-4 text-warning shadow-xs backdrop-blur-xs">
             <Clock className="size-4 shrink-0" />
@@ -79,7 +84,9 @@ export default function PostCard({ post }) {
           <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
             <Badge variant="muted">
               <Calendar />
-              {new Date(post.created_at).toLocaleDateString("pt-BR")}
+              {new Date(post.published_at ?? post.created_at).toLocaleDateString(
+                "pt-BR",
+              )}
             </Badge>
             <Link
               to={`/posts/${post.id}`}

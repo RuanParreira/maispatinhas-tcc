@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { HeartHandshake, MessageSquareQuote, PawPrint } from "lucide-react";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
-import PetCard from "@/components/PetCard";
+import PostCard from "@/components/PostCard";
 import HappyEndingList from "@/components/profile/HappyEndingList";
 import ReviewList from "@/components/profile/ReviewList";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockPets } from "@/data/mockPets";
-
-// Anúncios ficam com dados de exemplo até a parte de posts ser integrada.
-const examplePets = mockPets.slice(0, 3);
 
 function EmptyState({ icon: Icon, action, children }) {
   return (
@@ -37,9 +33,9 @@ function EmptyState({ icon: Icon, action, children }) {
 function RemoteList({ list, icon, empty, children }) {
   if (!list.loaded && list.loading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
         {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-64 rounded-2xl" />
+          <Skeleton key={item} className="h-96 rounded-2xl" />
         ))}
       </div>
     );
@@ -71,7 +67,8 @@ function RemoteList({ list, icon, empty, children }) {
         <Button
           type="button"
           variant="outline"
-          size="md" className="self-center"
+          size="md"
+          className="self-center"
           disabled={list.loading}
           onClick={list.loadMore}
         >
@@ -85,6 +82,10 @@ function RemoteList({ list, icon, empty, children }) {
 
 export default function ProfileTabs({ profile, isOwner }) {
   const [active, setActive] = useState("pets");
+  const posts = usePaginatedList(
+    `/api/users/${profile.id}/posts`,
+    active === "pets",
+  );
   const happyEndings = usePaginatedList(
     `/api/users/${profile.id}/adoptions`,
     active === "happy",
@@ -99,7 +100,7 @@ export default function ProfileTabs({ profile, isOwner }) {
       key: "pets",
       label: "Animais",
       icon: PawPrint,
-      count: examplePets.length,
+      count: profile.stats.active_posts,
     },
     {
       key: "happy",
@@ -128,11 +129,23 @@ export default function ProfileTabs({ profile, isOwner }) {
       </TabsList>
 
       <TabsContent value="pets" className="mt-3">
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {examplePets.map((pet) => (
-            <PetCard key={pet.id} pet={pet} />
-          ))}
-        </div>
+        <RemoteList
+          list={posts}
+          icon={PawPrint}
+          empty={
+            isOwner
+              ? "Você não tem anúncios publicados."
+              : "Nenhum anúncio publicado no momento."
+          }
+        >
+          {(items) => (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
+              {items.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </RemoteList>
       </TabsContent>
 
       <TabsContent value="happy" className="mt-3">

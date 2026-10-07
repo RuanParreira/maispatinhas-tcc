@@ -52,7 +52,7 @@ export default function App() {
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/my-adoptions" element={<MyAdoptions />} />
           <Route path="/messages" element={<Messages />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/users/:id" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/verify-email" element={<VerifyEmailNotice />} />
         </Route>

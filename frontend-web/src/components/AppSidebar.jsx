@@ -29,7 +29,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-const groups = [
+// O link do perfil depende do usuário logado, por isso os grupos são montados a partir do id.
+const navGroups = (userId) => [
   {
     label: "Principal",
     items: [
@@ -49,7 +50,7 @@ const groups = [
   {
     label: "Conta",
     items: [
-      { title: "Meu perfil", url: "/profile", icon: User },
+      { title: "Meu perfil", url: `/users/${userId}`, icon: User },
       { title: "Configurações", url: "/settings", icon: Settings },
     ],
   },
@@ -85,7 +86,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {groups.map((group) => (
+        {navGroups(user?.id).map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel className="text-[0.6875rem] font-semibold tracking-wider text-sidebar-foreground/60 uppercase group-data-[collapsible=icon]:pointer-events-none">
               {group.label}

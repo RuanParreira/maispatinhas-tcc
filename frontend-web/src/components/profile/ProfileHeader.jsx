@@ -17,9 +17,11 @@ const monthYear = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
-async function copyLink() {
+async function copyLink(profileId) {
   try {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/users/${profileId}`,
+    );
     toast.success("Link do perfil copiado.");
   } catch {
     toast.error("Não foi possível copiar o link.");
@@ -43,22 +45,20 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
           </Avatar>
 
           <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => copyLink(profile.id)}
+            >
+              <Share2 />
+              Compartilhar
+            </Button>
             {isOwner ? (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  onClick={copyLink}
-                >
-                  <Share2 />
-                  Compartilhar
-                </Button>
-                <Button type="button" size="md" onClick={onEdit}>
-                  <PenLine />
-                  Editar perfil
-                </Button>
-              </>
+              <Button type="button" size="md" onClick={onEdit}>
+                <PenLine />
+                Editar perfil
+              </Button>
             ) : (
               <Button type="button" size="md">
                 <MessageCircle />

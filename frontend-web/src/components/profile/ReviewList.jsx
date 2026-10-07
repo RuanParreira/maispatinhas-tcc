@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { initialsOf } from "@/lib/initials";
+import PersonLink from "@/components/profile/PersonLink";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const monthYear = new Intl.DateTimeFormat("pt-BR", {
@@ -46,7 +47,9 @@ export default function ReviewList({ reviews }) {
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="font-medium">{review.reviewer.name}</p>
+              <p className="font-medium">
+                <PersonLink person={review.reviewer} />
+              </p>
               <p className="text-xs text-muted-foreground">
                 {review.pet_name && (
                   <>

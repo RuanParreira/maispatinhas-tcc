@@ -21,11 +21,7 @@ class ReviewResource extends JsonResource
             'rating' => $this->rating,
             'comment' => $this->comment,
             'created_at' => $this->created_at->toIso8601String(),
-            'reviewer' => [
-                'id' => $this->reviewer->id,
-                'name' => $this->reviewer->name,
-                'avatar_url' => $this->reviewer->avatar_url,
-            ],
+            'reviewer' => new UserSummaryResource($this->reviewer),
             'reviewer_role' => $this->reviewer_id === $this->adoption->adopter_id ? 'adopter' : 'donor',
             'pet_name' => $this->adoption->post->animal->name,
         ];

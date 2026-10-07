@@ -23,16 +23,8 @@ class HappyEndingResource extends JsonResource
             'id' => $this->id,
             'completed_at' => $this->completed_at?->toIso8601String(),
             'role' => $this->adopter_id === $request->route('user')->id ? 'adopter' : 'donor',
-            'donor' => [
-                'id' => $this->post->user->id,
-                'name' => $this->post->user->name,
-                'avatar_url' => $this->post->user->avatar_url,
-            ],
-            'adopter' => [
-                'id' => $this->adopter->id,
-                'name' => $this->adopter->name,
-                'avatar_url' => $this->adopter->avatar_url,
-            ],
+            'donor' => new UserSummaryResource($this->post->user),
+            'adopter' => new UserSummaryResource($this->adopter),
             'pet' => [
                 'name' => $this->post->animal->name,
                 'species' => $this->post->animal->species,
