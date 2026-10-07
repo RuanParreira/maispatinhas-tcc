@@ -163,7 +163,7 @@ export default function SessionsCard() {
               type="button"
               variant="outline"
               disabled={!hasOthers}
-              className="h-10 px-4"
+              size="md"
             >
               Sair dos outros dispositivos
             </Button>
@@ -189,7 +189,7 @@ export default function SessionsCard() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="h-10 px-4"
+                  size="md"
                 >
                   {submitting && <Spinner />}
                   Desconectar

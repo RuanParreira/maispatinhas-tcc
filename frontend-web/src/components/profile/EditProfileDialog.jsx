@@ -133,7 +133,7 @@ function EditProfileForm({ user, profile, onSaved, onAvatarChange, onCancel }) {
         <Button
           type="button"
           variant="ghost"
-          className="h-10 px-4"
+          size="md"
           onClick={onCancel}
         >
           Cancelar
@@ -141,7 +141,7 @@ function EditProfileForm({ user, profile, onSaved, onAvatarChange, onCancel }) {
         <Button
           type="submit"
           disabled={submitting || !name.trim() || !municipalityId}
-          className="h-10 px-4"
+          size="md"
         >
           {submitting && <Spinner />}
           Salvar alterações

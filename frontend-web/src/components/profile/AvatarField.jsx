@@ -98,7 +98,7 @@ export default function AvatarField({ name, avatarUrl, onChange }) {
           <Button
             type="button"
             variant="outline"
-            className="h-9 px-3"
+            size="lg"
             disabled={busy}
             onClick={() => inputRef.current.click()}
           >
@@ -109,7 +109,7 @@ export default function AvatarField({ name, avatarUrl, onChange }) {
             <Button
               type="button"
               variant="ghost"
-              className="h-9 px-3"
+              size="lg"
               disabled={busy}
               onClick={handleRemove}
             >

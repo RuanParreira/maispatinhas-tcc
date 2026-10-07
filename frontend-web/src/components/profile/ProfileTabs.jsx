@@ -5,6 +5,13 @@ import PetCard from "@/components/PetCard";
 import HappyEndingList from "@/components/profile/HappyEndingList";
 import ReviewList from "@/components/profile/ReviewList";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,13 +22,15 @@ const examplePets = mockPets.slice(0, 3);
 
 function EmptyState({ icon: Icon, action, children }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-      <span className="flex size-12 items-center justify-center rounded-xl bg-secondary text-warning">
-        <Icon className="size-5" />
-      </span>
-      <p className="max-w-sm text-sm text-muted-foreground">{children}</p>
-      {action}
-    </div>
+    <Empty variant="outline">
+      <EmptyHeader>
+        <EmptyMedia variant="brand">
+          <Icon />
+        </EmptyMedia>
+        <EmptyDescription>{children}</EmptyDescription>
+      </EmptyHeader>
+      {action && <EmptyContent>{action}</EmptyContent>}
+    </Empty>
   );
 }
 
@@ -62,7 +71,7 @@ function RemoteList({ list, icon, empty, children }) {
         <Button
           type="button"
           variant="outline"
-          className="h-10 self-center px-5"
+          size="md" className="self-center"
           disabled={list.loading}
           onClick={list.loadMore}
         >

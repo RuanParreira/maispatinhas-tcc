@@ -5,6 +5,14 @@ import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
 import { Button } from "@/components/ui/button";
 import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
@@ -77,9 +85,6 @@ const initialFilters = {
   size: "all",
   sex: "all",
 };
-
-const selectTriggerClass =
-  "h-11 gap-2 rounded-xl border-transparent bg-secondary/50 px-4 text-sm data-[size=default]:h-11";
 
 const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
 
@@ -182,7 +187,8 @@ export default function Adoptions() {
             >
               <SelectTrigger
                 aria-label={filter.label}
-                className={selectTriggerClass}
+                size="lg"
+                variant="filled"
               >
                 <span className="text-muted-foreground">{filter.label}:</span>
                 <SelectValue />
@@ -229,22 +235,26 @@ export default function Adoptions() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-3 rounded-2xl bg-card px-6 py-16 text-center shadow-xs">
-          <span className="flex size-12 items-center justify-center rounded-full bg-secondary text-warning">
-            <PawPrint className="size-5" />
-          </span>
-          <h3 className="text-2xl">Nenhum pet encontrado</h3>
-          <p className="max-w-sm text-muted-foreground">
-            Tente ajustar os filtros ou buscar por outro nome ou cidade.
-          </p>
-          <Button
-            variant="secondary"
-            className="mt-2 h-10 px-4"
-            onClick={() => setValues(initialFilters)}
-          >
-            Limpar filtros
-          </Button>
-        </div>
+        <Empty variant="card">
+          <EmptyHeader>
+            <EmptyMedia variant="brand">
+              <PawPrint />
+            </EmptyMedia>
+            <EmptyTitle>Nenhum pet encontrado</EmptyTitle>
+            <EmptyDescription>
+              Tente ajustar os filtros ou buscar por outro nome ou cidade.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setValues(initialFilters)}
+            >
+              Limpar filtros
+            </Button>
+          </EmptyContent>
+        </Empty>
       )}
 
       {pets.length > 0 && (

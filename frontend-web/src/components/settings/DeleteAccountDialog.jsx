@@ -61,7 +61,7 @@ export default function DeleteAccountDialog() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="destructive" className="h-10 px-4">
+        <Button type="button" variant="destructive" size="md">
           Excluir conta
         </Button>
       </DialogTrigger>
@@ -96,7 +96,7 @@ export default function DeleteAccountDialog() {
             <Button
               type="button"
               variant="ghost"
-              className="h-10 px-4"
+              size="md"
               onClick={() => handleOpenChange(false)}
             >
               Voltar
@@ -105,7 +105,7 @@ export default function DeleteAccountDialog() {
               type="submit"
               variant="destructive"
               disabled={submitting || !password}
-              className="h-10 px-4"
+              size="md"
             >
               {submitting && <Spinner />}
               Excluir definitivamente

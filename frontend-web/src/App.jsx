@@ -10,6 +10,8 @@ import Adoptions from "./pages/Adoptions.jsx";
 import Lost from "./pages/Lost.jsx";
 import Found from "./pages/Found.jsx";
 import MyPosts from "./pages/MyPosts.jsx";
+import CreatePost from "./pages/CreatePost.jsx";
+import PostDetails from "./pages/PostDetails.jsx";
 import MyAdoptions from "./pages/MyAdoptions.jsx";
 import Messages from "./pages/Messages.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -46,6 +48,8 @@ export default function App() {
           <Route path="/lost" element={<Lost />} />
           <Route path="/found" element={<Found />} />
           <Route path="/my-posts" element={<MyPosts />} />
+          <Route path="/posts/create" element={<CreatePost />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/my-adoptions" element={<MyAdoptions />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/profile" element={<Profile />} />

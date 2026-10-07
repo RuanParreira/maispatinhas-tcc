@@ -76,7 +76,7 @@ export default function PasswordForm() {
         </div>
       </SettingsBody>
       <SettingsFooter hint="Outros dispositivos serão desconectados.">
-        <Button type="submit" disabled={submitting} className="h-10 px-4">
+        <Button type="submit" disabled={submitting} size="md">
           {submitting && <Spinner />}
           {submitting ? "Salvando" : "Alterar senha"}
         </Button>

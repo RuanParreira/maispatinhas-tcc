@@ -48,19 +48,19 @@ export default function ProfileHeader({ profile, isOwner, onEdit }) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-10 px-4"
+                  size="md"
                   onClick={copyLink}
                 >
                   <Share2 />
                   Compartilhar
                 </Button>
-                <Button type="button" className="h-10 px-4" onClick={onEdit}>
+                <Button type="button" size="md" onClick={onEdit}>
                   <PenLine />
                   Editar perfil
                 </Button>
               </>
             ) : (
-              <Button type="button" className="h-10 px-4">
+              <Button type="button" size="md">
                 <MessageCircle />
                 Enviar mensagem
               </Button>

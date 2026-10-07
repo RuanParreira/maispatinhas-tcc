@@ -81,7 +81,7 @@ export default function EmailForm() {
         </div>
       </SettingsBody>
       <SettingsFooter hint="Enviaremos um link de confirmação ao novo endereço.">
-        <Button type="submit" disabled={submitting} className="h-10 px-4">
+        <Button type="submit" disabled={submitting} size="md">
           {submitting && <Spinner />}
           {submitting ? "Salvando" : "Alterar e-mail"}
         </Button>

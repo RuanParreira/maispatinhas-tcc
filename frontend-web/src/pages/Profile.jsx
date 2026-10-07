@@ -8,6 +8,13 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileStats from "@/components/profile/ProfileStats";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function ProfileSkeleton() {
@@ -60,15 +67,19 @@ export default function Profile() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border px-6 py-16 text-center">
-        <UserX className="size-8 text-muted-foreground" />
-        <p className="text-muted-foreground">
-          Não foi possível carregar o perfil.
-        </p>
-        <Button type="button" variant="outline" onClick={loadProfile}>
-          Tentar de novo
-        </Button>
-      </div>
+      <Empty variant="outline">
+        <EmptyHeader>
+          <EmptyMedia variant="brand">
+            <UserX />
+          </EmptyMedia>
+          <EmptyDescription>Não foi possível carregar o perfil.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button type="button" variant="outline" onClick={loadProfile}>
+            Tentar de novo
+          </Button>
+        </EmptyContent>
+      </Empty>
     );
   }
 
