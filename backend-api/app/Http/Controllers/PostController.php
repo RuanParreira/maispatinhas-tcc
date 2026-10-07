@@ -24,13 +24,12 @@ class PostController extends Controller
     private const PHOTO_MAX_SIZE = 1600;
 
     /**
-     * Listar anúncios públicos (apenas ativos), com filtro opcional por anunciante.
+     * Listar anúncios públicos (apenas ativos).
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         $posts = Post::active()
             ->with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
-            ->when($request->integer('user'), fn ($query, $userId) => $query->where('user_id', $userId))
             ->latest('published_at')
             ->paginate(15);
 
