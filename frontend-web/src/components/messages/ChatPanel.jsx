@@ -117,7 +117,7 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
           </Button>
         </div>
 
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           {groups.map((group, index) => {
             const mine = group.from === "me";
             const isLast = index === groups.length - 1;
