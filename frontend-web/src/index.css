@@ -164,6 +164,9 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* Barra de rolagem fina, no tom do tema, com trilho transparente */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
     }
   body {
     @apply bg-background text-foreground text-body;

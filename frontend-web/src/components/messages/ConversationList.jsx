@@ -113,7 +113,7 @@ export default function ConversationList({
       </div>
 
       {visible.length > 0 ? (
-        <ul className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
+        <ul className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
           {visible.map((conversation) => {
             const last = conversation.messages.at(-1);
             const kindInfo = conversationKinds[conversation.kind];

@@ -89,7 +89,7 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
 
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-6 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin] sm:px-6"
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6"
       >
         <div className="mx-auto flex max-w-sm flex-col items-center pb-8 text-center">
           <Avatar className="size-20">
