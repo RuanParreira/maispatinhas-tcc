@@ -16,6 +16,9 @@ class StorePostRequest extends FormRequest
     }
 
     /**
+     * O animal precisa ser do próprio usuário: o de outro dono responde igual a um inexistente.
+     * occurred_at é obrigatório apenas para animais perdidos ou encontrados.
+     *
      * As fotos seguem as regras do avatar: SVG fica de fora porque pode carregar scripts,
      * o tamanho mínimo mantém as fotos legíveis e o máximo impede que um arquivo pequeno
      * vire um bitmap enorme ao ser decodificado.
@@ -25,7 +28,6 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Só animais do próprio usuário: o de outro dono responde igual a um inexistente.
             'animal_id' => [
                 'required',
                 'integer',
@@ -37,8 +39,6 @@ class StorePostRequest extends FormRequest
             'title' => ['required', 'string', 'max:120'],
             'description' => ['required', 'string'],
             'municipality_id' => ['required', 'integer', 'exists:municipalities,ibge_code'],
-
-            // occurred_at é obrigatório apenas para animais perdidos ou encontrados
             'occurred_at' => [
                 'required_if:type,lost,found',
                 'nullable',

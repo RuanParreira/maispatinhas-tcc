@@ -38,6 +38,7 @@ class AnimalController extends Controller
     public function show(Animal $animal)
     {
         Gate::authorize('view', $animal);
+
         return response()->json($animal);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Profile;
 
 use App\Enums\AdoptionStatus;
-use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PublicProfileResource;
 use App\Models\User;
@@ -21,8 +20,7 @@ class ProfileController extends Controller
                     ->where('adoptions.status', AdoptionStatus::Completed),
                 'adoptions as adoptions_adopted_count' => fn ($query) => $query
                     ->where('status', AdoptionStatus::Completed),
-                'posts as active_posts_count' => fn ($query) => $query
-                    ->where('status', PostStatus::Active),
+                'posts as active_posts_count' => fn ($query) => $query->active(),
                 'reviewsReceived as reviews_count',
             ])
             ->loadAvg('reviewsReceived as rating', 'rating');
