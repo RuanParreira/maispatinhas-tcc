@@ -3,38 +3,36 @@
 namespace App\Http\Requests\Post;
 
 use App\Enums\PostType;
-use App\Models\Animal;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class StorePostRequest extends FormRequest
 {
-
-    // usando a police do animal
-
     public function authorize(): bool
     {
-        $animalId = $this->input('animal_id');
-
-        // animal id é obrigatório
-        if (!$animalId) {
-            return true;
-        }
-
-        $animal = Animal::find($animalId);
-
-        // erro 422 (animal não existe)
-        if (!$animal) {
-            return true;
-        }
-
-        return $this->user()->can('update', $animal);
+        return true;
     }
 
+    /**
+     * As fotos seguem as regras do avatar: SVG fica de fora porque pode carregar scripts,
+     * o tamanho mínimo mantém as fotos legíveis e o máximo impede que um arquivo pequeno
+     * vire um bitmap enorme ao ser decodificado.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
-            'animal_id' => ['required', 'integer', 'exists:animals,id'],
+            // Só animais do próprio usuário: o de outro dono responde igual a um inexistente.
+            'animal_id' => [
+                'required',
+                'integer',
+                Rule::exists('animals', 'id')
+                    ->where('user_id', $this->user()->id)
+                    ->withoutTrashed(),
+            ],
             'type' => ['required', Rule::enum(PostType::class)],
             'title' => ['required', 'string', 'max:120'],
             'description' => ['required', 'string'],
@@ -48,9 +46,23 @@ class StorePostRequest extends FormRequest
                 'before_or_equal:today',
             ],
 
-            // Validação das imagens (até 5 fotos de até 5MB)
             'images' => ['nullable', 'array', 'max:5'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'images.*' => [
+                File::image()
+                    ->types(['jpg', 'jpeg', 'png', 'webp'])
+                    ->max(5 * 1024)
+                    ->dimensions(Rule::dimensions()->minWidth(300)->minHeight(300)->maxWidth(6000)->maxHeight(6000)),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'animal_id.exists' => 'Selecione um dos seus animais.',
         ];
     }
 }

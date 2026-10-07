@@ -6,6 +6,8 @@ use App\Enums\PostStatus;
 use App\Enums\PostType;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,9 +17,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * status, published_at and approved_* are not fillable: they only change through the moderation flow.
- * user_id and animal_id are not fillable either: they are set once at creation and adoptions
- * relies on them never changing (see the adoptions migration).
+ * status, published_at e approved_* não são fillable: só mudam pelo fluxo de moderação.
+ * user_id e animal_id também não: são definidos uma vez na criação e as adoções
+ * dependem de que nunca mudem (veja a migration de adoptions).
+ *
+ * @method static Builder<static> active()
  */
 #[Fillable([
     'type',
@@ -32,7 +36,7 @@ class Post extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Get the attributes that should be cast.
+     * Atributos convertidos automaticamente (casts).
      *
      * @return array<string, string>
      */
@@ -45,6 +49,17 @@ class Post extends Model
             'published_at' => 'datetime',
             'approved_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Apenas posts visíveis ao público (aprovados e em andamento).
+     *
+     * @param  Builder<Post>  $query
+     */
+    #[Scope]
+    protected function active(Builder $query): void
+    {
+        $query->where('status', PostStatus::Active);
     }
 
     /**
@@ -88,7 +103,7 @@ class Post extends Model
     }
 
     /**
-     * First photo of the post, used as the card cover.
+     * Primeira foto do post, usada como capa do card.
      *
      * @return HasOne<PostFile, $this>
      */
@@ -127,11 +142,5 @@ class Post extends Model
     public function favoritedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favorites');
-    }
-
-    protected $appends = ['image_url'];
-    public function getImageUrlAttribute(): ?string
-    {
-        return $this->files->first()?->url;
     }
 }

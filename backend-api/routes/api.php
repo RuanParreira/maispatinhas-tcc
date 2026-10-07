@@ -76,6 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/animals/{animal}', [AnimalController::class, 'show']);
 
     // Rotas de Posts
-    Route::post('/posts', [PostController::class, 'store']);
+    Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:posts');
     Route::get('/my-posts', [PostController::class, 'myPosts']);
 });

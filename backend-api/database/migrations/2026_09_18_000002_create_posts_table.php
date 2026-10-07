@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      *
-     * occurred_at only applies to lost/found posts.
-     * published_at is set on approval and reset when an expired post is renewed.
-     * user_id and animal_id are locked after creation: adoptions snapshots depend on them
-     * never changing, so they are intentionally left out of the model's fillable list.
+     * occurred_at só se aplica a posts de perdido/encontrado.
+     * published_at é definido na aprovação e reiniciado quando um post expirado é renovado.
+     * user_id e animal_id ficam travados após a criação: as adoções dependem de que
+     * nunca mudem, por isso ficam de fora do fillable do model de propósito.
      */
     public function up(): void
     {
@@ -44,11 +44,12 @@ return new class extends Migration
 
             $table->foreign('municipality_id')->references('ibge_code')->on('municipalities')->restrictOnDelete();
             $table->index(['status', 'municipality_id', 'published_at']);
+            $table->index(['status', 'published_at']);
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Desfaz a migration.
      */
     public function down(): void
     {

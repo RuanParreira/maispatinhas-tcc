@@ -43,3 +43,12 @@ it('never exposes the advertiser contact data', function () {
         ->assertJsonMissingPath('data.0.user.email')
         ->assertJsonMissingPath('data.0.user.phone');
 });
+
+it('never exposes moderation data', function () {
+    Post::factory()->active()->create();
+
+    $this->getJson('/api/posts')
+        ->assertOk()
+        ->assertJsonMissingPath('data.0.approved_by')
+        ->assertJsonMissingPath('data.0.status');
+});

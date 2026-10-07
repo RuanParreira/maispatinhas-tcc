@@ -29,8 +29,8 @@ export default function PostCard({ post }) {
   const type = typeConfig[post.type] || { label: post.type, variant: "muted" };
   const status = statusConfig[post.status] || { label: post.status, variant: "muted" };
 
-  // Imagem enviada pelo backend (ou pega a primeira foto dos arquivos)
-  const imageUrl = post.image_url || post.files?.[0]?.url;
+  // Capa do anúncio (ou a primeira foto, quando vierem todas)
+  const imageUrl = post.cover_url ?? post.photos?.[0]?.url;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-xs transition-shadow hover:shadow-md">

@@ -27,7 +27,7 @@ export default function MyPosts() {
   useEffect(() => {
     api.get("/api/my-posts")
       .then((res) => {
-        setPosts(res.data || []);
+        setPosts(res.data.data);
       })
       .catch(() => toast.error("Erro ao carregar seus anúncios."))
       .finally(() => setLoading(false));

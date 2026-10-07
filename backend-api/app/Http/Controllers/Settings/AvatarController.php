@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\EncodeImageAsWebp;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\UpdateAvatarRequest;
 use Illuminate\Http\JsonResponse;
@@ -9,31 +10,27 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Encoders\WebpEncoder;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Interfaces\ImageInterface;
 
 class AvatarController extends Controller
 {
     private const SIZE = 512;
 
     /**
-     * The upload is re-encoded instead of stored as sent: this drops the
-     * Exif data (phone photos carry the GPS position of where they were
-     * taken), anything hidden after the pixels, and the extra weight.
-     * The old file is only deleted after the new path is saved, so a
-     * failure midway never leaves the user without a photo.
+     * O arquivo antigo só é apagado depois que o novo caminho é salvo, então
+     * uma falha no meio nunca deixa o usuário sem foto.
      */
-    public function update(UpdateAvatarRequest $request): JsonResponse
+    public function update(UpdateAvatarRequest $request, EncodeImageAsWebp $encodeImageAsWebp): JsonResponse
     {
         $user = $request->user();
 
-        $image = Image::decode($request->file('avatar'))
-            ->removeAnimation()
-            ->cover(self::SIZE, self::SIZE)
-            ->encode(new WebpEncoder(quality: 80, strip: true));
+        $image = $encodeImageAsWebp->handle(
+            $request->file('avatar'),
+            fn (ImageInterface $image) => $image->cover(self::SIZE, self::SIZE),
+        );
 
         $path = 'avatars/'.Str::uuid().'.webp';
-        Storage::disk('public')->put($path, (string) $image);
+        Storage::disk('public')->put($path, $image);
 
         $oldPath = $user->avatar_path;
 

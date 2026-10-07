@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class PostFileFactory extends Factory
 {
     /**
-     * Define the model's default state.
+     * Estado padrão do model.
      *
      * @return array<string, mixed>
      */
@@ -20,7 +20,6 @@ class PostFileFactory extends Factory
     {
         return [
             'post_id' => Post::factory(),
-            'original_name' => fake()->word().'.jpg',
             'path' => 'posts/'.fake()->uuid().'.jpg',
             'disk' => 'public',
             'hash' => hash('sha256', fake()->uuid()),
