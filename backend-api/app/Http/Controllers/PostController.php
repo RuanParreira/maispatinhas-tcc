@@ -26,10 +26,11 @@ class PostController extends Controller
     /**
      * Listar anúncios públicos (apenas ativos).
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $posts = Post::active()
-            ->with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
+            ->when($request->query('type'), fn ($query, $type) => $query->where('type', $type))
+            ->with(['animal', 'municipality:ibge_code,name,state', 'cover'])
             ->latest('published_at')
             ->paginate(15);
 

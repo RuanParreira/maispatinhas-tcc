@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, PawPrint, Search } from "lucide-react";
 import { normalize } from "@/lib/text";
+import api from "@/api/axios";
 import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { mockPets } from "@/data/mockPets";
 
 const speciesOptions = [
   { value: "all", label: "Todos" },
@@ -91,6 +91,25 @@ const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
 export default function Adoptions() {
   const [values, setValues] = useState(initialFilters);
   const [sort, setSort] = useState("recent");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+    setLoading(true);
+    setError(false);
+
+    api
+      .get("/api/posts", { params: { type: "adoption" } })
+      .then(({ data }) => !ignore && setPosts(data.data))
+      .catch(() => !ignore && setError(true))
+      .finally(() => !ignore && setLoading(false));
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const isOtherSpecies = otherSpeciesOptions.some(
     (option) => option.value === values.species,
@@ -102,19 +121,26 @@ export default function Adoptions() {
 
   const pets = useMemo(() => {
     const term = normalize(values.search);
-    const filtered = mockPets.filter(
-      (pet) =>
-        (values.species === "all" || pet.species === values.species) &&
-        (values.ageGroup === "all" || pet.ageGroup === values.ageGroup) &&
-        (values.size === "all" || pet.size === values.size) &&
-        (values.sex === "all" || pet.sex === values.sex) &&
-        normalize(`${pet.name} ${pet.meta} ${pet.city}`).includes(term),
-    );
-
+    const filtered = posts.filter((post) => {
+      const animal = post.animal;
+      if (!animal) return false;
+      const matchesSpecies =
+        values.species === "all" || animal.species === values.species;
+      const matchesSize = values.size === "all" || animal.size === values.size;
+      const matchesSex = values.sex === "all" || animal.sex === values.sex;
+      // Busca por nome do animal, raça ou cidade
+      const searchTarget = normalize(
+        `${animal.name} ${animal.breed ?? ""} ${post.municipality?.name ?? ""}`,
+      );
+      const matchesSearch = searchTarget.includes(term);
+      return matchesSpecies && matchesSize && matchesSex && matchesSearch;
+    });
     return sort === "name"
-      ? [...filtered].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+      ? [...filtered].sort((a, b) =>
+          a.animal.name.localeCompare(b.animal.name, "pt-BR"),
+        )
       : filtered;
-  }, [values, sort]);
+  }, [posts, values, sort]);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -193,7 +219,11 @@ export default function Adoptions() {
                 <span className="text-muted-foreground">{filter.label}:</span>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent position="popper" align="start" className="min-w-40">
+              <SelectContent
+                position="popper"
+                align="start"
+                className="min-w-40"
+              >
                 {filter.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -259,7 +289,9 @@ export default function Adoptions() {
 
       {pets.length > 0 && (
         <Pagination className="flex-wrap items-center justify-between gap-4">
-          <p className="text-[0.8125rem] text-muted-foreground">Página 1 de 4</p>
+          <p className="text-[0.8125rem] text-muted-foreground">
+            Página 1 de 4
+          </p>
           <PaginationContent className="gap-2">
             {[1, 2, 3].map((page) => (
               <PaginationItem key={page}>
