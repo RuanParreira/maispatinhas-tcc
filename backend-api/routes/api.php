@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\MyPostsController;
 use App\Http\Controllers\Profile;
 use App\Http\Controllers\Settings\AvatarController;
 use App\Http\Controllers\Settings\EmailController;
@@ -78,5 +79,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rotas de Posts
     Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:posts');
-    Route::get('/my-posts', [PostController::class, 'myPosts']);
+    Route::get('/my-posts', [MyPostsController::class, 'index']);
 });

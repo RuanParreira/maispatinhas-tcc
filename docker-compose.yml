@@ -50,12 +50,13 @@ services:
       SANCTUM_STATEFUL_DOMAINS: localhost:5173
     volumes:
       - ./backend-api:/var/www/html
+      - ./backend-api/storage/app/public:/var/www/html/public/storage
     depends_on:
       db:
         condition: service_healthy
     command: >
       sh -c "composer install &&
-             until php artisan migrate --force --ansi; do echo 'aguardando banco...'; sleep 2; done &&
+             until php artisan migrate --force --seed --ansi; do echo 'aguardando banco...'; sleep 2; done &&
              php artisan storage:link --force &&
              php artisan serve --host=0.0.0.0 --port=8000"
 

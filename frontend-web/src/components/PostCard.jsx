@@ -12,7 +12,7 @@ export default function PostCard({ post }) {
   const status = post.status
     ? (postStatuses[post.status] ?? fallbackBadge(post.status))
     : null;
-  const imageUrl = post.cover_url ?? post.photos?.[0]?.url;
+  const imageUrl = post.cover_url ?? post.cover?.[0]?.url;
   const isPending = post.status === "pending_approval";
   const meta = [animalSpecies[post.animal?.species], post.animal?.name]
     .filter(Boolean)

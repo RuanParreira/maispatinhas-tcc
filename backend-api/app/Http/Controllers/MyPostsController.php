@@ -19,22 +19,22 @@ use Illuminate\Support\Str;
 use Intervention\Image\Interfaces\ImageInterface;
 use Throwable;
 
-class PostController extends Controller
+class MyPostsController extends Controller
 {
     private const PHOTO_MAX_SIZE = 1600;
 
     /**
-     * Listar anúncios públicos (apenas ativos).
+     * Listar os anúncios do próprio usuário autenticado.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $posts = Post::active()
-            ->when($request->query('type'), fn($query, $type) => $query->where('type', $type))
+        $posts = $request->user()
+            ->posts()
             ->with(['animal', 'municipality:ibge_code,name,state', 'cover'])
-            ->latest('published_at')
-            ->paginate(15);
+            ->latest()
+            ->get();
 
-        return PostCardResource::collection($posts);
+        return PostResource::collection($posts);
     }
 
     /**
@@ -84,18 +84,6 @@ class PostController extends Controller
         $post->load(['animal', 'municipality', 'files']);
 
         return (new PostResource($post))->response()->setStatusCode(201);
-    }
-
-    /**
-     * Detalhes de um anúncio específico.
-     */
-    public function show(Post $post): PostResource
-    {
-        Gate::authorize('view', $post);
-
-        $post->load(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'files']);
-
-        return new PostResource($post);
     }
 
     /**
