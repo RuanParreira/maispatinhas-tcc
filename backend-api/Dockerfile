@@ -1,16 +1,18 @@
 FROM php:8.4-cli-alpine
 
+# Copia o executável do Composer da imagem oficial
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 RUN apk add --no-cache \
-        git \
-        unzip \
-        libzip-dev \
-        oniguruma-dev \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        libwebp-dev \
+    git \
+    unzip \
+    libzip-dev \
+    oniguruma-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install pdo_mysql mbstring bcmath zip gd exif \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip gd exif
 
 WORKDIR /var/www/html
 
