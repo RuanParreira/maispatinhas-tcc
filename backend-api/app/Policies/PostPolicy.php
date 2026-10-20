@@ -23,4 +23,18 @@ class PostPolicy
             ? Response::allow()
             : Response::denyAsNotFound();
     }
+
+    public function update(User $user, Post $post): Response
+    {
+        return $user->id === $post->user_id || $user->isAdmin()
+            ? Response::allow()
+            : Response::deny('Você não tem permissão para editar este anúncio.');
+    }
+
+    public function delete(User $user, Post $post): Response
+    {
+        return $user->id === $post->user_id || $user->isAdmin()
+            ? Response::allow()
+            : Response::deny('Você não tem permissão para excluir este anúncio.');
+    }
 }

@@ -76,8 +76,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/animals', [AnimalController::class, 'index']);
     Route::post('/animals', [AnimalController::class, 'store']);
     Route::get('/animals/{animal}', [AnimalController::class, 'show']);
+    Route::patch('/animals/{animal}', [AnimalController::class, 'update']);
+    Route::delete('/animals/{animal}', [AnimalController::class, 'destroy']);
 
     // Rotas de Posts
-    Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:posts');
-    Route::get('/my-posts', [MyPostsController::class, 'index']);
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/{post}', [PostController::class, 'show']);
+
+    // my posts
+    Route::prefix('my-posts')->controller(MyPostsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store')->middleware('throttle:posts');
+        Route::patch('/{post}', 'update')->middleware('throttle:posts');
+        Route::delete('/{post}', 'destroy');
+    });
 });

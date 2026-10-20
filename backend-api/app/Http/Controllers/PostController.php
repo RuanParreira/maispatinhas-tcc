@@ -41,49 +41,9 @@ class PostController extends Controller
      * Cadastrar um novo post. Post e fotos são salvos juntos: se algo falhar,
      * a transação desfaz o banco e as fotos já gravadas são apagadas do disco.
      */
-    public function store(StorePostRequest $request, EncodeImageAsWebp $encodeImageAsWebp): JsonResponse
+    public function store()
     {
-        $storedPaths = [];
-
-        try {
-            $post = DB::transaction(function () use ($request, $encodeImageAsWebp, &$storedPaths) {
-                $post = new Post($request->safe()->except(['animal_id', 'images']));
-                $post->user_id = $request->user()->id;
-                $post->animal_id = $request->validated('animal_id');
-                $post->status = PostStatus::PendingApproval;
-                $post->save();
-
-                foreach ($request->file('images', []) as $position => $upload) {
-                    $image = $encodeImageAsWebp->handle(
-                        $upload,
-                        fn(ImageInterface $image) => $image->scaleDown(self::PHOTO_MAX_SIZE, self::PHOTO_MAX_SIZE),
-                    );
-
-                    $path = "posts/{$post->id}/" . Str::uuid() . '.webp';
-                    Storage::disk('public')->put($path, $image);
-                    $storedPaths[] = $path;
-
-                    $file = new PostFile;
-                    $file->path = $path;
-                    $file->disk = 'public';
-                    $file->hash = hash('sha256', $image);
-                    $file->size = strlen($image);
-                    $file->mime_type = 'image/webp';
-                    $file->position = $position;
-                    $post->files()->save($file);
-                }
-
-                return $post;
-            });
-        } catch (Throwable $exception) {
-            Storage::disk('public')->delete($storedPaths);
-
-            throw $exception;
-        }
-
-        $post->load(['animal', 'municipality', 'files']);
-
-        return (new PostResource($post))->response()->setStatusCode(201);
+        //
     }
 
     /**
