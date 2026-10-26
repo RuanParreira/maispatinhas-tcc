@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Post;
 
 use App\Enums\PostType;
+use App\Http\Requests\Animal\StoreAnimalRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -16,8 +17,10 @@ class StorePostRequest extends FormRequest
     }
 
     /**
-     * O animal precisa ser do próprio usuário: o de outro dono responde igual a um inexistente.
-     * occurred_at é obrigatório apenas para animais perdidos ou encontrados.
+     * O animal chega junto com o post (campos animal.*) e os dois são criados na mesma
+     * transação: todo post tem um animal e todo animal pertence a um post.
+     * As regras do animal são as mesmas do StoreAnimalRequest, só com o prefixo "animal.".
+     * occurred_at é obrigatório para animais perdidos ou encontrados e proibido em adoção.
      *
      * As fotos seguem as regras do avatar: SVG fica de fora porque pode carregar scripts,
      * o tamanho mínimo mantém as fotos legíveis e o máximo impede que um arquivo pequeno
@@ -27,20 +30,21 @@ class StorePostRequest extends FormRequest
      */
     public function rules(): array
     {
+        $animalRules = collect((new StoreAnimalRequest)->rules())
+            ->mapWithKeys(fn($rules, $field) => ["animal.$field" => $rules])
+            ->all();
+
         return [
-            'animal_id' => [
-                'required',
-                'integer',
-                Rule::exists('animals', 'id')
-                    ->where('user_id', $this->user()->id)
-                    ->withoutTrashed(),
-            ],
+            'animal' => ['required', 'array'],
+            ...$animalRules,
+
             'type' => ['required', Rule::enum(PostType::class)],
             'title' => ['required', 'string', 'max:120'],
             'description' => ['required', 'string'],
             'municipality_id' => ['required', 'integer', 'exists:municipalities,ibge_code'],
             'occurred_at' => [
                 'required_if:type,lost,found',
+                'prohibited_if:type,adoption',
                 'nullable',
                 'date',
                 'before_or_equal:today',
@@ -53,16 +57,6 @@ class StorePostRequest extends FormRequest
                     ->max(5 * 1024)
                     ->dimensions(Rule::dimensions()->minWidth(300)->minHeight(300)->maxWidth(6000)->maxHeight(6000)),
             ],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'animal_id.exists' => 'Selecione um dos seus animais.',
         ];
     }
 }

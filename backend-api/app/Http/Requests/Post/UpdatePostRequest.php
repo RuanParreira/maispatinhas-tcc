@@ -9,13 +9,20 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Validator;
+use App\Http\Requests\Animal\StoreAnimalRequest;
+use Illuminate\Support\Facades\Gate;
 
 class UpdatePostRequest extends FormRequest
 {
+    /**
+     * Só o dono (ou admin) edita. Checado aqui, e não no controller, para quem não é
+     * dono receber 403 antes da validação (que revelaria os ids das fotos do post).
+     */
     public function authorize(): bool
     {
-        return true;
+        return Gate::authorize('update', $this->route('post'))->allowed();
     }
+
 
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
@@ -25,7 +32,17 @@ class UpdatePostRequest extends FormRequest
         /** @var Post $post */
         $post = $this->route('post');
 
+        // Mesmas regras do cadastro do animal, mas todos os campos são opcionais na edição.
+        $animalRules = collect((new StoreAnimalRequest)->rules())
+            ->mapWithKeys(fn($rules, $field) => ["animal.$field" => ['sometimes', ...$rules]])
+            ->all();
+
         return [
+            'animal' => ['sometimes', 'array'],
+            ...$animalRules,
+
+            // animal_id não entra: não deve mudar após a criação.
+
             // animal_id não entra: não deve mudar após a criação.
             'type' => ['sometimes', Rule::enum(PostType::class)],
             'title' => ['sometimes', 'string', 'max:120'],
