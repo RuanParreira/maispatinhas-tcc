@@ -75,9 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de Animais (criação, edição e exclusão acontecem via /my-posts, junto com o post)
     Route::get('/animals', [AnimalController::class, 'index']);
     Route::get('/animals/{animal}', [AnimalController::class, 'show']);
-    Route::post('/animals', [AnimalController::class, 'store']);
-    Route::patch('/animals/{animal}', [AnimalController::class, 'update']);
-    Route::delete('/animals/{animal}', [AnimalController::class, 'destroy']);
+
 
     // Rotas de Posts
     Route::get('/posts', [PostController::class, 'index']);

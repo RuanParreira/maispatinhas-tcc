@@ -1,0 +1,487 @@
+{
+  "info": {
+    "_postman_id": "7318ad2a-eb5e-4f6a-aa70-c57487acdd19",
+    "name": "Mais Patinhas API",
+    "description": "Fluxo: rode Login uma vez e depois qualquer requisição.\n\nOs scripts da collection cuidam de tudo:\n- adicionam Accept, Referer e X-XSRF-TOKEN em toda requisição;\n- buscam o token CSRF sozinhos quando ainda não existe;\n- guardam o token novo que o Laravel devolve em cada resposta;\n- 'Cadastrar' salva o id do post criado em {{post_id}} (e da primeira foto em {{photo_id}}), usado por Editar/Deletar/Buscar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "frontend_url",
+      "value": "http://localhost:5173"
+    },
+    {
+      "key": "xsrf_token",
+      "value": ""
+    },
+    {
+      "key": "post_id",
+      "value": ""
+    },
+    {
+      "key": "photo_id",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Headers que o Sanctum exige em toda requisição (o Referer faz ele usar a sessão/cookie).",
+          "const baseUrl = pm.collectionVariables.get('base_url');",
+          "const frontendUrl = pm.collectionVariables.get('frontend_url');",
+          "",
+          "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });",
+          "pm.request.headers.upsert({ key: 'Referer', value: frontendUrl });",
+          "",
+          "const token = pm.collectionVariables.get('xsrf_token');",
+          "",
+          "if (token) {",
+          "    pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: token });",
+          "} else if (pm.request.method !== 'GET') {",
+          "    // Ainda não tem token: busca o cookie CSRF antes de enviar a requisição.",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/sanctum/csrf-cookie',",
+          "        method: 'GET',",
+          "        header: { Accept: 'application/json', Referer: frontendUrl }",
+          "    }, (err, res) => {",
+          "        if (err) {",
+          "            console.error('Falha ao buscar o token CSRF', err);",
+          "            return;",
+          "        }",
+          "        const match = res.headers.all()",
+          "            .filter(h => h.key.toLowerCase() === 'set-cookie')",
+          "            .map(h => h.value.match(/XSRF-TOKEN=([^;]+)/))",
+          "            .find(Boolean);",
+          "        if (match) {",
+          "            const fresh = decodeURIComponent(match[1]);",
+          "            pm.collectionVariables.set('xsrf_token', fresh);",
+          "            pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: fresh });",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// O Laravel devolve um XSRF-TOKEN em toda resposta: guarda sempre o mais recente.",
+          "const match = pm.response.headers.all()",
+          "    .filter(h => h.key.toLowerCase() === 'set-cookie')",
+          "    .map(h => h.value.match(/XSRF-TOKEN=([^;]+)/))",
+          "    .find(Boolean);",
+          "",
+          "if (match) {",
+          "    pm.collectionVariables.set('xsrf_token', decodeURIComponent(match[1]));",
+          "}",
+          "",
+          "// 419 = token velho (sessão expirou). Apaga para o próximo envio buscar outro.",
+          "if (pm.response.code === 419) {",
+          "    pm.collectionVariables.unset('xsrf_token');",
+          "    console.warn('Token CSRF expirado: envie de novo (e refaça o Login se der 401).');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"walysson@gmail.com\",\n    \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Login como Ruan (testar 403)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"ruan@gmail.com\",\n    \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/login",
+            "description": "Loga como outro usuário. Depois rode Editar/Deletar: o post do {{post_id}} é do walysson, então deve dar 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Usuário logado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/user"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/logout"
+          },
+          "response": []
+        },
+        {
+          "name": "Token CSRF (manual)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/sanctum/csrf-cookie",
+            "description": "Não precisa rodar: a collection busca o token sozinha. Fica aqui só para casos de emergência."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Meus anúncios",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Usa o anúncio mais recente como {{post_id}} para Editar/Deletar.",
+                  "if (pm.response.code === 200) {",
+                  "    const posts = pm.response.json().data;",
+                  "    if (posts.length) {",
+                  "        pm.collectionVariables.set('post_id', posts[0].id);",
+                  "        console.log('post_id =', posts[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts"
+          },
+          "response": []
+        },
+        {
+          "name": "Cadastrar (sem fotos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const post = pm.response.json().data;",
+                  "    pm.collectionVariables.set('post_id', post.id);",
+                  "    console.log('post_id =', post.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"adoption\",\n  \"title\": \"Bolinha procura um lar amoroso\",\n  \"description\": \"Cãozinho muito carinhoso, vacinado e pronto para adoção responsável.\",\n  \"municipality_id\": 3170107,\n  \"animal\": {\n    \"name\": \"Bolinha\",\n    \"species\": \"dog\",\n    \"breed\": \"Poodle\",\n    \"sex\": \"male\",\n    \"size\": \"small\",\n    \"color\": \"Branco\",\n    \"distinctive_features\": \"Mancha preta no olho esquerdo\",\n    \"approximate_birth_date\": \"2023-01-01\",\n    \"vaccinated\": true,\n    \"dewormed\": true,\n    \"neutered\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/my-posts"
+          },
+          "response": []
+        },
+        {
+          "name": "Cadastrar (com fotos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const post = pm.response.json().data;",
+                  "    pm.collectionVariables.set('post_id', post.id);",
+                  "    if (post.photos && post.photos.length) {",
+                  "        pm.collectionVariables.set('photo_id', post.photos[0].id);",
+                  "    }",
+                  "    console.log('post_id =', post.id, '| photo_id =', pm.collectionVariables.get('photo_id'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "lost",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Gato perdido no centro",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Sumiu ontem a noite tadin",
+                  "type": "text"
+                },
+                {
+                  "key": "municipality_id",
+                  "value": "3170107",
+                  "type": "text"
+                },
+                {
+                  "key": "occurred_at",
+                  "value": "2026-10-20",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[name]",
+                  "value": "Mingau",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[species]",
+                  "value": "cat",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[breed]",
+                  "value": "SRD",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[sex]",
+                  "value": "female",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[size]",
+                  "value": "small",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[color]",
+                  "value": "Cinza",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[distinctive_features]",
+                  "value": "Coleira azul",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[approximate_birth_date]",
+                  "value": "2022-05-01",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[vaccinated]",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[dewormed]",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "animal[neutered]",
+                  "value": "0",
+                  "type": "text"
+                },
+                {
+                  "key": "images[]",
+                  "type": "file",
+                  "src": [],
+                  "description": "Cada foto: mínimo 300x300 e menos de 2 MB (limite atual do PHP do container)."
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/my-posts"
+          },
+          "response": []
+        },
+        {
+          "name": "Editar (sem fotos)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Título editado pelo Postman\",\n  \"animal\": { \"neutered\": false }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/my-posts/{{post_id}}",
+            "description": "Mande só os campos que mudaram. Se o post for 'lost'/'found', não remova o occurred_at; se for 'adoption', não mande occurred_at."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar (com fotos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const photos = pm.response.json().data.photos || [];",
+                  "    pm.collectionVariables.set('photo_id', photos.length ? photos[0].id : '');",
+                  "    console.log('fotos agora:', photos.map(p => p.id));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "_method",
+                  "value": "PATCH",
+                  "type": "text",
+                  "description": "Obrigatório: o PHP não lê arquivos enviados via PATCH, então vai como POST + _method."
+                },
+                {
+                  "key": "title",
+                  "value": "Título editado com fotos",
+                  "type": "text"
+                },
+                {
+                  "key": "images[]",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "delete_photo_ids[]",
+                  "value": "{{photo_id}}",
+                  "type": "text",
+                  "disabled": true,
+                  "description": "Marque para apagar a foto {{photo_id}} (preenchido por 'Cadastrar (com fotos)')."
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/my-posts/{{post_id}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts/{{post_id}}",
+            "description": "Deve responder 204. Apaga o post e o animal dele."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Anúncios públicos",
+      "item": [
+        {
+          "name": "Todos os anúncios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts?type=adoption",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "adoption",
+                  "disabled": true,
+                  "description": "adoption, lost ou found"
+                }
+              ]
+            },
+            "description": "Só mostra posts ativos (aprovados). Os que você acabou de criar ficam em pending_approval e não aparecem aqui."
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar anúncio pelo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/posts/{{post_id}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Animais",
+      "item": [
+        {
+          "name": "Meus animais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/animals"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -59,6 +59,28 @@ Exemplo:
 - Clique no botão de `verificar e-mail` e pronto
 
 
+## Testando a API com o Postman
+
+A collection fica em [`postman/MaisPatinhas.postman_collection.json`](postman/MaisPatinhas.postman_collection.json). No Postman: **Import** → arraste o arquivo.
+
+Com a API rodando, basta rodar **Auth → Login** uma vez e depois qualquer outra requisição. Os scripts da collection cuidam do resto:
+
+- Adicionam em toda requisição os headers que o Sanctum exige: `Accept`, `Referer` (sem ele a sessão é ignorada e tudo responde 401) e `X-XSRF-TOKEN`.
+- Buscam o token CSRF sozinhos quando ainda não existe, e guardam o token novo que o Laravel devolve em cada resposta. Não precisa rodar `/sanctum/csrf-cookie` na mão.
+- Os cadastros salvam o id do post criado em `{{post_id}}` (e da primeira foto em `{{photo_id}}`), usados por Editar, Deletar e Buscar pelo ID. **Meus anúncios → Listar** também preenche `{{post_id}}` com o anúncio mais recente.
+
+As variáveis (`base_url`, `post_id`, `photo_id`...) ficam na collection, aba **Variables**. O login usa a conta `walysson@gmail.com` do seeder (senha `password`).
+
+Fluxo sugerido: **Login** → **Cadastrar (com fotos)** → **Listar** → **Editar (sem fotos)** → **Editar (com fotos)** → **Deletar**. Para testar permissão, rode **Login como Ruan** e tente editar/deletar o post do walysson: deve dar 403.
+
+Pontos de atenção:
+
+- **Fotos:** nas requisições "com fotos", selecione os arquivos no campo `images[]` (aba Body). Cada foto precisa ter no mínimo 300×300 e menos de 2 MB (limite do PHP do container).
+- **Editar com fotos** vai como `POST` com o campo `_method=PATCH`: o PHP não lê arquivos enviados via `PATCH`. Sem fotos, `PATCH` com JSON funciona normalmente.
+- Em form-data, booleanos são `1`/`0` (`true`/`false` em texto dá 422).
+- **401:** a sessão caiu, rode o Login de novo. **419:** token CSRF expirado, só reenvie a requisição.
+- Anúncios novos ficam em `pending_approval`, então não aparecem em **Anúncios públicos → Todos os anúncios** até serem aprovados.
+
 ## Comandos comuns dentro do container:
 
 ```bash

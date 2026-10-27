@@ -42,8 +42,6 @@ class UpdatePostRequest extends FormRequest
             ...$animalRules,
 
             // animal_id não entra: não deve mudar após a criação.
-
-            // animal_id não entra: não deve mudar após a criação.
             'type' => ['sometimes', Rule::enum(PostType::class)],
             'title' => ['sometimes', 'string', 'max:120'],
             'description' => ['sometimes', 'string'],

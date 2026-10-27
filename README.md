@@ -42,6 +42,10 @@ docker compose down                    # parar tudo
 docker compose down -v                 # parar e apagar dados do banco
 ```
 
+### Testando a API (Postman)
+
+Tem uma collection do Postman pronta em [`backend-api/postman/`](backend-api/postman/MaisPatinhas.postman_collection.json), com login, CSRF e ids preenchidos automaticamente. Como usar: [`backend-api/README.md`](backend-api/README.md#testando-a-api-com-o-postman).
+
 ### Credenciais do ambiente Docker
 
 As credenciais já estão configuradas no [docker-compose.yml](docker-compose.yml), então normalmente você não precisa editar nada manualmente:
