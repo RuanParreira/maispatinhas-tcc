@@ -61,7 +61,7 @@ export default function Login() {
           icon={Mail}
           type="email"
           autoComplete="email"
-          placeholder="exemplo@email.com"
+          placeholder="voce@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={errors.email?.[0]}
@@ -119,7 +119,7 @@ export default function Login() {
             Cadastre-se gratuitamente
           </Link>
         </p>
-        <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground/80">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
           <ShieldCheck className="size-3.5 shrink-0" />
           Seus dados e sua privacidade estão protegidos.
         </p>

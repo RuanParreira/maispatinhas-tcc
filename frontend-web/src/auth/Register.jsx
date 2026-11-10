@@ -73,7 +73,7 @@ export default function Register() {
           icon={User}
           type="text"
           autoComplete="name"
-          placeholder="ex: Clara Mendes"
+          placeholder="Ex.: Clara Mendes"
           value={name}
           onChange={(e) => setName(e.target.value)}
           error={errors.name?.[0]}
@@ -86,7 +86,7 @@ export default function Register() {
             icon={Mail}
             type="email"
             autoComplete="email"
-            placeholder="seu@email.com"
+            placeholder="voce@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             error={errors.email?.[0]}

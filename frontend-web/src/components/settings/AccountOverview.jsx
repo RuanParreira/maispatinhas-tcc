@@ -28,19 +28,19 @@ export default function AccountOverview() {
         <span
           className={
             verified
-              ? "flex items-center gap-2 rounded-xl bg-success-subtle px-3 py-2 text-sm text-success"
+              ? "flex items-center gap-2 rounded-xl bg-success-subtle px-3 py-2 text-sm text-foreground"
               : "flex items-center gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-sm text-warning"
           }
         >
           {verified ? (
-            <MailCheck className="size-4" />
+            <MailCheck className="size-4 text-success" />
           ) : (
             <MailWarning className="size-4" />
           )}
           {verified ? "E-mail verificado" : "E-mail não verificado"}
         </span>
         {user?.created_at && (
-          <span className="flex items-center gap-2 rounded-xl bg-secondary/60 px-3 py-2 text-sm text-muted-foreground">
+          <span className="flex items-center gap-2 rounded-xl bg-secondary/60 px-3 py-2 text-sm text-foreground">
             <CalendarDays className="size-4" />
             Membro desde {monthYear.format(new Date(user.created_at))}
           </span>

@@ -9,7 +9,7 @@ export default function Hero() {
     <section className="mx-auto w-full max-w-7xl px-6 pt-12 pb-12 lg:px-12 lg:pt-16">
       <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-7 lg:pr-8">
-          <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-label font-semibold text-muted-foreground uppercase shadow-xs">
+          <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-label font-semibold text-foreground uppercase shadow-xs">
             <span className="size-2 rounded-full bg-primary" />
             Rede nacional de adoção consciente
           </span>

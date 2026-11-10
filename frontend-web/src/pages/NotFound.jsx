@@ -59,7 +59,7 @@ export default function NotFound() {
           <p className="flex items-center justify-center gap-2 text-label font-semibold text-warning uppercase">
             <span className="size-2 rounded-full bg-primary" />
             <span className="text-foreground">Mais Patinhas</span>
-            <span className="text-muted-foreground/60">/</span>
+            <span aria-hidden="true" className="text-muted-foreground/60">/</span>
             Página não encontrada
           </p>
 
@@ -168,7 +168,7 @@ export default function NotFound() {
                 <li key={item.to}>
                   <Link
                     to={item.to}
-                    className="group flex h-full flex-col rounded-2xl bg-card p-6 shadow-xs transition-shadow outline-none hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="group flex h-full flex-col rounded-2xl bg-card p-6 shadow-xs transition-shadow outline-none hover:shadow-md focus-visible:ring-1 focus-visible:ring-ring"
                   >
                     <span className="flex size-11 items-center justify-center rounded-xl bg-secondary text-warning">
                       <item.icon className="size-5" />

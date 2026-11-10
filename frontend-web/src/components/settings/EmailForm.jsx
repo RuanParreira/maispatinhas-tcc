@@ -64,7 +64,7 @@ export default function EmailForm() {
             icon={Mail}
             type="email"
             autoComplete="email"
-            placeholder="voce@exemplo.com"
+            placeholder="voce@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             error={errors.email?.[0]}

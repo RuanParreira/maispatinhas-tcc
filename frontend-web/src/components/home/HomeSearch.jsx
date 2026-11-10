@@ -19,7 +19,7 @@ export default function HomeSearch() {
         onSubmit={(e) => e.preventDefault()}
         className="mx-auto flex max-w-232 flex-col gap-3 rounded-2xl bg-card px-5 py-4 shadow-md"
       >
-        <h2 className="text-lg leading-6">Encontre um pet perto de você</h2>
+        <h2 className="text-xl leading-7">Encontre um pet perto de você</h2>
 
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
           <InputGroup className="h-10 lg:min-w-0 lg:flex-1">

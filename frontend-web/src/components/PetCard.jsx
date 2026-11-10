@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Heart, MapPin } from "lucide-react";
+import { ArrowRight, Heart, MapPin, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 export default function PetCard({ pet, to = `/adoptions/${pet.id}` }) {
   const [favorite, setFavorite] = useState(false);
   const animal = pet.animal || {};
-  const image =
-    pet.cover_url ||
-    "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80"; // foto padrão de fallback
   const city = pet.municipality
     ? `${pet.municipality.name} - ${pet.municipality.state}`
     : "";
@@ -19,21 +16,27 @@ export default function PetCard({ pet, to = `/adoptions/${pet.id}` }) {
   const meta = animal.breed || "SRD";
   const tag =
     animal.size === "small"
-      ? "Porte Pequeno"
+      ? "Porte pequeno"
       : animal.size === "medium"
-        ? "Porte Médio"
+        ? "Porte médio"
         : animal.size === "large"
-          ? "Porte Grande"
+          ? "Porte grande"
           : "Porte indefinido";
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-xs transition-shadow hover:shadow-md">
       <div className="relative bg-secondary">
-        <img
-          src={image}
-          alt={`${name} para adoção`}
-          className="h-70 w-full object-cover"
-        />
+        {pet.cover_url ? (
+          <img
+            src={pet.cover_url}
+            alt={`${name} para adoção`}
+            className="h-70 w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-70 w-full items-center justify-center text-muted-foreground/40">
+            <PawPrint className="size-16" />
+          </div>
+        )}
         <Badge
           variant="success"
           className="absolute top-4 left-4 h-6 px-3 shadow-xs"

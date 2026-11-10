@@ -125,7 +125,7 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
             return (
               <Fragment key={group.messages[0].id}>
                 {groups[index - 1]?.day !== group.day && (
-                  <p className="self-center rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <p className="self-center rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
                     {group.day}
                   </p>
                 )}
@@ -178,7 +178,7 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
         >
           <ImagePlus className="size-5" />
         </Button>
-        <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-1 pl-4 transition-shadow focus-within:ring-3 focus-within:ring-ring/50">
+        <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-1 pl-4 transition-shadow focus-within:ring-1 focus-within:ring-ring">
           <input
             type="text"
             aria-label="Mensagem"

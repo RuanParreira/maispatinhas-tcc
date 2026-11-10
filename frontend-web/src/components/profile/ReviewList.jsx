@@ -17,7 +17,7 @@ function Stars({ rating }) {
           key={step}
           className={cn(
             "size-4",
-            step <= rating ? "fill-primary text-primary" : "text-border",
+            step <= rating ? "fill-primary text-warning" : "text-border",
           )}
         />
       ))}

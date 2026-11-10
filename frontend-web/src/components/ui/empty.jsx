@@ -84,7 +84,7 @@ function EmptyTitle({
     <div
       data-slot="empty-title"
       className={cn(
-        "font-heading text-sm font-medium tracking-tight group-data-[variant=card]/empty:text-2xl group-data-[variant=card]/empty:font-normal",
+        "font-heading text-xl tracking-tight group-data-[variant=card]/empty:text-2xl group-data-[variant=card]/empty:font-normal",
         className
       )}
       {...props}
@@ -100,7 +100,7 @@ function EmptyDescription({
     <div
       data-slot="empty-description"
       className={cn(
-        "text-sm/relaxed text-muted-foreground group-data-[variant=card]/empty:text-base [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "text-sm/relaxed text-muted-foreground group-data-[variant=card]/empty:text-base [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-warning",
         className
       )}
       {...props}

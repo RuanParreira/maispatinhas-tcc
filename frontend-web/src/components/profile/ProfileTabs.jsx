@@ -123,7 +123,7 @@ export default function ProfileTabs({ profile, isOwner }) {
           <TabsTrigger key={key} value={key}>
             <Icon />
             {label}
-            <span className="text-xs opacity-70">({count})</span>
+            <span className="text-xs">({count})</span>
           </TabsTrigger>
         ))}
       </TabsList>

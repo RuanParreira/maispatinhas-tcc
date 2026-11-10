@@ -49,7 +49,7 @@ export default function ForgotPassword() {
           icon={Mail}
           type="email"
           autoComplete="email"
-          placeholder="exemplo@email.com"
+          placeholder="voce@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={errors.email?.[0]}

@@ -33,7 +33,7 @@ const columns = [
 ];
 
 const linkClass =
-  "text-background/70 transition-colors outline-none hover:text-background focus-visible:text-background focus-visible:underline";
+  "text-background/80 transition-colors outline-none hover:text-background focus-visible:text-background focus-visible:underline";
 
 export default function HomeFooter() {
   return (
@@ -52,7 +52,7 @@ export default function HomeFooter() {
             <Link
               to="/home"
               onClick={() => window.scrollTo({ top: 0 })}
-              className="inline-flex items-center gap-3 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="inline-flex items-center gap-3 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <span className="flex size-11 items-center justify-center rounded-xl bg-background">
                 <img src={logo} alt="" className="size-8" />
@@ -63,12 +63,12 @@ export default function HomeFooter() {
               Feito para aproximar histórias que{" "}
               <em className="text-primary">precisam se encontrar.</em>
             </p>
-            <p className="mt-4 text-background/70">
+            <p className="mt-4 text-background/80">
               Uma rede de afeto e compromisso com o bem-estar animal, conectando
               famílias a pets que esperam por um lar.
             </p>
 
-            <ul className="mt-6 flex flex-col gap-2.5 text-[0.8125rem] text-background/70">
+            <ul className="mt-6 flex flex-col gap-2.5 text-[0.8125rem] text-background/80">
               <li className="flex items-center gap-2.5">
                 <MapPin className="size-4 text-primary" />
                 Igarapava, SP · Brasil
@@ -114,20 +114,20 @@ export default function HomeFooter() {
             <p className="font-heading text-2xl leading-tight">
               Tem um pet precisando de um lar?
             </p>
-            <p className="mt-1 text-[0.8125rem] text-background/70">
+            <p className="mt-1 text-[0.8125rem] text-background/80">
               Publique um anúncio gratuito e alcance famílias da sua região.
             </p>
           </div>
           <Link
             to="/my-posts"
-            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-primary px-5 text-base font-semibold text-primary-foreground shadow-xs transition-colors outline-none hover:bg-primary/85 focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-primary px-5 text-base font-semibold text-primary-foreground shadow-xs transition-colors outline-none hover:bg-primary/85 focus-visible:ring-1 focus-visible:ring-ring"
           >
             Publicar anúncio
             <ArrowUpRight className="size-4" />
           </Link>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-background/12 pt-6 text-xs text-background/60">
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-background/12 pt-6 text-xs text-background/80">
           <p>© 2026 Mais Patinhas. Todos os direitos reservados.</p>
           <p className="flex items-center gap-1.5">
             Feito com

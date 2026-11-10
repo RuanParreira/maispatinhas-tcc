@@ -37,7 +37,13 @@ export default function ProfileStats({ stats, memberSince }) {
     },
     {
       icon: Star,
-      value: stats.rating === null ? "—" : stats.rating.toFixed(1),
+      value:
+        stats.rating === null
+          ? "—"
+          : stats.rating.toLocaleString("pt-BR", {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }),
       label: plural(stats.reviews_count, "avaliação", "avaliações"),
     },
   ];

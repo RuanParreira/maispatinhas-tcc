@@ -83,7 +83,7 @@ export default function ConversationList({
               <ToggleGroupItem
                 key={option.value}
                 value={option.value}
-                className="rounded-full bg-secondary/60 px-3 text-muted-foreground"
+                className="rounded-full bg-secondary/60 px-3 text-foreground"
               >
                 {option.label}
               </ToggleGroupItem>
@@ -126,7 +126,7 @@ export default function ConversationList({
                   onClick={() => onSelect(conversation.id)}
                   aria-current={conversation.id === activeId}
                   className={cn(
-                    "flex w-full cursor-pointer items-center gap-3 rounded-xl p-2.5 text-left transition-colors outline-none hover:bg-secondary/50 focus-visible:ring-3 focus-visible:ring-ring/50",
+                    "flex w-full cursor-pointer items-center gap-3 rounded-xl p-2.5 text-left transition-colors outline-none hover:bg-secondary/50 focus-visible:ring-1 focus-visible:ring-ring",
                     conversation.id === activeId &&
                       "md:bg-secondary md:hover:bg-secondary",
                   )}

@@ -88,7 +88,7 @@ export function AppSidebar() {
       <SidebarContent>
         {navGroups(user?.id).map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-[0.6875rem] font-semibold tracking-wider text-sidebar-foreground/60 uppercase group-data-[collapsible=icon]:pointer-events-none">
+            <SidebarGroupLabel className="text-[0.6875rem] font-semibold tracking-wider text-sidebar-foreground/70 uppercase group-data-[collapsible=icon]:pointer-events-none">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -126,7 +126,7 @@ export function AppSidebar() {
               {user?.name ?? "Usuário"}
             </span>
             {user?.email && (
-              <span className="truncate text-xs text-sidebar-foreground/60">
+              <span className="truncate text-xs text-sidebar-foreground/70">
                 {user.email}
               </span>
             )}

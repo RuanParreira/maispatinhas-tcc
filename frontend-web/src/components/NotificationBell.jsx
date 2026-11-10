@@ -104,7 +104,7 @@ export default function NotificationBell() {
                 <p className="text-[0.8125rem] leading-5 text-muted-foreground">
                   {item.description}
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground/80">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {item.time}
                 </p>
               </div>
