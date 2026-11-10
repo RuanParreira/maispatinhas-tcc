@@ -30,7 +30,7 @@ class PostController extends Controller
     {
         $posts = Post::active()
             ->when($request->query('type'), fn($query, $type) => $query->where('type', $type))
-            ->with(['animal', 'municipality:ibge_code,name,state', 'cover'])
+            ->with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
             ->latest('published_at')
             ->paginate(15);
 

@@ -19,8 +19,21 @@ beforeEach(function () {
     Storage::fake('public');
 
     $this->user = User::factory()->create();
+    // O animal é criado junto com o post, na mesma requisição.
     $this->payload = [
-        'animal_id' => Animal::factory()->create(['user_id' => $this->user->id])->id,
+        'animal' => [
+            'name' => 'Thor',
+            'species' => 'dog',
+            'breed' => 'SRD',
+            'sex' => 'male',
+            'size' => 'medium',
+            'color' => 'Caramelo',
+            'distinctive_features' => 'Mancha branca no peito.',
+            'approximate_birth_date' => '2024-03-01',
+            'vaccinated' => 1,
+            'dewormed' => 1,
+            'neutered' => 0,
+        ],
         'type' => 'adoption',
         'title' => 'Thor procura um lar',
         'description' => 'Dócil e vacinado.',
@@ -34,7 +47,7 @@ beforeEach(function () {
 
 it('stores the post pending approval with its photos in order', function () {
     $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json'])
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertCreated()
         ->assertJsonPath('data.status', 'pending_approval')
         ->assertJsonCount(2, 'data.photos')
@@ -42,7 +55,9 @@ it('stores the post pending approval with its photos in order', function () {
 
     $post = Post::sole();
     expect($post->status)->toBe(PostStatus::PendingApproval)
-        ->and($post->files->pluck('position')->all())->toBe([0, 1]);
+        ->and($post->files->pluck('position')->all())->toBe([0, 1])
+        ->and($post->animal->user_id)->toBe($this->user->id)
+        ->and($post->animal->name)->toBe('Thor');
 
     $post->files->each(fn (PostFile $file) => Storage::disk('public')->assertExists($file->path));
 });
@@ -56,7 +71,7 @@ it('re-encodes photos as webp, shrunk and without metadata', function () {
     $this->payload['images'] = [UploadedFile::fake()->createWithContent('foto.jpg', $jpeg)];
 
     $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json'])
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertCreated();
 
     $file = PostFile::sole();
@@ -77,7 +92,7 @@ it('rejects photos that are not accepted images', function (UploadedFile $file) 
     $this->payload['images'] = [$file];
 
     $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json'])
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('images.0');
 
@@ -102,43 +117,52 @@ it('rolls back the post and deletes stored photos when saving fails', function (
     $this->withoutExceptionHandling();
 
     expect(fn () => $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json']))
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json']))
         ->toThrow(RuntimeException::class);
 
     expect(Post::count())->toBe(0)
+        ->and(Animal::withTrashed()->count())->toBe(0)
         ->and(PostFile::count())->toBe(0)
         ->and(Storage::disk('public')->allFiles('posts'))->toBeEmpty();
 });
 
-it('rejects an animal from another user', function () {
-    $this->payload['animal_id'] = Animal::factory()->create()->id;
+it('requires the date of the occurrence for lost and found posts', function (string $type) {
+    $this->payload['type'] = $type;
 
     $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json'])
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['animal_id' => 'Selecione um dos seus animais.']);
+        ->assertJsonValidationErrors('occurred_at');
 
-    expect(Post::count())->toBe(0);
+    expect(Post::count())->toBe(0)
+        ->and(Animal::count())->toBe(0);
+})->with(['lost', 'found']);
+
+it('rejects the date of the occurrence on adoption posts', function () {
+    $this->payload['occurred_at'] = now()->subDay()->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('occurred_at');
 });
 
-it('rejects a deleted animal', function () {
-    Animal::find($this->payload['animal_id'])->delete();
+it('requires the animal data', function () {
+    unset($this->payload['animal']);
 
     $this->actingAs($this->user)
-        ->post('/api/posts', $this->payload, ['Accept' => 'application/json'])
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors('animal_id');
-
-    expect(Post::count())->toBe(0);
+        ->assertJsonValidationErrors(['animal', 'animal.species']);
 });
 
 it('limits post creation without blocking other sensitive routes', function () {
     $this->actingAs($this->user);
 
     foreach (range(1, 6) as $attempt) {
-        $this->postJson('/api/posts')->assertUnprocessable();
+        $this->postJson('/api/my-posts')->assertUnprocessable();
     }
 
-    $this->postJson('/api/posts')->assertTooManyRequests();
+    $this->postJson('/api/my-posts')->assertTooManyRequests();
     $this->putJson('/api/user/password')->assertUnprocessable();
 });

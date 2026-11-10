@@ -15,7 +15,7 @@ O Mais Patinhas é um website voltado à doação, adoção e busca de animais p
 ## Funcionalidades principais
 
 - **Catálogo de adoção**: usuários cadastram perfis de animais disponíveis para adoção e podem navegar pelos pets publicados por outras pessoas.
-- **Aba de animais perdidos**: posts dedicados a animais perdidos (tutor procurando o bicho) e a animais encontrados (quem achou o bicho procurando o tutor), com local e data do último avistamento.
+- **Aba de animais perdidos**: posts dedicados a animais perdidos (tutor procurando o bicho) e a animais encontrados (quem achou o bicho procurando o tutor), com município e data do ocorrido.
 - **Chat**: bate-papo entre as partes para combinar o encontro e efetivar a adoção.
 - **Filtro por região**: os posts exibidos priorizam a localidade do usuário (ex.: morador de Uberaba vê primeiro posts de Uberaba e região), em vez de resultados do país inteiro.
 - **Moderação prévia**: todo post — doação ou perdido — fica pendente até um moderador aprovar ou recusar a publicação.
@@ -25,14 +25,24 @@ O fluxo de status de um anúncio segue [[Fluxo Status de Anuncio]], e os tipos d
 
 ## Stack técnica
 
-- **Laravel (PHP)** — estrutura MVC, roteamento e ORM Eloquent.
-- **Livewire** — interatividade no lado do servidor (filtros dinâmicos, chat, catálogo) sem API JavaScript separada.
-- **Laravel Fortify** — cadastro, login, recuperação de senha e proteção contra ataques comuns.
-- **MySQL** — banco de dados relacional, via migrations e Eloquent.
+Arquitetura desacoplada: o backend só fornece dados em JSON e a interface é uma SPA separada.
+
+- **Laravel 13 (PHP 8.4)** — API REST (`backend-api/`): rotas, validação (Form Requests), permissões (Policies), regras de negócio e ORM Eloquent.
+- **Laravel Sanctum** — autenticação da SPA por cookie de sessão, com proteção CSRF.
+- **React 19 + Vite** — SPA (`frontend-web/`) com React Router, Tailwind CSS e shadcn/ui; consome a API via axios.
+- **MySQL 8** — banco relacional, versionado por migrations.
+- **Docker Compose** — MySQL, phpMyAdmin, backend e frontend.
+- **Pest** e **Postman** — testes automatizados e manuais da API.
+
+> A primeira versão desta proposta usava Livewire e Laravel Fortify. Foram trocados porque partem do princípio de que o próprio Laravel gera as telas, o que não acontece com o frontend em React.
 
 ## Modelo de dados
 
-Entidades principais: Usuário, Municípios, Animais, Anúncios, Arquivos e Adoções. Ver [[Entidades.canvas|Entidades]] para o diagrama completo.
+Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderações, Favoritos, Conversas, Mensagens, Adoções e Avaliações. No código as tabelas têm nomes em inglês (`users`, `municipalities`, `animals`, `posts`, `post_files`, `moderations`, `favorites`, `conversations`, `messages`, `adoptions`, `reviews`). Ver [[Entidades.canvas|Entidades]] para o diagrama completo.
+
+## Documentos do TCC
+
+As versões atuais dos documentos entregues (projeto, atividades, metodologia, resultados e roteiro) ficam em `docs/TCC/`, fora deste vault.
 
 ## Justificativa
 

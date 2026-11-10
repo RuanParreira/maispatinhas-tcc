@@ -2,7 +2,7 @@
 
 TCC — plataforma de doação, adoção e busca de animais perdidos. Conecta três perfis de usuário: quem quer doar um pet, quem quer adotar, e quem perdeu (ou encontrou) um animal.
 
-Funcionalidades principais: catálogo de adoção, posts de animais perdidos/encontrados com filtro por região, chat entre as partes, moderação prévia de posts e avaliação pós-adoção. Detalhes da proposta e modelagem em [`docs/`](docs/Mais%20Patinhas/00%20-%20Início.md).
+Funcionalidades principais: catálogo de adoção, posts de animais perdidos/encontrados com filtro por região, chat entre as partes, moderação prévia de posts e avaliação pós-adoção. Detalhes da proposta e modelagem em [`docs/`](docs/Mais%20Patinhas/00%20-%20Início.md). Os documentos do TCC (projeto, atividades, metodologia, resultados e roteiro, em Word) ficam em [`docs/TCC/`](docs/TCC/).
 
 ## Arquitetura
 
