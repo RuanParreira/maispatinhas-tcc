@@ -40,6 +40,11 @@ Arquitetura desacoplada: o backend só fornece dados em JSON e a interface é um
 
 Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderações, Favoritos, Conversas, Mensagens, Adoções e Avaliações. No código as tabelas têm nomes em inglês (`users`, `municipalities`, `animals`, `posts`, `post_files`, `moderations`, `favorites`, `conversations`, `messages`, `adoptions`, `reviews`). Ver [[Entidades.canvas|Entidades]] para o diagrama completo.
 
+## Estado da implementação (nov/2026)
+
+- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e exclusão dos próprios anúncios com fotos; catálogo público de anúncios.
+- **A fazer:** painel de moderação, chat, favoritos, pedido e acompanhamento de adoção, avaliação pós-adoção e busca por raio ([[Busca por Proximidade]]).
+
 ## Documentos do TCC
 
 As versões atuais dos documentos entregues (projeto, atividades, metodologia, resultados e roteiro) ficam em `docs/TCC/`, fora deste vault.

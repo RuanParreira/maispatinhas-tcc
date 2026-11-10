@@ -12,6 +12,7 @@ stateDiagram-v2
     PENDENTE_APROVACAO --> ATIVO
     REJEITADO --> PENDENTE_APROVACAO
     REJEITADO --> CANCELADO
+    ATIVO --> PENDENTE_APROVACAO
     ATIVO --> PAUSADO
     PAUSADO --> ATIVO
     ATIVO --> EXPIRADO
@@ -29,7 +30,7 @@ stateDiagram-v2
 
 | Estado | Significado | Quem provoca |
 | --- | --- | --- |
-| `RASCUNHO` | Em edição, ainda não enviado. Não aparece para ninguém. | autor |
+| `RASCUNHO` | Em edição, ainda não enviado. Não aparece para ninguém. Previsto, mas ainda não usado: hoje o anúncio é criado direto em `PENDENTE_APROVACAO`. | autor |
 | `PENDENTE_APROVACAO` | Enviado, aguardando moderação. | autor |
 | `REJEITADO` | Moderação recusou. O motivo fica em `Moderações`. | moderador |
 | `ATIVO` | Aprovado e publicado, visível no catálogo. | moderador |
@@ -51,11 +52,15 @@ Se o autor pausa o anúncio, ele não pode voltar para `PENDENTE_APROVACAO` e ca
 
 O fluxo resolve isso porque `PAUSADO` só é alcançável a partir de `ATIVO`, e `PAUSADO` volta para `ATIVO` — nunca para a fila. O mesmo vale para `EXPIRADO`.
 
+## Editar volta para a moderação
+
+Editar é diferente de pausar. Se o autor muda qualquer coisa num anúncio `ATIVO` (texto, dados do animal ou fotos), o anúncio volta para `PENDENTE_APROVACAO`, porque o conteúdo que o moderador aprovou não é mais o mesmo. O mesmo acontece ao editar um anúncio `REJEITADO`: é assim que o autor reenvia. Uma edição que não altera nada mantém o status.
+
 Além disso, o fato de ter sido aprovado não depende do campo de status: fica registrado em `Aprovado por`, `Aprovado em` e na tabela `Moderações`. Mesmo que o estado atual mude várias vezes, o histórico da moderação permanece.
 
 ## Reenvio depois da rejeição
 
-`REJEITADO → PENDENTE_APROVACAO` existe para o autor corrigir o que foi apontado e reenviar. Cada passagem pela moderação gera uma linha nova em `Moderações`, então o histórico de idas e vindas fica preservado.
+`REJEITADO → PENDENTE_APROVACAO` existe para o autor corrigir o que foi apontado e reenviar. Na prática, o reenvio acontece ao salvar a edição. Cada passagem pela moderação gera uma linha nova em `Moderações`, então o histórico de idas e vindas fica preservado.
 
 `REJEITADO → CANCELADO` é a saída de quem desistiu.
 

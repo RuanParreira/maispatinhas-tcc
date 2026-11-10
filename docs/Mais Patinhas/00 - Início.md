@@ -18,3 +18,7 @@ Vault do TCC. Estrutura:
 
 ## [[Conversas IA|03 - Pesquisa]]
 - [[Conversas IA]] — links de conversas de apoio
+
+## 04 - Design System
+- [[Design System]] — paleta, tipografia, voz e componentes da interface
+- [[Tokens]] — referência de todos os tokens

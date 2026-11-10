@@ -1,1 +1,2 @@
 - Na hora de adotar o dono do post marca quem adotou e vai direto salvar na tabela de adoções.
+  - Conflita com [[Fluxo Status de Adocao]], em que o interessado pede (`SOLICITADA`) e o doador aceita. Decidir qual dos dois fluxos vale.
