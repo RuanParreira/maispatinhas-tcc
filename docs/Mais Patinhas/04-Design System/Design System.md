@@ -6,7 +6,7 @@ tags:
 
 # Design System — Mais Patinhas
 
-Identidade visual e componentes de interface do sistema "Mais Patinhas". Substitui o briefing "Aconchego · Paleta e tipografia v1" (`docs/Briefing.pdf`), cuja paleta e tipografia foram mantidas sem alteração.
+Identidade visual e componentes de interface do sistema "Mais Patinhas". Substitui o briefing "Aconchego · Paleta e tipografia v1", cuja paleta e tipografia foram mantidas sem alteração.
 
 Este guia descreve o que o `frontend-web` implementa. Os componentes são os do próprio frontend (React, Tailwind 4 e shadcn/ui); quando o código e o guia divergirem, o guia é que deve ser atualizado, exceto nas regras de acessibilidade marcadas como obrigatórias.
 
@@ -17,6 +17,7 @@ Este guia descreve o que o `frontend-web` implementa. Os componentes são os do 
 | Arquivo | Conteúdo |
 | --- | --- |
 | `Design System.md` | Este guia: princípios, voz, cor, tipografia, espaço, imagens, ícones e uso no frontend |
+| `Design System - Mais Patinhas.pdf` | Versão diagramada deste guia, para entrega e impressão |
 | [[Tokens]] | Tabela de referência de todos os tokens |
 | `tokens.json` | Tokens em formato de dados (fonte da verdade da documentação) |
 | `tokens.css` | Tokens como variáveis CSS e classes de tipografia, para uso fora do frontend |
