@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\AnimalAgeGroup;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
 use Database\Factories\AnimalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +51,24 @@ class Animal extends Model
             'dewormed' => 'boolean',
             'neutered' => 'boolean',
         ];
+    }
+
+    /**
+     * @param  Builder<Animal>  $query
+     */
+    #[Scope]
+    protected function inAgeGroup(Builder $query, AnimalAgeGroup $group): void
+    {
+        $oneYearAgo = today()->subYear();
+        $eightYearsAgo = today()->subYears(8);
+
+        match ($group) {
+            AnimalAgeGroup::Young => $query->where('approximate_birth_date', '>', $oneYearAgo),
+            AnimalAgeGroup::Adult => $query
+                ->where('approximate_birth_date', '>', $eightYearsAgo)
+                ->where('approximate_birth_date', '<=', $oneYearAgo),
+            AnimalAgeGroup::Senior => $query->where('approximate_birth_date', '<=', $eightYearsAgo),
+        };
     }
 
     /**

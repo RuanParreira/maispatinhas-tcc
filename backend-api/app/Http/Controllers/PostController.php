@@ -2,22 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\EncodeImageAsWebp;
-use App\Enums\PostStatus;
-use App\Http\Requests\Post\StorePostRequest;
+use App\Enums\AnimalAgeGroup;
+use App\Http\Requests\Post\ListPostsRequest;
 use App\Http\Resources\PostCardResource;
 use App\Http\Resources\PostResource;
+use App\Models\Animal;
 use App\Models\Post;
-use App\Models\PostFile;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Intervention\Image\Interfaces\ImageInterface;
-use Throwable;
 
 class PostController extends Controller
 {
@@ -26,13 +20,32 @@ class PostController extends Controller
     /**
      * Listar anúncios públicos (apenas ativos).
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(ListPostsRequest $request): AnonymousResourceCollection
     {
+        $filters = $request->validated();
+
         $posts = Post::active()
-            ->when($request->query('type'), fn($query, $type) => $query->where('type', $type))
+            ->when($filters['type'] ?? null, fn (Builder $query, string $type) => $query->where('type', $type))
+            ->when($filters['search'] ?? null, fn (Builder $query, string $search) => $query->where(
+                fn (Builder $query) => $query
+                    ->whereHas('animal', fn (Builder $animal) => $animal
+                        ->whereLike('name', "%{$search}%")
+                        ->orWhereLike('breed', "%{$search}%"))
+                    ->orWhereHas('municipality', fn (Builder $municipality) => $municipality->whereLike('name', "%{$search}%")),
+            ))
+            ->whereHas('animal', fn (Builder $animal) => $animal
+                ->when($filters['species'] ?? null, fn (Builder $query, string $species) => $query->where('species', $species))
+                ->when($filters['size'] ?? null, fn (Builder $query, string $size) => $query->where('size', $size))
+                ->when($filters['sex'] ?? null, fn (Builder $query, string $sex) => $query->where('sex', $sex))
+                ->when($filters['age_group'] ?? null, fn (Builder $query, string $group) => $query->inAgeGroup(AnimalAgeGroup::from($group))))
             ->with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
-            ->latest('published_at')
-            ->paginate(15);
+            ->when(
+                ($filters['sort'] ?? null) === 'name',
+                fn (Builder $query) => $query->orderBy(Animal::select('name')->whereColumn('animals.id', 'posts.animal_id')),
+                fn (Builder $query) => $query->latest('published_at'),
+            )
+            ->paginate(15)
+            ->withQueryString();
 
         return PostCardResource::collection($posts);
     }

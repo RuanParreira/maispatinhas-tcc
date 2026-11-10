@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, PawPrint, Search } from "lucide-react";
-import { normalize } from "@/lib/text";
+import { ChevronLeft, ChevronRight, PawPrint, Search } from "lucide-react";
 import api from "@/api/axios";
 import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
@@ -31,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const speciesOptions = [
@@ -52,7 +52,7 @@ const filters = [
     label: "Idade",
     options: [
       { value: "all", label: "Todas" },
-      { value: "puppy", label: "Filhote" },
+      { value: "young", label: "Filhote" },
       { value: "adult", label: "Adulto" },
       { value: "senior", label: "Idoso" },
     ],
@@ -87,29 +87,68 @@ const initialFilters = {
 };
 
 const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
+const searchDelay = 300;
+const visiblePages = 5;
+
+function pageNumbers(current, last) {
+  const first = Math.max(
+    1,
+    Math.min(current - Math.floor(visiblePages / 2), last - visiblePages + 1),
+  );
+  const count = Math.min(visiblePages, last);
+  return Array.from({ length: count }, (_, index) => first + index);
+}
+
+function toQueryParams(values, search, sort, page) {
+  const params = { type: "adoption", sort, page, search: search.trim() };
+  if (values.species !== "all") params.species = values.species;
+  if (values.size !== "all") params.size = values.size;
+  if (values.sex !== "all") params.sex = values.sex;
+  if (values.ageGroup !== "all") params.age_group = values.ageGroup;
+  if (!params.search) delete params.search;
+  return params;
+}
 
 export default function Adoptions() {
   const [values, setValues] = useState(initialFilters);
+  const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [page, setPage] = useState(1);
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState({ key: null, posts: [], meta: null });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(values.search), searchDelay);
+    return () => clearTimeout(timer);
+  }, [values.search]);
+
+  const params = useMemo(
+    () => toQueryParams(values, search, sort, page),
+    [values, search, sort, page],
+  );
+  const requestKey = `${JSON.stringify(params)}#${attempt}`;
+  const loading = result.key !== requestKey;
 
   useEffect(() => {
     let ignore = false;
-    setLoading(true);
-    setError(false);
 
     api
-      .get("/api/posts", { params: { type: "adoption" } })
-      .then(({ data }) => !ignore && setPosts(data.data))
-      .catch(() => !ignore && setError(true))
-      .finally(() => !ignore && setLoading(false));
+      .get("/api/posts", { params })
+      .then(
+        ({ data }) =>
+          !ignore &&
+          setResult({ key: requestKey, posts: data.data, meta: data.meta }),
+      )
+      .catch(
+        () =>
+          !ignore &&
+          setResult({ key: requestKey, posts: [], meta: null, error: true }),
+      );
 
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [params, requestKey]);
 
   const isOtherSpecies = otherSpeciesOptions.some(
     (option) => option.value === values.species,
@@ -117,30 +156,23 @@ export default function Adoptions() {
 
   function setFilter(key, value) {
     setValues((current) => ({ ...current, [key]: value }));
+    setPage(1);
   }
 
-  const pets = useMemo(() => {
-    const term = normalize(values.search);
-    const filtered = posts.filter((post) => {
-      const animal = post.animal;
-      if (!animal) return false;
-      const matchesSpecies =
-        values.species === "all" || animal.species === values.species;
-      const matchesSize = values.size === "all" || animal.size === values.size;
-      const matchesSex = values.sex === "all" || animal.sex === values.sex;
-      // Busca por nome do animal, raça ou cidade
-      const searchTarget = normalize(
-        `${animal.name} ${animal.breed ?? ""} ${post.municipality?.name ?? ""}`,
-      );
-      const matchesSearch = searchTarget.includes(term);
-      return matchesSpecies && matchesSize && matchesSex && matchesSearch;
-    });
-    return sort === "name"
-      ? [...filtered].sort((a, b) =>
-          a.animal.name.localeCompare(b.animal.name, "pt-BR"),
-        )
-      : filtered;
-  }, [posts, values, sort]);
+  function changeSort(value) {
+    setSort(value);
+    setPage(1);
+  }
+
+  function goToPage(event, target) {
+    event.preventDefault();
+    setPage(target);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  const pets = result.posts;
+  const total = result.meta?.total ?? 0;
+  const lastPage = result.meta?.last_page ?? 1;
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -238,11 +270,11 @@ export default function Adoptions() {
           <p>
             Exibindo{" "}
             <span className="font-semibold text-foreground">
-              {pets.length} {pets.length === 1 ? "pet" : "pets"}
+              {total} {total === 1 ? "pet" : "pets"}
             </span>{" "}
             para adoção
           </p>
-          <Select value={sort} onValueChange={setSort}>
+          <Select value={sort} onValueChange={changeSort}>
             <SelectTrigger
               aria-label="Ordenar por"
               className="h-9 gap-2 border-transparent px-2 text-[0.8125rem] data-[size=default]:h-9"
@@ -258,8 +290,41 @@ export default function Adoptions() {
         </div>
       </div>
 
-      {pets.length > 0 ? (
+      {loading && pets.length === 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
+          {[1, 2, 3].map((item) => (
+            <Skeleton key={item} className="h-96 rounded-2xl" />
+          ))}
+        </div>
+      ) : result.error ? (
+        <Empty variant="card">
+          <EmptyHeader>
+            <EmptyMedia variant="brand">
+              <PawPrint />
+            </EmptyMedia>
+            <EmptyTitle>Não foi possível carregar</EmptyTitle>
+            <EmptyDescription>
+              Verifique sua conexão e tente novamente.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setAttempt((current) => current + 1)}
+            >
+              Tentar de novo
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : pets.length > 0 ? (
+        <div
+          aria-busy={loading}
+          className={cn(
+            "grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6 transition-opacity",
+            loading && "opacity-60",
+          )}
+        >
           {pets.map((pet) => (
             <PetCard key={pet.id} pet={pet} />
           ))}
@@ -279,7 +344,10 @@ export default function Adoptions() {
             <Button
               variant="secondary"
               size="md"
-              onClick={() => setValues(initialFilters)}
+              onClick={() => {
+                setValues(initialFilters);
+                setPage(1);
+              }}
             >
               Limpar filtros
             </Button>
@@ -287,34 +355,48 @@ export default function Adoptions() {
         </Empty>
       )}
 
-      {pets.length > 0 && (
+      {!result.error && lastPage > 1 && (
         <Pagination className="flex-wrap items-center justify-between gap-4">
           <p className="text-[0.8125rem] text-muted-foreground">
-            Página 1 de 4
+            Página {page} de {lastPage}
           </p>
           <PaginationContent className="gap-2">
-            {[1, 2, 3].map((page) => (
-              <PaginationItem key={page}>
+            {page > 1 && (
+              <PaginationItem>
                 <PaginationLink
                   href="#"
-                  isActive={page === 1}
-                  onClick={(e) => e.preventDefault()}
-                  className={cn(pageLinkClass, page !== 1 && "bg-card")}
+                  aria-label="Página anterior"
+                  onClick={(e) => goToPage(e, page - 1)}
+                  className={cn(pageLinkClass, "bg-card")}
                 >
-                  {page}
+                  <ChevronLeft />
+                </PaginationLink>
+              </PaginationItem>
+            )}
+            {pageNumbers(page, lastPage).map((number) => (
+              <PaginationItem key={number}>
+                <PaginationLink
+                  href="#"
+                  isActive={number === page}
+                  onClick={(e) => goToPage(e, number)}
+                  className={cn(pageLinkClass, number !== page && "bg-card")}
+                >
+                  {number}
                 </PaginationLink>
               </PaginationItem>
             ))}
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                aria-label="Próxima página"
-                onClick={(e) => e.preventDefault()}
-                className={cn(pageLinkClass, "bg-card")}
-              >
-                <ChevronRight />
-              </PaginationLink>
-            </PaginationItem>
+            {page < lastPage && (
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  aria-label="Próxima página"
+                  onClick={(e) => goToPage(e, page + 1)}
+                  className={cn(pageLinkClass, "bg-card")}
+                >
+                  <ChevronRight />
+                </PaginationLink>
+              </PaginationItem>
+            )}
           </PaginationContent>
         </Pagination>
       )}

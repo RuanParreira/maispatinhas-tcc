@@ -451,6 +451,48 @@
                   "value": "adoption",
                   "disabled": true,
                   "description": "adoption, lost ou found"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Busca no nome e na raça do animal e no nome da cidade"
+                },
+                {
+                  "key": "species",
+                  "value": "dog",
+                  "disabled": true,
+                  "description": "dog, cat, bird, rodent, rabbit ou other"
+                },
+                {
+                  "key": "size",
+                  "value": "small",
+                  "disabled": true,
+                  "description": "small, medium ou large"
+                },
+                {
+                  "key": "sex",
+                  "value": "female",
+                  "disabled": true,
+                  "description": "male, female ou undefined"
+                },
+                {
+                  "key": "age_group",
+                  "value": "young",
+                  "disabled": true,
+                  "description": "young (até 1 ano), adult (1 a 8 anos) ou senior (8 anos ou mais)"
+                },
+                {
+                  "key": "sort",
+                  "value": "recent",
+                  "disabled": true,
+                  "description": "recent (padrão, mais recentes) ou name (nome do animal, A–Z)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Página do resultado (15 anúncios por página)"
                 }
               ]
             },
