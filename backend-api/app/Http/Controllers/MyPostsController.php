@@ -32,7 +32,7 @@ class MyPostsController extends Controller
     {
         $posts = $request->user()
             ->posts()
-            ->with(['animal', 'municipality:ibge_code,name,state', 'cover'])
+            ->with(['animal', 'municipality:ibge_code,name,state', 'cover', 'latestRejection'])
             ->latest()
             ->get();
 
@@ -129,7 +129,6 @@ class MyPostsController extends Controller
         return response()->noContent();
     }
 
-
     /**
      * Recodifica e grava as fotos a partir de $position. Cada caminho entra em $storedPaths
      * assim que é gravado, para que quem chamou consiga limpar o disco se algo falhar no meio.
@@ -142,10 +141,10 @@ class MyPostsController extends Controller
         foreach ($uploads as $upload) {
             $image = $encodeImageAsWebp->handle(
                 $upload,
-                fn(ImageInterface $image) => $image->scaleDown(self::PHOTO_MAX_SIZE, self::PHOTO_MAX_SIZE),
+                fn (ImageInterface $image) => $image->scaleDown(self::PHOTO_MAX_SIZE, self::PHOTO_MAX_SIZE),
             );
 
-            $path = "posts/{$post->id}/" . Str::uuid() . '.webp';
+            $path = "posts/{$post->id}/".Str::uuid().'.webp';
             Storage::disk('public')->put($path, $image);
             $storedPaths[] = $path;
 

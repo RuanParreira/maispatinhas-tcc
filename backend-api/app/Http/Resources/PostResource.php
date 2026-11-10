@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\PostStatus;
 use App\Models\Post;
 use App\Models\PostFile;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Post completo, para a página de detalhe e a listagem do próprio dono.
  * Dados de moderação (approved_by, approved_at) e detalhes internos dos arquivos nunca saem da API.
+ * A exceção é o motivo da rejeição, que só a listagem do dono carrega.
  *
  * @mixin Post
  */
@@ -29,6 +31,9 @@ class PostResource extends JsonResource
             'occurred_at' => $this->occurred_at?->toDateString(),
             'published_at' => $this->published_at?->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),
+            'rejection_reason' => $this->whenLoaded('latestRejection', fn () => $this->status === PostStatus::Rejected
+                ? $this->latestRejection?->reason
+                : null),
             'cover_url' => $this->whenLoaded('cover', fn () => $this->cover?->url),
             'photos' => $this->whenLoaded('files', fn () => $this->files->map(fn (PostFile $file) => [
                 'id' => $file->id,

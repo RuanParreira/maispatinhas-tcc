@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModerationAction;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use Database\Factories\PostFactory;
@@ -118,6 +119,17 @@ class Post extends Model
     public function moderations(): HasMany
     {
         return $this->hasMany(Moderation::class);
+    }
+
+    /**
+     * @return HasOne<Moderation, $this>
+     */
+    public function latestRejection(): HasOne
+    {
+        return $this->hasOne(Moderation::class)->ofMany(
+            ['id' => 'max'],
+            fn (Builder $query) => $query->where('action', ModerationAction::Rejection),
+        );
     }
 
     /**

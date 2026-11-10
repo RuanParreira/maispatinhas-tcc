@@ -1,4 +1,11 @@
-import { ArrowRight, Calendar, Clock, MapPin, PawPrint } from "lucide-react";
+import {
+  ArrowRight,
+  Calendar,
+  CircleAlert,
+  Clock,
+  MapPin,
+  PawPrint,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { animalSpecies, postStatuses, postTypes } from "@/lib/posts";
 import { cn } from "@/lib/utils";
@@ -79,6 +86,15 @@ export default function PostCard({ post }) {
         <p className="mt-4 line-clamp-2 text-[0.8125rem] leading-5 text-muted-foreground">
           {post.description}
         </p>
+        {post.rejection_reason && (
+          <p className="mt-4 flex gap-2 rounded-xl bg-destructive-subtle px-3.5 py-2.5 text-xs leading-4 text-destructive">
+            <CircleAlert className="size-4 shrink-0" />
+            <span>
+              <span className="font-semibold">Motivo da rejeição:</span>{" "}
+              {post.rejection_reason}
+            </span>
+          </p>
+        )}
 
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
