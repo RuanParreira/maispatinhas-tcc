@@ -31,6 +31,10 @@ const PAGES = {
     title: "Meus anúncios",
     description: "Acompanhe e gerencie os anúncios que você publicou.",
   },
+  "/posts/create": {
+    title: "Novo anúncio",
+    description: "Cadastre o pet e o anúncio em poucas etapas.",
+  },
   "/favorites": {
     title: "Favoritos",
     description: "Pets que você guardou para ver com calma.",

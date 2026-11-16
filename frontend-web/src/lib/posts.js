@@ -25,3 +25,30 @@ export const animalSpecies = {
   rabbit: "Coelho",
   other: "Outro",
 };
+
+export const animalSexes = {
+  male: "Macho",
+  female: "Fêmea",
+  undefined: "Não sei",
+};
+
+export const animalSizes = {
+  small: "Pequeno",
+  medium: "Médio",
+  large: "Grande",
+};
+
+/**
+ * Respostas de saúde do animal. "unknown" vai para a API como vazio (null).
+ */
+export const healthAnswers = {
+  yes: "Sim",
+  no: "Não",
+  unknown: "Não sei",
+};
+
+export const healthQuestions = [
+  { field: "animal.vaccinated", label: "Está vacinado?" },
+  { field: "animal.dewormed", label: "Está vermifugado?" },
+  { field: "animal.neutered", label: "É castrado?" },
+];

@@ -16,6 +16,7 @@ dist-ssr
 /.claude/
 /.agents/
 /skills-lock.json
+/.mcp.json
 .vscode/*
 !.vscode/extensions.json
 .idea
