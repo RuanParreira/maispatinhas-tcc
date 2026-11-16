@@ -20,7 +20,7 @@ class StoreAnimalRequest extends FormRequest
     }
 
     /**
-     * Regras de validação da requisição.
+     * Regras de validação da requisição. Nos campos de saúde, null significa "não sei".
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -29,15 +29,15 @@ class StoreAnimalRequest extends FormRequest
         return [
             'name' => ['nullable', 'string', 'max:60'],
             'species' => ['required', Rule::enum(AnimalSpecies::class)],
-            'breed' => ['required', 'string', 'max:60'],
+            'breed' => ['nullable', 'string', 'max:60'],
             'sex' => ['required', Rule::enum(AnimalSex::class)],
             'size' => ['required', Rule::enum(AnimalSize::class)],
             'color' => ['required', 'string', 'max:60'],
             'distinctive_features' => ['required', 'string'],
-            'approximate_birth_date' => ['required', 'date', 'before_or_equal:today'],
-            'vaccinated' => ['required', 'boolean'],
-            'dewormed' => ['required', 'boolean'],
-            'neutered' => ['required', 'boolean'],
+            'approximate_birth_date' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:today -30 years'],
+            'vaccinated' => ['present', 'nullable', 'boolean'],
+            'dewormed' => ['present', 'nullable', 'boolean'],
+            'neutered' => ['present', 'nullable', 'boolean'],
         ];
     }
 }

@@ -159,7 +159,9 @@ return [
     'uuid' => 'O campo :attribute deve ser um UUID válido.',
 
     'custom' => [
-        //
+        'animal.approximate_birth_date' => [
+            'after_or_equal' => 'A idade aproximada deve ser de no máximo 30 anos.',
+        ],
     ],
 
     'attributes' => [

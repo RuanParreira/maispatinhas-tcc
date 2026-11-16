@@ -56,7 +56,7 @@ class PostResource extends JsonResource
                 'size' => $this->animal->size,
                 'color' => $this->animal->color,
                 'distinctive_features' => $this->animal->distinctive_features,
-                'birth_date' => $this->animal->approximate_birth_date->toDateString(),
+                'birth_date' => $this->animal->approximate_birth_date?->toDateString(),
                 'vaccinated' => $this->animal->vaccinated,
                 'dewormed' => $this->animal->dewormed,
                 'neutered' => $this->animal->neutered,

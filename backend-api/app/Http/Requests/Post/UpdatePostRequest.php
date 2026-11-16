@@ -3,14 +3,14 @@
 namespace App\Http\Requests\Post;
 
 use App\Enums\PostType;
+use App\Http\Requests\Animal\StoreAnimalRequest;
 use App\Models\Post;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Validator;
-use App\Http\Requests\Animal\StoreAnimalRequest;
-use Illuminate\Support\Facades\Gate;
 
 class UpdatePostRequest extends FormRequest
 {
@@ -23,7 +23,6 @@ class UpdatePostRequest extends FormRequest
         return Gate::authorize('update', $this->route('post'))->allowed();
     }
 
-
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -33,13 +32,19 @@ class UpdatePostRequest extends FormRequest
         $post = $this->route('post');
 
         // Mesmas regras do cadastro do animal, mas todos os campos são opcionais na edição.
-        $animalRules = collect((new StoreAnimalRequest)->rules())
-            ->mapWithKeys(fn($rules, $field) => ["animal.$field" => ['sometimes', ...$rules]])
+        $baseAnimalRules = (new StoreAnimalRequest)->rules();
+        $animalRules = collect($baseAnimalRules)
+            ->mapWithKeys(fn ($rules, $field) => ["animal.$field" => ['sometimes', ...$rules]])
             ->all();
 
         return [
             'animal' => ['sometimes', 'array'],
             ...$animalRules,
+            'animal.approximate_birth_date' => [
+                'sometimes',
+                'nullable',
+                ...array_diff($baseAnimalRules['approximate_birth_date'], ['required']),
+            ],
 
             // animal_id não entra: não deve mudar após a criação.
             'type' => ['sometimes', Rule::enum(PostType::class)],
@@ -105,6 +110,28 @@ class UpdatePostRequest extends FormRequest
                     $validator->errors()->add(
                         'occurred_at',
                         'A data do ocorrido só pode ser informada para posts de animal perdido ou encontrado.'
+                    );
+                }
+
+                $animalName = $this->has('animal.name')
+                    ? $this->input('animal.name')
+                    : $post->animal->name;
+
+                if ($type === 'lost' && blank($animalName)) {
+                    $validator->errors()->add(
+                        'animal.name',
+                        'O nome é obrigatório para posts de animal perdido.'
+                    );
+                }
+
+                $birthDate = $this->has('animal.approximate_birth_date')
+                    ? $this->input('animal.approximate_birth_date')
+                    : $post->animal->approximate_birth_date?->toDateString();
+
+                if ($type !== 'found' && blank($birthDate)) {
+                    $validator->errors()->add(
+                        'animal.approximate_birth_date',
+                        'A idade aproximada só pode ficar em branco em posts de animal encontrado.'
                     );
                 }
 

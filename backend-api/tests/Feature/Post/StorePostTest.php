@@ -138,6 +138,51 @@ it('requires the date of the occurrence for lost and found posts', function (str
         ->and(Animal::count())->toBe(0);
 })->with(['lost', 'found']);
 
+it('requires the pet name only on lost posts', function () {
+    $this->payload['animal']['name'] = '';
+    $this->payload['type'] = 'lost';
+    $this->payload['occurred_at'] = now()->subDay()->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('animal.name');
+
+    $this->payload['type'] = 'found';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated();
+});
+
+it('requires the approximate age except on found posts', function () {
+    $this->payload['animal']['approximate_birth_date'] = '';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('animal.approximate_birth_date');
+
+    $this->payload['type'] = 'found';
+    $this->payload['occurred_at'] = now()->subDay()->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated()
+        ->assertJsonPath('data.animal.birth_date', null);
+});
+
+it('rejects an approximate age above 30 years', function () {
+    $this->payload['animal']['approximate_birth_date'] = now()->subYears(31)->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([
+            'animal.approximate_birth_date' => 'A idade aproximada deve ser de no máximo 30 anos.',
+        ]);
+});
+
 it('rejects the date of the occurrence on adoption posts', function () {
     $this->payload['occurred_at'] = now()->subDay()->toDateString();
 
@@ -154,6 +199,22 @@ it('requires the animal data', function () {
         ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['animal', 'animal.species']);
+});
+
+it('stores unknown health info as null but still requires the field', function () {
+    $this->payload['animal']['vaccinated'] = '';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated()
+        ->assertJsonPath('data.animal.vaccinated', null);
+
+    unset($this->payload['animal']['dewormed']);
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['animal.dewormed']);
 });
 
 it('limits post creation without blocking other sensitive routes', function () {

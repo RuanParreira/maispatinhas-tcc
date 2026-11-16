@@ -21,6 +21,8 @@ class StorePostRequest extends FormRequest
      * transação: todo post tem um animal e todo animal pertence a um post.
      * As regras do animal são as mesmas do StoreAnimalRequest, só com o prefixo "animal.".
      * occurred_at é obrigatório para animais perdidos ou encontrados e proibido em adoção.
+     * Pet perdido tem tutor, então o nome é obrigatório nesse caso. Quem encontrou
+     * o animal não sabe a idade dele, então ela é opcional nesse caso.
      *
      * As fotos seguem as regras do avatar: SVG fica de fora porque pode carregar scripts,
      * o tamanho mínimo mantém as fotos legíveis e o máximo impede que um arquivo pequeno
@@ -31,12 +33,18 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         $animalRules = collect((new StoreAnimalRequest)->rules())
-            ->mapWithKeys(fn($rules, $field) => ["animal.$field" => $rules])
+            ->mapWithKeys(fn ($rules, $field) => ["animal.$field" => $rules])
             ->all();
 
         return [
             'animal' => ['required', 'array'],
             ...$animalRules,
+            'animal.name' => ['required_if:type,lost', ...$animalRules['animal.name']],
+            'animal.approximate_birth_date' => [
+                'required_unless:type,found',
+                'nullable',
+                ...array_diff($animalRules['animal.approximate_birth_date'], ['required']),
+            ],
 
             'type' => ['required', Rule::enum(PostType::class)],
             'title' => ['required', 'string', 'max:120'],

@@ -42,7 +42,7 @@ class PostCardResource extends JsonResource
                 'breed' => $this->animal->breed,
                 'sex' => $this->animal->sex,
                 'size' => $this->animal->size,
-                'birth_date' => $this->animal->approximate_birth_date->toDateString(),
+                'birth_date' => $this->animal->approximate_birth_date?->toDateString(),
             ],
         ];
     }
