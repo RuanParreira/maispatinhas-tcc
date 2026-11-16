@@ -9,14 +9,11 @@ use App\Http\Resources\PostResource;
 use App\Models\Animal;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
-    private const PHOTO_MAX_SIZE = 1600;
-
     /**
      * Listar anúncios públicos (apenas ativos).
      */
@@ -52,15 +49,6 @@ class PostController extends Controller
     }
 
     /**
-     * Cadastrar um novo post. Post e fotos são salvos juntos: se algo falhar,
-     * a transação desfaz o banco e as fotos já gravadas são apagadas do disco.
-     */
-    public function store()
-    {
-        //
-    }
-
-    /**
      * Detalhes de um anúncio específico.
      */
     public function show(Post $post): PostResource
@@ -70,21 +58,5 @@ class PostController extends Controller
         $post->load(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'files']);
 
         return new PostResource($post);
-    }
-
-    /**
-     * Atualiza o anúncio informado.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove o anúncio informado.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
