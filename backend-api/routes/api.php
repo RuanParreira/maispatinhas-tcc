@@ -6,9 +6,10 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MunicipalityController;
-use App\Http\Controllers\PostController;
 use App\Http\Controllers\MyPostsController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\Profile;
 use App\Http\Controllers\Settings\AvatarController;
 use App\Http\Controllers\Settings\EmailController;
@@ -76,6 +77,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/animals', [AnimalController::class, 'index']);
     Route::get('/animals/{animal}', [AnimalController::class, 'show']);
 
+    // Favoritos
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::put('/posts/{post}/favorite', [FavoriteController::class, 'store']);
+        Route::delete('/posts/{post}/favorite', [FavoriteController::class, 'destroy']);
+    });
 
     // my posts
     Route::prefix('my-posts')->controller(MyPostsController::class)->group(function () {

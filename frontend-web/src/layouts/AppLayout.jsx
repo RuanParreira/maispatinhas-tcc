@@ -31,6 +31,10 @@ const PAGES = {
     title: "Meus anúncios",
     description: "Acompanhe e gerencie os anúncios que você publicou.",
   },
+  "/favorites": {
+    title: "Favoritos",
+    description: "Pets que você guardou para ver com calma.",
+  },
   "/my-adoptions": {
     title: "Minhas adoções",
     description: "Pedidos de adoção que você fez e recebeu.",

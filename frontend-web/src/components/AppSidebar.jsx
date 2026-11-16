@@ -1,4 +1,5 @@
 import {
+  Bookmark,
   Heart,
   HandHeart,
   LogOut,
@@ -43,6 +44,7 @@ const navGroups = (userId) => [
     label: "Gerenciar",
     items: [
       { title: "Meus anúncios", url: "/my-posts", icon: FileText },
+      { title: "Favoritos", url: "/favorites", icon: Bookmark },
       { title: "Minhas adoções", url: "/my-adoptions", icon: HandHeart },
       { title: "Mensagens", url: "/messages", icon: MessageSquare },
     ],

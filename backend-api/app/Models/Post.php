@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * dependem de que nunca mudem (veja a migration de adoptions).
  *
  * @method static Builder<static> active()
+ * @method static Builder<static> withFavoriteFlag(?User $user)
  */
 #[Fillable([
     'type',
@@ -61,6 +62,19 @@ class Post extends Model
     protected function active(Builder $query): void
     {
         $query->where('status', PostStatus::Active);
+    }
+
+    /**
+     * Adiciona o atributo is_favorite para o usuário logado. Visitantes ficam sem ele.
+     *
+     * @param  Builder<Post>  $query
+     */
+    #[Scope]
+    protected function withFavoriteFlag(Builder $query, ?User $user): void
+    {
+        if ($user !== null) {
+            $query->withExists(['favoritedBy as is_favorite' => fn (Builder $favorites) => $favorites->where('favorites.user_id', $user->id)]);
+        }
     }
 
     /**

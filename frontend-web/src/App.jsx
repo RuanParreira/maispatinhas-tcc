@@ -9,6 +9,7 @@ import VerifyEmailNotice from "./auth/VerifyEmailNotice.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
 import Lost from "./pages/Lost.jsx";
 import Found from "./pages/Found.jsx";
+import Favorites from "./pages/Favorites.jsx";
 import MyPosts from "./pages/MyPosts.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
 import PostDetails from "./pages/PostDetails.jsx";
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/posts/create" element={<CreatePost />} />
           <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/my-adoptions" element={<MyAdoptions />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/users/:id" element={<Profile />} />

@@ -38,6 +38,7 @@ class PostController extends Controller
                 ->when($filters['size'] ?? null, fn (Builder $query, string $size) => $query->where('size', $size))
                 ->when($filters['sex'] ?? null, fn (Builder $query, string $sex) => $query->where('sex', $sex))
                 ->when($filters['age_group'] ?? null, fn (Builder $query, string $group) => $query->inAgeGroup(AnimalAgeGroup::from($group))))
+            ->withFavoriteFlag($request->user('sanctum'))
             ->with(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'cover'])
             ->when(
                 ($filters['sort'] ?? null) === 'name',

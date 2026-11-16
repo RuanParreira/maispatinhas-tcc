@@ -26,6 +26,7 @@ class PostCardResource extends JsonResource
             'description' => Str::limit($this->description, 160),
             'published_at' => $this->published_at?->toIso8601String(),
             'cover_url' => $this->cover?->url,
+            'is_favorite' => $this->whenHas('is_favorite'),
             'user' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

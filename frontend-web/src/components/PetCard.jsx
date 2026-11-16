@@ -1,12 +1,49 @@
 import { useState } from "react";
 import { ArrowRight, Heart, MapPin, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import api from "@/api/axios";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export default function PetCard({ pet, to = `/adoptions/${pet.id}` }) {
-  const [favorite, setFavorite] = useState(false);
+const statusBadges = {
+  adoption: { variant: "success", label: "Disponível para adoção" },
+  lost: { variant: "destructive", label: "Perdido" },
+  found: { variant: "info", label: "Encontrado" },
+};
+
+export default function PetCard({
+  pet,
+  to = `/posts/${pet.id}`,
+  onFavoriteChange,
+}) {
+  const status = statusBadges[pet.type] ?? statusBadges.adoption;
+  const [favorite, setFavorite] = useState(Boolean(pet.is_favorite));
+  const [favoritePending, setFavoritePending] = useState(false);
+  const isFavoriteKnown = pet.is_favorite !== undefined;
+  const canFavorite = status === statusBadges.adoption && isFavoriteKnown;
+
+  function toggleFavorite() {
+    const next = !favorite;
+    setFavorite(next);
+    setFavoritePending(true);
+    const request = next
+      ? api.put(`/api/posts/${pet.id}/favorite`)
+      : api.delete(`/api/posts/${pet.id}/favorite`);
+    request
+      .then(() => {
+        toast.success(
+          next ? "Adicionado aos favoritos." : "Removido dos favoritos.",
+        );
+        onFavoriteChange?.(next);
+      })
+      .catch(() => {
+        setFavorite(!next);
+        toast.error("Não foi possível atualizar os favoritos.");
+      })
+      .finally(() => setFavoritePending(false));
+  }
   const animal = pet.animal || {};
   const city = pet.municipality
     ? `${pet.municipality.name} - ${pet.municipality.state}`
@@ -29,7 +66,7 @@ export default function PetCard({ pet, to = `/adoptions/${pet.id}` }) {
         {pet.cover_url ? (
           <img
             src={pet.cover_url}
-            alt={`${name} para adoção`}
+            alt={name}
             className="h-70 w-full object-cover"
           />
         ) : (
@@ -38,27 +75,30 @@ export default function PetCard({ pet, to = `/adoptions/${pet.id}` }) {
           </div>
         )}
         <Badge
-          variant="success"
+          variant={status.variant}
           className="absolute top-4 left-4 h-6 px-3 shadow-xs"
         >
-          Disponível para adoção
+          {status.label}
         </Badge>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-lg"
-          aria-label={`Favoritar ${name}`}
-          aria-pressed={favorite}
-          onClick={() => setFavorite((current) => !current)}
-          className="absolute top-4 right-4 rounded-full bg-background/80 shadow-xs backdrop-blur-xs hover:bg-background"
-        >
-          <Heart
-            className={cn(
-              "size-4 transition-colors",
-              favorite && "fill-destructive text-destructive",
-            )}
-          />
-        </Button>
+        {canFavorite && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            aria-label={`Favoritar ${name}`}
+            aria-pressed={favorite}
+            onClick={toggleFavorite}
+            disabled={favoritePending}
+            className="absolute top-4 right-4 rounded-full bg-background/80 shadow-xs backdrop-blur-xs hover:bg-background"
+          >
+            <Heart
+              className={cn(
+                "size-4 transition-colors",
+                favorite && "fill-destructive text-destructive",
+              )}
+            />
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
