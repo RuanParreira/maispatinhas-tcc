@@ -1,3 +1,5 @@
+import PostCatalog from "@/components/PostCatalog";
+
 export default function Lost() {
-  return <p className="text-muted-foreground">Em construção.</p>;
+  return <PostCatalog type="lost" />;
 }
