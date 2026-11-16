@@ -12,7 +12,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 
 export default function Favorites() {
   const [attempt, setAttempt] = useState(0);
@@ -42,13 +42,7 @@ export default function Favorites() {
   }
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
-        {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-96 rounded-2xl" />
-        ))}
-      </div>
-    );
+    return <PetCardSkeletonGrid label="Carregando favoritos" />;
   }
 
   if (result.error) {

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, PawPrint, Search } from "lucide-react";
 import api from "@/api/axios";
 import { cn } from "@/lib/utils";
 import PetCard from "@/components/PetCard";
+import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -273,13 +274,19 @@ export default function PostCatalog({ type = "adoption" }) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-[0.8125rem] text-muted-foreground">
-          <p>
-            Exibindo{" "}
-            <span className="font-semibold text-foreground">
-              {total} {total === 1 ? "pet" : "pets"}
-            </span>{" "}
-            {catalogLabels[type]}
-          </p>
+          {result.meta ? (
+            <p>
+              Exibindo{" "}
+              <span className="font-semibold text-foreground">
+                {total} {total === 1 ? "pet" : "pets"}
+              </span>{" "}
+              {catalogLabels[type]}
+            </p>
+          ) : (
+            <Skeleton
+              className={cn("h-4 w-40", result.error && "invisible")}
+            />
+          )}
           <Select value={sort} onValueChange={changeSort}>
             <SelectTrigger
               aria-label="Ordenar por"
@@ -297,11 +304,7 @@ export default function PostCatalog({ type = "adoption" }) {
       </div>
 
       {loading && pets.length === 0 ? (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
-          {[1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-96 rounded-2xl" />
-          ))}
-        </div>
+        <PetCardSkeletonGrid label="Carregando pets" />
       ) : result.error ? (
         <Empty variant="card">
           <EmptyHeader>
