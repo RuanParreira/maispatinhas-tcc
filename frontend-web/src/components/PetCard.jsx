@@ -3,26 +3,24 @@ import { ArrowRight, Heart, MapPin, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api/axios";
+import { postTypes } from "@/lib/posts";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const statusBadges = {
-  adoption: { variant: "success", label: "Disponível para adoção" },
-  lost: { variant: "destructive", label: "Perdido" },
-  found: { variant: "info", label: "Encontrado" },
-};
 
 export default function PetCard({
   pet,
   to = `/posts/${pet.id}`,
   onFavoriteChange,
 }) {
-  const status = statusBadges[pet.type] ?? statusBadges.adoption;
+  const type = postTypes[pet.type] ? pet.type : "adoption";
+  const status = postTypes[type];
+  const statusLabel =
+    type === "adoption" ? "Disponível para adoção" : status.label;
   const [favorite, setFavorite] = useState(Boolean(pet.is_favorite));
   const [favoritePending, setFavoritePending] = useState(false);
   const isFavoriteKnown = pet.is_favorite !== undefined;
-  const canFavorite = status === statusBadges.adoption && isFavoriteKnown;
+  const canFavorite = type === "adoption" && isFavoriteKnown;
 
   function toggleFavorite() {
     const next = !favorite;
@@ -49,7 +47,7 @@ export default function PetCard({
     ? `${pet.municipality.name} - ${pet.municipality.state}`
     : "";
   const name = animal.name || pet.title;
-  const description = animal.description || pet.description;
+  const description = pet.description;
   const meta = animal.breed || "SRD";
   const tag =
     animal.size === "small"
@@ -78,7 +76,7 @@ export default function PetCard({
           variant={status.variant}
           className="absolute top-4 left-4 h-6 px-3 shadow-xs"
         >
-          {status.label}
+          {statusLabel}
         </Badge>
         {canFavorite && (
           <Button
