@@ -1,11 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { toast } from "sonner";
 import api from "@/api/axios";
 import { AuthContext, useAuth } from "@/auth/useAuth";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("loading");
+  const statusRef = useRef(status);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
+  // Sessão perdida no meio do uso (expirou ou foi encerrada em outro aparelho): qualquer
+  // 401/419 desloga, e o AuthGate leva para o login em vez de cada tela mostrar erro genérico.
+  useEffect(() => {
+    const interceptor = api.interceptors.response.use(undefined, (error) => {
+      if (
+        [401, 419].includes(error.response?.status) &&
+        statusRef.current === "authenticated"
+      ) {
+        setUser(null);
+        setStatus("guest");
+        toast.warning("Sua sessão expirou. Entre novamente para continuar.", {
+          id: "session-expired",
+        });
+      }
+
+      return Promise.reject(error);
+    });
+
+    return () => api.interceptors.response.eject(interceptor);
+  }, []);
 
   useEffect(() => {
     api
