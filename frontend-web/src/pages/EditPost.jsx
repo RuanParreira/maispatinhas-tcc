@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import api from "@/api/axios";
 import { useAuth } from "@/auth/useAuth";
 import { formFromPost, postFormData } from "@/lib/postForm";
+import { finishedPostStatuses } from "@/lib/posts";
 import PostWizard from "@/components/create-post/PostWizard";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -24,7 +25,7 @@ export default function EditPost() {
           navigate("/my-posts", { replace: true });
           return;
         }
-        if (["resolved", "closed", "canceled"].includes(post.status)) {
+        if (finishedPostStatuses.includes(post.status)) {
           toast.error("Este anúncio foi finalizado e não pode ser editado.");
           navigate("/my-posts", { replace: true });
           return;

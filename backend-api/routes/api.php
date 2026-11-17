@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MunicipalityController;
-use App\Http\Controllers\MyPostsController;
+use App\Http\Controllers\MyPosts;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Profile;
 use App\Http\Controllers\Settings\AvatarController;
@@ -84,11 +84,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/posts/{post}/favorite', [FavoriteController::class, 'destroy']);
     });
 
-    // my posts
-    Route::prefix('my-posts')->controller(MyPostsController::class)->group(function () {
-        Route::get('/', 'index');
-        Route::post('/', 'store')->middleware('throttle:posts');
-        Route::patch('/{post}', 'update')->middleware('throttle:posts');
-        Route::delete('/{post}', 'destroy');
+    // Meus anúncios
+    Route::prefix('my-posts')->group(function () {
+        Route::controller(MyPosts\PostController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store')->middleware('throttle:posts');
+            Route::patch('/{post}', 'update')->middleware('throttle:posts');
+            Route::delete('/{post}', 'destroy');
+        });
+
+        Route::post('/{post}/pause', [MyPosts\PauseController::class, 'store']);
+        Route::delete('/{post}/pause', [MyPosts\PauseController::class, 'destroy']);
+        Route::post('/{post}/resolution', [MyPosts\ResolutionController::class, 'store']);
+        Route::post('/{post}/renewal', [MyPosts\RenewalController::class, 'store']);
     });
 });

@@ -6,14 +6,12 @@ export const postTypes = {
 };
 
 export const postStatuses = {
-  draft: { label: "Rascunho", variant: "muted" },
   pending_approval: { label: "Aguardando moderação", variant: "warning" },
   rejected: { label: "Rejeitado", variant: "destructive" },
   active: { label: "Publicado", variant: "success" },
   paused: { label: "Pausado", variant: "secondary" },
   expired: { label: "Expirado", variant: "muted" },
-  resolved: { label: "Resolvido", variant: "info" },
-  closed: { label: "Encerrado", variant: "muted" },
+  resolved: { label: "Finalizado com sucesso", variant: "success" },
   canceled: { label: "Cancelado", variant: "muted" },
 };
 
@@ -73,3 +71,26 @@ export const healthQuestions = [
  * Tamanhos mínimos do texto do anúncio, iguais aos do StorePostRequest.
  */
 export const postTextMinLengths = { title: 10, description: 30 };
+
+/**
+ * Status de histórico (mesma regra do PostStatus::isFinished no backend):
+ * não se editam nem se cancelam.
+ */
+export const finishedPostStatuses = ["resolved", "canceled"];
+
+/**
+ * No card, "resolvido" conta o final da história de cada tipo. O filtro, que
+ * mistura os tipos, usa o rótulo genérico de postStatuses.
+ */
+const resolvedLabels = {
+  adoption: "Adotado",
+  lost: "Reencontrado",
+  found: "Devolvido ao tutor",
+};
+
+export function statusLabelOf(post) {
+  if (post.status === "resolved" && resolvedLabels[post.type]) {
+    return resolvedLabels[post.type];
+  }
+  return postStatuses[post.status]?.label;
+}

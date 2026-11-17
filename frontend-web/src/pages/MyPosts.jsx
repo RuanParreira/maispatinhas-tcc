@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { PawPrint, Plus, Search } from "lucide-react";
 import api from "@/api/axios";
-import { postStatuses } from "@/lib/posts";
+import { finishedPostStatuses, postStatuses } from "@/lib/posts";
 import { normalize } from "@/lib/text";
 import PostActions from "@/components/PostActions";
 import PostCard from "@/components/PostCard";
@@ -29,16 +29,18 @@ import {
 } from "@/components/ui/select";
 import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 
-// Histórico: não se editam nem se cancelam (mesma regra do PostStatus::isFinished).
-const finishedStatuses = ["resolved", "closed", "canceled"];
-
-const statusOptions = [
-  { value: "all", label: "Todos" },
-  ...Object.entries(postStatuses).map(([value, { label }]) => ({
-    value,
-    label,
-  })),
-];
+/**
+ * Só os status que aparecem nos anúncios do usuário, na ordem do enum:
+ * o filtro nunca oferece uma opção que leva a uma lista vazia.
+ */
+function statusOptionsFor(posts) {
+  return [
+    { value: "all", label: "Todos" },
+    ...Object.entries(postStatuses)
+      .filter(([value]) => posts.some((post) => post.status === value))
+      .map(([value, { label }]) => ({ value, label })),
+  ];
+}
 
 const initialFilters = { search: "", status: "all" };
 
@@ -88,17 +90,25 @@ export default function MyPosts() {
     setAttempt((current) => current + 1);
   }
 
+  const statusOptions = statusOptionsFor(posts);
+  // Se o status escolhido sumiu da lista (ex.: o anúncio foi cancelado), volta para "Todos".
+  const selectedStatus = statusOptions.some(
+    (option) => option.value === values.status,
+  )
+    ? values.status
+    : "all";
+
   const filteredPosts = useMemo(() => {
     const term = normalize(values.search);
 
     return posts.filter(
       (post) =>
-        (values.status === "all" || post.status === values.status) &&
+        (selectedStatus === "all" || post.status === selectedStatus) &&
         normalize(
           `${post.title} ${post.description} ${post.animal?.name ?? ""}`,
         ).includes(term),
     );
-  }, [posts, values]);
+  }, [posts, values.search, selectedStatus]);
 
   function renderContent() {
     if (loading) {
@@ -162,13 +172,13 @@ export default function MyPosts() {
             key={post.id}
             post={post}
             actions={
-              !finishedStatuses.includes(post.status) && (
+              !finishedPostStatuses.includes(post.status) && (
                 <PostActions
                   post={post}
-                  onCanceled={(id) =>
+                  onStatusChange={(id, status) =>
                     setPosts((current) =>
                       current.map((item) =>
-                        item.id === id ? { ...item, status: "canceled" } : item,
+                        item.id === id ? { ...item, status } : item,
                       ),
                     )
                   }
@@ -201,7 +211,7 @@ export default function MyPosts() {
             </InputGroup>
 
             <Select
-              value={values.status}
+              value={selectedStatus}
               onValueChange={(value) => setFilter("status", value)}
             >
               <SelectTrigger aria-label="Status" size="lg" variant="filled">

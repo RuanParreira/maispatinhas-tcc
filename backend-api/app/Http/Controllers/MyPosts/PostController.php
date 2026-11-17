@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\MyPosts;
 
 use App\Actions\EncodeImageAsWebp;
+use App\Http\Controllers\Controller;
 use App\Enums\AdoptionStatus;
 use App\Enums\PostStatus;
 use App\Http\Requests\Post\StorePostRequest;
@@ -22,7 +23,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\Interfaces\ImageInterface;
 use Throwable;
 
-class MyPostsController extends Controller
+class PostController extends Controller
 {
     private const PHOTO_MAX_SIZE = 1600;
 
@@ -75,7 +76,8 @@ class MyPostsController extends Controller
 
     /**
      * Atualiza o anúncio e o seu animal. Remove as fotos pedidas, adiciona as novas
-     * no fim e, se algo mudou num post já moderado, devolve para aprovação.
+     * no fim e, se algo mudou num post já moderado, devolve para aprovação. Pausado e
+     * expirado também voltam: retomar e renovar não passam pela moderação.
      */
     public function update(UpdatePostRequest $request, Post $post, EncodeImageAsWebp $encodeImageAsWebp): PostResource
     {
@@ -97,7 +99,7 @@ class MyPostsController extends Controller
 
                 $changed = $post->isDirty() || $post->animal->isDirty() || $removedPaths !== [] || $storedPaths !== [] || $reordered;
 
-                if ($changed && in_array($post->status, [PostStatus::Active, PostStatus::Rejected], true)) {
+                if ($changed && in_array($post->status, [PostStatus::Active, PostStatus::Rejected, PostStatus::Paused, PostStatus::Expired], true)) {
                     $post->status = PostStatus::PendingApproval;
                 }
 

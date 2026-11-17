@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PostStatus;
 use App\Models\Animal;
 use App\Models\Post;
 use App\Models\PostFile;
@@ -119,3 +120,13 @@ it('rejects a photo_order that does not match the post photos', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('photo_order');
 });
+
+it('sends a paused or expired post back to moderation when it changes', function (PostStatus $status) {
+    $post = ownPost($this->user, 'active');
+    $post->forceFill(['status' => $status])->save();
+
+    $this->actingAs($this->user)
+        ->patch("/api/my-posts/{$post->id}", ['title' => 'Thor agora com outro texto'], ['Accept' => 'application/json'])
+        ->assertOk()
+        ->assertJsonPath('data.status', 'pending_approval');
+})->with([PostStatus::Paused, PostStatus::Expired]);
