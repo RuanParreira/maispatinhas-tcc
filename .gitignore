@@ -5,6 +5,5 @@
 Thumbs.db
 .vscode/settings.json
 
-# Obsidian — estado de interface, muda a cada abertura do vault
-docs/**/.obsidian/workspace.json
-docs/**/.obsidian/workspace-mobile.json
+# Obsidian — configuração local de quem abre o vault (tema, plugins, layout)
+docs/**/.obsidian/
