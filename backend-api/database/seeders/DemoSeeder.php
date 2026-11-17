@@ -102,7 +102,7 @@ class DemoSeeder extends Seeder
             'description' => 'Brincalhona e já sabe fazer as necessidades no lugar certo.',
         ]));
 
-        $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([
+        $fredPost = $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([
             'municipality_id' => self::BELO_HORIZONTE,
             'title' => 'Fred precisa de um quintal',
             'description' => 'Cachorro grande e muito ativo.',
@@ -110,6 +110,7 @@ class DemoSeeder extends Seeder
 
         Adoption::factory()->inProgress()->for($thorPost)->create(['adopter_id' => $leandro->id]);
         Adoption::factory()->refused()->for($thorPost)->create(['adopter_id' => $walysson->id]);
+        Adoption::factory()->inProgress()->for($fredPost)->create(['adopter_id' => $ruan->id]);
 
         $lunaAdoption = Adoption::factory()->completed()->for($lunaPost)->create(['adopter_id' => $ruan->id]);
         Review::factory()->for($lunaAdoption)->create([
@@ -156,6 +157,11 @@ class DemoSeeder extends Seeder
         $this->conversation($lunaPost, $ruan, [
             [$ruan, 'Tenho interesse na Luna, moro em Uberaba.'],
             [$walysson, 'Que ótimo! Delta é pertinho, posso levar ela até você.'],
+        ]);
+        $this->conversation($fredPost, $ruan, [
+            [$ruan, 'Oi! Tenho um quintal grande, o Fred ainda está disponível?'],
+            [$walysson, 'Está sim! Posso levar ele aí no fim de semana.'],
+            [$ruan, 'Combinado, fico esperando vocês.'],
         ]);
         $this->conversation($bolinhaPost, $walysson, [
             [$walysson, 'Acho que vi um cachorro parecido com o Bolinha ontem perto do shopping.'],

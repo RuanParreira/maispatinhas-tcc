@@ -1,5 +1,6 @@
 import { matchPath, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
+import AdoptionPrompt from "@/components/adoptions/AdoptionPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import {
@@ -46,7 +47,7 @@ const PAGES = {
   },
   "/my-adoptions": {
     title: "Minhas adoções",
-    description: "Pedidos de adoção que você fez e recebeu.",
+    description: "Os pets que você levou para casa.",
   },
   "/messages": {
     title: "Mensagens",
@@ -97,6 +98,7 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </SidebarInset>
+      <AdoptionPrompt />
     </SidebarProvider>
   );
 }

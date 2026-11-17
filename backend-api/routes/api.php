@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MunicipalityController;
+use App\Http\Controllers\MyAdoptions;
 use App\Http\Controllers\MyPosts;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Profile;
@@ -97,5 +98,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{post}/pause', [MyPosts\PauseController::class, 'destroy']);
         Route::post('/{post}/resolution', [MyPosts\ResolutionController::class, 'store']);
         Route::post('/{post}/renewal', [MyPosts\RenewalController::class, 'store']);
+    });
+
+    // Minhas adoções
+    Route::prefix('my-adoptions')->group(function () {
+        Route::get('/', [MyAdoptions\AdoptionController::class, 'index']);
+        Route::post('/{adoption}/confirmation', [MyAdoptions\ConfirmationController::class, 'store']);
+        Route::delete('/{adoption}/confirmation', [MyAdoptions\ConfirmationController::class, 'destroy']);
     });
 });

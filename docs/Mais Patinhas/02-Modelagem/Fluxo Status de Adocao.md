@@ -22,7 +22,7 @@ Não existe pedido de adoção. O modelo é o de um marketplace:
 1. O doador publica o anúncio de adoção.
 2. Qualquer pessoa interessada manda mensagem pelo chat do anúncio. É na conversa que as partes se conhecem e combinam a entrega.
 3. Depois da entrega, o doador clica em **Doei** e escolhe, entre as pessoas que conversaram com ele naquele anúncio, quem adotou. Isso cria a adoção em `EM_ANDAMENTO`.
-4. O adotante recebe a pergunta "Você adotou este pet?" e confirma ou nega.
+4. O adotante recebe a pergunta "Você adotou este pet?" e confirma ou nega. A pergunta aparece num modal ao entrar no sistema; "Depois" só adia até a próxima sessão, e a indicação fica fixa no topo de Minhas adoções até ser respondida.
 
 - **EM_ANDAMENTO** — o doador indicou o adotante e aguarda a confirmação dele.
 - **CONCLUIDA** — o adotante confirmou. Estado terminal, e o único que libera avaliação (das duas partes).
