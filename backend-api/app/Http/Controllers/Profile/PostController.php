@@ -11,7 +11,7 @@ class PostController extends Controller
 {
     /**
      * Anúncios publicados do usuário, mais recentes primeiro. Os que estão em
-     * moderação ou encerrados só aparecem para o dono, em "Meus anúncios".
+     * moderação ou finalizados só aparecem para o dono, em "Meus anúncios".
      */
     public function index(User $user): AnonymousResourceCollection
     {

@@ -24,7 +24,7 @@ it('rejects mass-assigning the owner or the animal', function () {
     Post::create($template->only(['user_id', 'animal_id', 'type', 'title', 'description', 'municipality_id']));
 })->throws(QueryException::class);
 
-it('starts as a draft and ignores moderation fields when mass assigned', function () {
+it('starts pending approval and ignores moderation fields when mass assigned', function () {
     $user = User::factory()->create();
     $animal = Animal::factory()->for($user)->create();
 
@@ -42,7 +42,7 @@ it('starts as a draft and ignores moderation fields when mass assigned', functio
     $post->save();
     $post = $post->fresh();
 
-    expect($post->status)->toBe(PostStatus::Draft)
+    expect($post->status)->toBe(PostStatus::PendingApproval)
         ->and($post->published_at)->toBeNull()
         ->and($post->approved_at)->toBeNull();
 });

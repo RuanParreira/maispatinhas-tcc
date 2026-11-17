@@ -25,16 +25,14 @@ return new class extends Migration
             $table->string('title', 120);
             $table->text('description');
             $table->enum('status', [
-                'draft',
                 'pending_approval',
                 'rejected',
                 'active',
                 'paused',
                 'expired',
                 'resolved',
-                'closed',
                 'canceled',
-            ])->default('draft');
+            ])->default('pending_approval');
             $table->unsignedInteger('municipality_id');
             $table->date('occurred_at')->nullable();
             $table->string('location_reference', 120)->nullable();

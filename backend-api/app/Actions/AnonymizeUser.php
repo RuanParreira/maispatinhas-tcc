@@ -23,7 +23,6 @@ use Illuminate\Support\Str;
 class AnonymizeUser
 {
     private const OPEN_POST_STATUSES = [
-        PostStatus::Draft,
         PostStatus::PendingApproval,
         PostStatus::Rejected,
         PostStatus::Active,
@@ -44,7 +43,7 @@ class AnonymizeUser
                 ->where(fn ($query) => $query->whereIn('post_id', $postIds)->orWhere('adopter_id', $user->id))
                 ->update(['status' => AdoptionStatus::Canceled]);
 
-            // Posts resolvidos e encerrados ficam como histórico.
+            // Posts resolvidos ficam como histórico.
             Post::withTrashed()
                 ->whereIn('id', $postIds)
                 ->whereIn('status', self::OPEN_POST_STATUSES)

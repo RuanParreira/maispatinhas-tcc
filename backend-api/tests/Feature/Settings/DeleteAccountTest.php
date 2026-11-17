@@ -61,14 +61,14 @@ it('deletes the avatar file', function () {
 it('cancels open posts and keeps resolved ones', function () {
     $user = User::factory()->create(['password' => Hash::make('secret-123')]);
     $active = Post::factory()->for($user)->active()->create();
-    $draft = Post::factory()->for($user)->create();
+    $pending = Post::factory()->for($user)->create();
     $resolved = Post::factory()->for($user)->create(['status' => PostStatus::Resolved]);
     $foreign = Post::factory()->active()->create();
 
     $this->actingAs($user)->deleteJson('/api/user', ['current_password' => 'secret-123'])->assertNoContent();
 
     expect($active->fresh()->status)->toBe(PostStatus::Canceled)
-        ->and($draft->fresh()->status)->toBe(PostStatus::Canceled)
+        ->and($pending->fresh()->status)->toBe(PostStatus::Canceled)
         ->and($resolved->fresh()->status)->toBe(PostStatus::Resolved)
         ->and($foreign->fresh()->status)->toBe(PostStatus::Active);
 });
