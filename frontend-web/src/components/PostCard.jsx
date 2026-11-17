@@ -81,9 +81,11 @@ export default function PostCard({ post, actions }) {
   ]
     .filter(Boolean)
     .join(" · ");
+  // O card público (PostCardResource) não traz created_at: sem data de publicação, o rodapé fica só com o link.
   const date = post.published_at
     ? `Publicado em ${dateFormat.format(new Date(post.published_at))}`
-    : `Criado em ${dateFormat.format(new Date(post.created_at))}`;
+    : post.created_at &&
+      `Criado em ${dateFormat.format(new Date(post.created_at))}`;
 
   return (
     <article

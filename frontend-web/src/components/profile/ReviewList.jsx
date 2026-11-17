@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { initialsOf } from "@/lib/initials";
 import PersonLink from "@/components/profile/PersonLink";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const monthYear = new Intl.DateTimeFormat("pt-BR", {
   month: "short",
@@ -20,6 +21,37 @@ function Stars({ rating }) {
             step <= rating ? "fill-primary text-warning" : "text-border",
           )}
         />
+      ))}
+    </div>
+  );
+}
+
+// Mesmo desenho do card de avaliação: estrelas, comentário e autor.
+export function ReviewListSkeleton({ count = 2 }) {
+  return (
+    <div
+      role="status"
+      aria-label="Carregando avaliações"
+      className="grid gap-4 lg:grid-cols-2"
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <div
+          key={index}
+          className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-xs sm:p-6"
+        >
+          <Skeleton className="h-4 w-24" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <div className="flex items-center gap-3 border-t border-border/50 pt-4">
+            <Skeleton className="size-10 rounded-full" />
+            <div className="flex flex-col gap-1.5">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );

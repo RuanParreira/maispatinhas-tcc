@@ -18,15 +18,55 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 
+// Mesma estrutura do ProfileHeader, ProfileStats e ProfileTabs, para a página não pular ao carregar.
 function ProfileSkeleton() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <Skeleton className="h-80 rounded-2xl" />
+    <div
+      role="status"
+      aria-label="Carregando perfil"
+      className="flex w-full flex-col gap-6"
+    >
+      <section className="overflow-hidden rounded-2xl bg-card shadow-xs">
+        <Skeleton className="h-28 rounded-none sm:h-36" />
+        <div className="flex flex-col gap-5 px-5 pb-6 sm:px-8">
+          <div className="-mt-12 flex flex-wrap items-end justify-between gap-4 sm:-mt-14">
+            <Skeleton className="size-24 rounded-full ring-4 ring-card sm:size-28" />
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-34 rounded-xl" />
+              <Skeleton className="h-10 w-34 rounded-xl" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-9 w-64 max-w-full" />
+            <div className="flex flex-wrap gap-5">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-4 w-44" />
+            </div>
+          </div>
+          <Skeleton className="h-20 rounded-xl" />
+        </div>
+      </section>
+
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {[1, 2, 3, 4].map((item) => (
-          <Skeleton key={item} className="h-22 rounded-2xl" />
+          <div
+            key={item}
+            className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-xs"
+          >
+            <Skeleton className="size-12 shrink-0 rounded-xl" />
+            <div className="flex flex-1 flex-col gap-2">
+              <Skeleton className="h-7 w-12" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
         ))}
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <Skeleton className="h-11 w-full max-w-md rounded-full" />
+        <PetCardSkeletonGrid label="Carregando anúncios" />
       </div>
     </div>
   );

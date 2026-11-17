@@ -3,7 +3,9 @@ import { HeartHandshake, MessageSquareQuote, PawPrint } from "lucide-react";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import PostCard from "@/components/PostCard";
 import HappyEndingList from "@/components/profile/HappyEndingList";
-import ReviewList from "@/components/profile/ReviewList";
+import ReviewList, {
+  ReviewListSkeleton,
+} from "@/components/profile/ReviewList";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -30,9 +32,9 @@ function EmptyState({ icon: Icon, action, children }) {
   );
 }
 
-function RemoteList({ list, icon, empty, children }) {
+function RemoteList({ list, icon, empty, skeleton, children }) {
   if (!list.loaded && list.loading) {
-    return <PetCardSkeletonGrid label="Carregando anúncios" />;
+    return skeleton ?? <PetCardSkeletonGrid label="Carregando anúncios" />;
   }
 
   if (list.error && list.items.length === 0) {
@@ -156,6 +158,11 @@ export default function ProfileTabs({ profile, isOwner }) {
         <RemoteList
           list={reviews}
           icon={MessageSquareQuote}
+          skeleton={
+            <ReviewListSkeleton
+              count={Math.min(Math.max(profile.stats.reviews_count, 1), 4)}
+            />
+          }
           empty={
             isOwner
               ? "Você ainda não recebeu avaliações."
