@@ -27,7 +27,7 @@ class AdoptionFactory extends Factory
     }
 
     /**
-     * Indica que o doador aceitou a solicitação.
+     * Indica que o doador indicou o adotante e aguarda a confirmação.
      */
     public function inProgress(): static
     {
@@ -48,7 +48,7 @@ class AdoptionFactory extends Factory
     }
 
     /**
-     * Indica que o doador recusou a solicitação.
+     * Indica que o adotante negou ter adotado.
      */
     public function refused(): static
     {

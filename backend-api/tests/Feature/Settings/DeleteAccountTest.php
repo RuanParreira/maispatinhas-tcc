@@ -87,16 +87,14 @@ it('cancels adoptions in progress on trashed posts', function () {
 it('closes adoptions on both sides', function () {
     $user = User::factory()->create(['password' => Hash::make('secret-123')]);
     $post = Post::factory()->for($user)->active()->create();
-    $requestedOnPost = Adoption::factory()->for($post)->create();
     $inProgressOnPost = Adoption::factory()->for($post)->inProgress()->create();
-    $ownRequest = Adoption::factory()->create(['adopter_id' => $user->id]);
+    $ownIndication = Adoption::factory()->inProgress()->create(['adopter_id' => $user->id]);
     $completed = Adoption::factory()->completed()->create(['adopter_id' => $user->id]);
 
     $this->actingAs($user)->deleteJson('/api/user', ['current_password' => 'secret-123'])->assertNoContent();
 
-    expect($requestedOnPost->fresh()->status)->toBe(AdoptionStatus::Refused)
-        ->and($inProgressOnPost->fresh()->status)->toBe(AdoptionStatus::Canceled)
-        ->and($ownRequest->fresh()->status)->toBe(AdoptionStatus::Canceled)
+    expect($inProgressOnPost->fresh()->status)->toBe(AdoptionStatus::Canceled)
+        ->and($ownIndication->fresh()->status)->toBe(AdoptionStatus::Canceled)
         ->and($completed->fresh()->status)->toBe(AdoptionStatus::Completed);
 });
 

@@ -109,7 +109,7 @@ class DemoSeeder extends Seeder
         ]));
 
         Adoption::factory()->inProgress()->for($thorPost)->create(['adopter_id' => $leandro->id]);
-        Adoption::factory()->for($thorPost)->create(['adopter_id' => $walysson->id]);
+        Adoption::factory()->refused()->for($thorPost)->create(['adopter_id' => $walysson->id]);
 
         $lunaAdoption = Adoption::factory()->completed()->for($lunaPost)->create(['adopter_id' => $ruan->id]);
         Review::factory()->for($lunaAdoption)->create([

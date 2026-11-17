@@ -8,11 +8,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('allows several open requests for the same post', function () {
+it('allows a new indication after a refused or canceled one', function () {
     $post = Post::factory()->create();
 
-    Adoption::factory()->for($post)->count(2)->create();
     Adoption::factory()->for($post)->create()->forceFill(['status' => AdoptionStatus::Refused])->save();
+    Adoption::factory()->for($post)->create()->forceFill(['status' => AdoptionStatus::Canceled])->save();
+    Adoption::factory()->for($post)->create();
 
     expect($post->adoptions()->count())->toBe(3);
 });

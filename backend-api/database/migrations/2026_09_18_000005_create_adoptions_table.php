@@ -22,7 +22,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('post_id')->constrained()->restrictOnDelete();
             $table->foreignId('adopter_id')->constrained('users')->restrictOnDelete();
-            $table->enum('status', ['requested', 'in_progress', 'completed', 'refused', 'canceled'])->default('requested');
+            $table->enum('status', ['in_progress', 'completed', 'refused', 'canceled'])->default('in_progress');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 

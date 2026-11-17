@@ -39,18 +39,9 @@ class AnonymizeUser
             // Posts excluídos também contam: uma adoção em andamento pode apontar para um deles.
             $postIds = $user->posts()->withTrashed()->pluck('id');
 
-            // Solicitações nos posts do usuário são recusadas; as aceitas são canceladas.
-            Adoption::whereIn('post_id', $postIds)
-                ->where('status', AdoptionStatus::Requested)
-                ->update(['status' => AdoptionStatus::Refused]);
-
-            Adoption::whereIn('post_id', $postIds)
-                ->where('status', AdoptionStatus::InProgress)
-                ->update(['status' => AdoptionStatus::Canceled]);
-
-            // As solicitações do próprio usuário, aceitas ou não, são retiradas.
-            Adoption::where('adopter_id', $user->id)
-                ->whereIn('status', [AdoptionStatus::Requested, AdoptionStatus::InProgress])
+            // Adoções aguardando confirmação são canceladas, seja ele o doador ou o adotante.
+            Adoption::where('status', AdoptionStatus::InProgress)
+                ->where(fn ($query) => $query->whereIn('post_id', $postIds)->orWhere('adopter_id', $user->id))
                 ->update(['status' => AdoptionStatus::Canceled]);
 
             // Posts resolvidos e encerrados ficam como histórico.
