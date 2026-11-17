@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AnimalAgeGroup;
+use App\Enums\AnimalColor;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
@@ -46,6 +47,7 @@ class Animal extends Model
             'species' => AnimalSpecies::class,
             'sex' => AnimalSex::class,
             'size' => AnimalSize::class,
+            'color' => AnimalColor::class,
             'approximate_birth_date' => 'date',
             'vaccinated' => 'boolean',
             'dewormed' => 'boolean',

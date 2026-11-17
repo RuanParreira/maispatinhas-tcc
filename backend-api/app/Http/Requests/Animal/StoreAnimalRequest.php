@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Animal;
 
+use App\Enums\AnimalColor;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
@@ -32,8 +33,8 @@ class StoreAnimalRequest extends FormRequest
             'breed' => ['nullable', 'string', 'max:60'],
             'sex' => ['required', Rule::enum(AnimalSex::class)],
             'size' => ['required', Rule::enum(AnimalSize::class)],
-            'color' => ['required', 'string', 'max:60'],
-            'distinctive_features' => ['required', 'string'],
+            'color' => ['required', Rule::enum(AnimalColor::class)],
+            'distinctive_features' => ['nullable', 'string'],
             'approximate_birth_date' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:today -30 years'],
             'vaccinated' => ['present', 'nullable', 'boolean'],
             'dewormed' => ['present', 'nullable', 'boolean'],

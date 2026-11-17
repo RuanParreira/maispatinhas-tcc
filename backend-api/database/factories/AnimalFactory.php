@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AnimalColor;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
@@ -28,7 +29,7 @@ class AnimalFactory extends Factory
             'breed' => 'SRD',
             'sex' => fake()->randomElement(AnimalSex::cases()),
             'size' => fake()->randomElement(AnimalSize::cases()),
-            'color' => fake()->colorName(),
+            'color' => fake()->randomElement(AnimalColor::cases()),
             'distinctive_features' => fake()->sentence(),
             'approximate_birth_date' => fake()->dateTimeBetween('-10 years', '-2 months'),
             'vaccinated' => fake()->boolean(),

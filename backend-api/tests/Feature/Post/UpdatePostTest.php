@@ -53,3 +53,23 @@ it('allows clearing the approximate age only on found posts', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('animal.approximate_birth_date');
 });
+
+it('rejects a location reference when the post becomes an adoption', function () {
+    $lost = ownPost($this->user, 'lost');
+    $lost->update(['location_reference' => 'Centro']);
+
+    $this->actingAs($this->user)
+        ->patch("/api/my-posts/{$lost->id}", ['type' => 'adoption', 'occurred_at' => ''], ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('location_reference');
+});
+
+it('rejects a size other than small when the pet becomes a rabbit', function () {
+    $post = ownPost($this->user);
+    $post->animal->update(['size' => 'large']);
+
+    $this->actingAs($this->user)
+        ->patch("/api/my-posts/{$post->id}", ['animal' => ['species' => 'rabbit']], ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('animal.size');
+});

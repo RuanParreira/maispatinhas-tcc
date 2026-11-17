@@ -40,6 +40,7 @@ class PostFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => PostType::Lost,
             'occurred_at' => fake()->dateTimeBetween('-30 days'),
+            'location_reference' => fake()->optional()->streetName(),
         ]);
     }
 
@@ -51,6 +52,8 @@ class PostFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => PostType::Found,
             'occurred_at' => fake()->dateTimeBetween('-30 days'),
+            'location_reference' => fake()->optional()->streetName(),
+            'with_finder' => fake()->boolean(),
         ]);
     }
 

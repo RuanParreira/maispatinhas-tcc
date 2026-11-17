@@ -27,7 +27,7 @@ beforeEach(function () {
             'breed' => 'SRD',
             'sex' => 'male',
             'size' => 'medium',
-            'color' => 'Caramelo',
+            'color' => 'caramel',
             'distinctive_features' => 'Mancha branca no peito.',
             'approximate_birth_date' => '2024-03-01',
             'vaccinated' => 1,
@@ -36,7 +36,7 @@ beforeEach(function () {
         ],
         'type' => 'adoption',
         'title' => 'Thor procura um lar',
-        'description' => 'Dócil e vacinado.',
+        'description' => 'Dócil, vacinado e muito carinhoso com crianças.',
         'municipality_id' => Municipality::factory()->create()->ibge_code,
         'images' => [
             UploadedFile::fake()->image('capa.jpg', 800, 600),
@@ -149,6 +149,7 @@ it('requires the pet name only on lost posts', function () {
         ->assertJsonValidationErrors('animal.name');
 
     $this->payload['type'] = 'found';
+    $this->payload['with_finder'] = 1;
 
     $this->actingAs($this->user)
         ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
@@ -164,6 +165,7 @@ it('requires the approximate age except on found posts', function () {
         ->assertJsonValidationErrors('animal.approximate_birth_date');
 
     $this->payload['type'] = 'found';
+    $this->payload['with_finder'] = 1;
     $this->payload['occurred_at'] = now()->subDay()->toDateString();
 
     $this->actingAs($this->user)
@@ -226,4 +228,90 @@ it('limits post creation without blocking other sensitive routes', function () {
 
     $this->postJson('/api/my-posts')->assertTooManyRequests();
     $this->putJson('/api/user/password')->assertUnprocessable();
+});
+
+it('accepts a location reference only on lost and found posts', function () {
+    $this->payload['location_reference'] = 'Centro, perto da praça';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('location_reference');
+
+    $this->payload['type'] = 'lost';
+    $this->payload['occurred_at'] = now()->subDay()->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated()
+        ->assertJsonPath('data.location_reference', 'Centro, perto da praça');
+});
+
+it('stores the pet without distinctive features', function () {
+    unset($this->payload['animal']['distinctive_features']);
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated();
+});
+
+it('accepts only the listed coat colors', function () {
+    $this->payload['animal']['color'] = 'Caramelo claro';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('animal.color');
+});
+
+it('asks whether the found animal is with the finder only on found posts', function () {
+    $this->payload['type'] = 'found';
+    $this->payload['occurred_at'] = now()->subDay()->toDateString();
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('with_finder');
+
+    $this->payload['with_finder'] = 0;
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated()
+        ->assertJsonPath('data.with_finder', false);
+
+    $this->payload['type'] = 'adoption';
+    unset($this->payload['occurred_at']);
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('with_finder');
+});
+
+it('requires a minimum length for the title and the description', function () {
+    $this->payload['title'] = 'Thor';
+    $this->payload['description'] = 'Dócil.';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['title', 'description']);
+});
+
+it('keeps birds, rodents and rabbits as small', function () {
+    $this->payload['animal']['species'] = 'rabbit';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([
+            'animal.size' => 'Ave, roedor e coelho são sempre de porte pequeno.',
+        ]);
+
+    $this->payload['animal']['size'] = 'small';
+
+    $this->actingAs($this->user)
+        ->post('/api/my-posts', $this->payload, ['Accept' => 'application/json'])
+        ->assertCreated();
 });

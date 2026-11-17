@@ -9,7 +9,8 @@ return new class extends Migration
     /**
      * Executa a migration.
      *
-     * occurred_at só se aplica a posts de perdido/encontrado.
+     * occurred_at e location_reference só se aplicam a posts de perdido/encontrado.
+     * with_finder (o animal ficou com quem o encontrou) só se aplica a encontrado.
      * published_at é definido na aprovação e reiniciado quando um post expirado é renovado.
      * user_id e animal_id ficam travados após a criação: as adoções dependem de que
      * nunca mudem, por isso ficam de fora do fillable do model de propósito.
@@ -36,6 +37,8 @@ return new class extends Migration
             ])->default('draft');
             $table->unsignedInteger('municipality_id');
             $table->date('occurred_at')->nullable();
+            $table->string('location_reference', 120)->nullable();
+            $table->boolean('with_finder')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamp('approved_at')->nullable();

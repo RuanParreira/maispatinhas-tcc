@@ -29,6 +29,8 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'occurred_at' => $this->occurred_at?->toDateString(),
+            'location_reference' => $this->location_reference,
+            'with_finder' => $this->with_finder,
             'published_at' => $this->published_at?->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),
             'rejection_reason' => $this->whenLoaded('latestRejection', fn () => $this->status === PostStatus::Rejected

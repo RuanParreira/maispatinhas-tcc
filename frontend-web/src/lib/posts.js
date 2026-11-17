@@ -38,6 +38,22 @@ export const animalSizes = {
   large: "Grande",
 };
 
+export const animalColors = {
+  black: "Preto",
+  white: "Branco",
+  gray: "Cinza",
+  caramel: "Caramelo",
+  golden: "Dourado",
+  orange: "Laranja",
+  brown: "Marrom",
+  beige: "Bege",
+  black_and_white: "Preto e branco",
+  brindle: "Tigrado ou rajado",
+  tricolor: "Tricolor",
+  siamese: "Siamês",
+  other: "Outra",
+};
+
 /**
  * Respostas de saúde do animal. "unknown" vai para a API como vazio (null).
  */
@@ -52,3 +68,8 @@ export const healthQuestions = [
   { field: "animal.dewormed", label: "Está vermifugado?" },
   { field: "animal.neutered", label: "É castrado?" },
 ];
+
+/**
+ * Tamanhos mínimos do texto do anúncio, iguais aos do StorePostRequest.
+ */
+export const postTextMinLengths = { title: 10, description: 30 };

@@ -162,6 +162,13 @@ return [
         'animal.approximate_birth_date' => [
             'after_or_equal' => 'A idade aproximada deve ser de no máximo 30 anos.',
         ],
+        'animal.size' => [
+            'in' => 'Ave, roedor e coelho são sempre de porte pequeno.',
+        ],
+        'with_finder' => [
+            'required_if' => 'Informe se o animal está com você.',
+            'prohibited_unless' => 'Essa informação só vale para posts de animal encontrado.',
+        ],
     ],
 
     'attributes' => [
@@ -173,6 +180,8 @@ return [
         'municipality_id' => 'município',
         'token' => 'token',
         'current_password' => 'senha atual',
+        'location_reference' => 'ponto de referência',
+        'with_finder' => 'o animal está com você',
     ],
 
 ];

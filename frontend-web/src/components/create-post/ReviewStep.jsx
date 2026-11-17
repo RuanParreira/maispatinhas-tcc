@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   HeartPulse,
+  House,
   Images,
   MapPin,
   PawPrint,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import {
   animalSexes,
+  animalColors,
   animalSizes,
   animalSpecies,
   healthAnswers,
@@ -130,7 +132,9 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
             {city && (
               <span className="flex items-center gap-1">
                 <MapPin className="size-3.5" />
-                {city.name} - {city.state}
+                {form.type !== "adoption" && form.location_reference.trim()
+                  ? `${form.location_reference.trim()}, ${city.name} - ${city.state}`
+                  : `${city.name} - ${city.state}`}
               </span>
             )}
             {form.type !== "adoption" && form.occurred_at && (
@@ -139,6 +143,14 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
                 {new Date(`${form.occurred_at}T00:00`).toLocaleDateString(
                   "pt-BR",
                 )}
+              </span>
+            )}
+            {form.type === "found" && form.with_finder && (
+              <span className="flex items-center gap-1">
+                <House className="size-3.5" />
+                {form.with_finder === "yes"
+                  ? "Está com quem encontrou"
+                  : "Ficou no local"}
               </span>
             )}
           </div>
@@ -181,7 +193,9 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
             <ReviewItem label="Raça">
               {form["animal.breed"] || "Sem raça definida"}
             </ReviewItem>
-            <ReviewItem label="Cor">{form["animal.color"]}</ReviewItem>
+            <ReviewItem label="Cor">
+              {animalColors[form["animal.color"]]}
+            </ReviewItem>
             <ReviewItem label="Sexo">
               {animalSexes[form["animal.sex"]]}
             </ReviewItem>
@@ -195,12 +209,12 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
               label="Características marcantes"
               className="col-span-full"
             >
-              {form["animal.distinctive_features"]}
+              {form["animal.distinctive_features"].trim() || "Não informadas"}
             </ReviewItem>
           </dl>
         </ReviewSection>
 
-        {form.type !== "found" && (
+        {form.type === "adoption" && (
           <ReviewSection
             title="Saúde"
             icon={HeartPulse}
@@ -226,7 +240,7 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
         <ReviewSection
           title="Fotos"
           icon={Images}
-          className={form.type === "found" ? "lg:col-span-2" : undefined}
+          className={form.type === "adoption" ? undefined : "lg:col-span-2"}
           stepId="photos"
           onEdit={onEdit}
         >

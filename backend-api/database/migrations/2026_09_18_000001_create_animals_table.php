@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('breed', 60)->nullable();
             $table->enum('sex', ['male', 'female', 'undefined']);
             $table->enum('size', ['small', 'medium', 'large']);
-            $table->string('color', 60);
-            $table->text('distinctive_features');
+            $table->enum('color', ['black', 'white', 'gray', 'caramel', 'golden', 'orange', 'brown', 'beige', 'black_and_white', 'brindle', 'tricolor', 'siamese', 'other']);
+            $table->text('distinctive_features')->nullable();
             $table->date('approximate_birth_date')->nullable();
             $table->boolean('vaccinated')->nullable();
             $table->boolean('dewormed')->nullable();

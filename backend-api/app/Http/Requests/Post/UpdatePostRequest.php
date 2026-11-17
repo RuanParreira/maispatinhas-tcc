@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Post;
 
+use App\Enums\AnimalSize;
+use App\Enums\AnimalSpecies;
 use App\Enums\PostType;
 use App\Http\Requests\Animal\StoreAnimalRequest;
 use App\Models\Post;
@@ -48,10 +50,12 @@ class UpdatePostRequest extends FormRequest
 
             // animal_id não entra: não deve mudar após a criação.
             'type' => ['sometimes', Rule::enum(PostType::class)],
-            'title' => ['sometimes', 'string', 'max:120'],
-            'description' => ['sometimes', 'string'],
+            'title' => ['sometimes', 'string', 'min:10', 'max:120'],
+            'description' => ['sometimes', 'string', 'min:30'],
             'municipality_id' => ['sometimes', 'integer', 'exists:municipalities,ibge_code'],
             'occurred_at' => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'location_reference' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'with_finder' => ['sometimes', 'nullable', 'boolean'],
 
             'images' => ['sometimes', 'array', 'max:5'],
             'images.*' => [
@@ -111,6 +115,44 @@ class UpdatePostRequest extends FormRequest
                         'occurred_at',
                         'A data do ocorrido só pode ser informada para posts de animal perdido ou encontrado.'
                     );
+                }
+
+                $locationReference = $this->has('location_reference')
+                    ? $this->input('location_reference')
+                    : $post->location_reference;
+
+                if ($type === 'adoption' && filled($locationReference)) {
+                    $validator->errors()->add(
+                        'location_reference',
+                        'O ponto de referência só pode ser informado para posts de animal perdido ou encontrado.'
+                    );
+                }
+
+                $withFinder = $this->has('with_finder')
+                    ? $this->input('with_finder')
+                    : $post->with_finder;
+
+                if ($type === 'found' && blank($withFinder)) {
+                    $validator->errors()->add(
+                        'with_finder',
+                        'Informe se o animal está com você.'
+                    );
+                }
+
+                if ($type !== 'found' && filled($withFinder)) {
+                    $validator->errors()->add(
+                        'with_finder',
+                        'Essa informação só vale para posts de animal encontrado.'
+                    );
+                }
+
+                $species = $this->has('animal.species')
+                    ? AnimalSpecies::from($this->input('animal.species'))
+                    : $post->animal->species;
+                $size = $this->input('animal.size', $post->animal->size->value);
+
+                if ($species->isAlwaysSmall() && $size !== AnimalSize::Small->value) {
+                    $validator->errors()->add('animal.size', 'Ave, roedor e coelho são sempre de porte pequeno.');
                 }
 
                 $animalName = $this->has('animal.name')

@@ -44,7 +44,12 @@ export default function PetCard({
   }
   const animal = pet.animal || {};
   const city = pet.municipality
-    ? `${pet.municipality.name} - ${pet.municipality.state}`
+    ? [
+        pet.location_reference,
+        `${pet.municipality.name} - ${pet.municipality.state}`,
+      ]
+        .filter(Boolean)
+        .join(", ")
     : "";
   const name = animal.name || pet.title;
   const description = pet.description;

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Post;
 
+use App\Enums\AnimalSize;
+use App\Enums\AnimalSpecies;
 use App\Enums\PostType;
 use App\Http\Requests\Animal\StoreAnimalRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -20,7 +22,9 @@ class StorePostRequest extends FormRequest
      * O animal chega junto com o post (campos animal.*) e os dois são criados na mesma
      * transação: todo post tem um animal e todo animal pertence a um post.
      * As regras do animal são as mesmas do StoreAnimalRequest, só com o prefixo "animal.".
-     * occurred_at é obrigatório para animais perdidos ou encontrados e proibido em adoção.
+     * occurred_at é obrigatório para animais perdidos ou encontrados e proibido em adoção;
+     * location_reference (bairro ou ponto de referência) é opcional nesses casos e também proibido em adoção.
+     * with_finder diz se o animal encontrado ficou com quem o achou: só existe em encontrado.
      * Pet perdido tem tutor, então o nome é obrigatório nesse caso. Quem encontrou
      * o animal não sabe a idade dele, então ela é opcional nesse caso.
      *
@@ -40,6 +44,13 @@ class StorePostRequest extends FormRequest
             'animal' => ['required', 'array'],
             ...$animalRules,
             'animal.name' => ['required_if:type,lost', ...$animalRules['animal.name']],
+            'animal.size' => [
+                ...$animalRules['animal.size'],
+                Rule::when(
+                    AnimalSpecies::tryFrom((string) $this->input('animal.species'))?->isAlwaysSmall() ?? false,
+                    [Rule::in([AnimalSize::Small->value])],
+                ),
+            ],
             'animal.approximate_birth_date' => [
                 'required_unless:type,found',
                 'nullable',
@@ -47,8 +58,8 @@ class StorePostRequest extends FormRequest
             ],
 
             'type' => ['required', Rule::enum(PostType::class)],
-            'title' => ['required', 'string', 'max:120'],
-            'description' => ['required', 'string'],
+            'title' => ['required', 'string', 'min:10', 'max:120'],
+            'description' => ['required', 'string', 'min:30'],
             'municipality_id' => ['required', 'integer', 'exists:municipalities,ibge_code'],
             'occurred_at' => [
                 'required_if:type,lost,found',
@@ -57,6 +68,8 @@ class StorePostRequest extends FormRequest
                 'date',
                 'before_or_equal:today',
             ],
+            'location_reference' => ['prohibited_if:type,adoption', 'nullable', 'string', 'max:120'],
+            'with_finder' => ['required_if:type,found', 'prohibited_unless:type,found', 'nullable', 'boolean'],
 
             'images' => ['nullable', 'array', 'max:5'],
             'images.*' => [

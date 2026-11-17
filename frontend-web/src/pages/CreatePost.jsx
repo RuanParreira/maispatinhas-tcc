@@ -4,14 +4,16 @@ import { ArrowLeft, ArrowRight, Send } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import { toDateInputValue } from "@/lib/date";
-import { healthQuestions } from "@/lib/posts";
+import { healthQuestions, postTextMinLengths, postTypes } from "@/lib/posts";
 import DetailsStep from "@/components/create-post/DetailsStep";
 import HealthStep from "@/components/create-post/HealthStep";
+import LeaveGuard from "@/components/create-post/LeaveGuard";
 import PetStep from "@/components/create-post/PetStep";
 import PhotosStep from "@/components/create-post/PhotosStep";
 import ReviewStep from "@/components/create-post/ReviewStep";
 import StepIndicator from "@/components/create-post/StepIndicator";
 import TypeStep from "@/components/create-post/TypeStep";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -37,14 +39,13 @@ const steps = [
       "animal.sex",
       "animal.size",
       "age_amount",
-      "animal.distinctive_features",
     ],
     serverFields: ["animal.breed", "animal.approximate_birth_date"],
   },
   {
     id: "health",
     title: "Saúde",
-    skipFor: "found",
+    onlyFor: "adoption",
     heading: "Como está a saúde dele?",
     description:
       'Escolha uma resposta para cada item. Sem certeza? Marque "Não sei", isso não impede a publicação.',
@@ -66,7 +67,14 @@ const steps = [
     heading: "Onde e o que dizer no anúncio",
     description: "Onde ele está e o que as pessoas precisam saber.",
     Component: DetailsStep,
-    required: ["municipality_id", "occurred_at", "title", "description"],
+    required: [
+      "municipality_id",
+      "occurred_at",
+      "with_finder",
+      "title",
+      "description",
+    ],
+    serverFields: ["location_reference"],
   },
   {
     id: "review",
@@ -94,6 +102,8 @@ const initialForm = {
   age_unit: "years",
   municipality_id: "",
   occurred_at: "",
+  location_reference: "",
+  with_finder: "",
   title: "",
   description: "",
   images: [],
@@ -107,13 +117,15 @@ function isEmpty(value) {
 
 /**
  * Campos obrigatórios vazios da etapa. A data do ocorrido só vale para perdido
- * e encontrado, o nome só para perdido e a idade é opcional para encontrado.
+ * e encontrado, o nome só para perdido, a idade é opcional para encontrado e
+ * "está com você?" só existe em encontrado.
  */
 function missingFields(step, form) {
   const notApplicable = {
     occurred_at: form.type === "adoption",
     "animal.name": form.type !== "lost",
     age_amount: form.type === "found",
+    with_finder: form.type !== "found",
   };
 
   return step.required
@@ -141,6 +153,12 @@ function ageError(form) {
 
 function stepErrorsOf(step, form) {
   const errors = missingFields(step, form);
+  Object.entries(postTextMinLengths)
+    .filter(([field]) => step.required.includes(field) && !errors[field])
+    .filter(([field, min]) => form[field].trim().length < min)
+    .forEach(([field, min]) => {
+      errors[field] = `Use pelo menos ${min} caracteres.`;
+    });
   if (
     step.required.includes("age_amount") &&
     !isEmpty(form.age_amount) &&
@@ -153,10 +171,13 @@ function stepErrorsOf(step, form) {
 }
 
 /**
- * Quem encontrou um animal na rua não sabe a saúde dele, então essa etapa some.
+ * A saúde só importa para quem vai adotar: quem encontrou não sabe e, no
+ * perdido, não ajuda a reconhecer o pet. Sem tipo escolhido, mostra todas.
  */
 function stepsFor(type) {
-  return steps.filter((step) => step.skipFor !== type);
+  return steps.filter(
+    (step) => !type || !step.onlyFor || step.onlyFor === type,
+  );
 }
 
 function stepOfField(field, visibleSteps) {
@@ -184,7 +205,13 @@ function toFormData(form) {
   data.append("title", form.title.trim());
   data.append("description", form.description.trim());
   data.append("municipality_id", form.municipality_id);
-  if (form.type !== "adoption") data.append("occurred_at", form.occurred_at);
+  if (form.type !== "adoption") {
+    data.append("occurred_at", form.occurred_at);
+    data.append("location_reference", form.location_reference.trim());
+  }
+  if (form.type === "found") {
+    data.append("with_finder", form.with_finder === "yes" ? "1" : "0");
+  }
 
   Object.entries(form)
     .filter(([field]) => field.startsWith("animal."))
@@ -193,7 +220,7 @@ function toFormData(form) {
       const isHealthField = healthQuestions.some(
         (question) => question.field === field,
       );
-      const healthValue = form.type === "found" ? "" : healthValues[value];
+      const healthValue = form.type === "adoption" ? healthValues[value] : "";
       data.append(name, isHealthField ? healthValue : value.trim());
     });
   data.append(
@@ -214,6 +241,7 @@ export default function CreatePost() {
   const [current, setCurrent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [municipalities, setMunicipalities] = useState([]);
+  const [published, setPublished] = useState(false);
   const headingRef = useRef(null);
   const hasNavigated = useRef(false);
   const latestImages = useRef([]);
@@ -236,6 +264,11 @@ export default function CreatePost() {
   useEffect(() => {
     if (hasNavigated.current) headingRef.current?.focus();
   }, [current]);
+
+  // Navega só depois do render em que o LeaveGuard já foi desligado.
+  useEffect(() => {
+    if (published) navigate("/my-posts");
+  }, [published, navigate]);
 
   useEffect(() => {
     latestImages.current = form.images;
@@ -280,7 +313,7 @@ export default function CreatePost() {
       toast.success(
         "Anúncio enviado! Ele aparece para todos após a moderação.",
       );
-      navigate("/my-posts");
+      setPublished(true);
     } catch (error) {
       const serverErrors = error.response?.data?.errors;
       if (!serverErrors) {
@@ -323,6 +356,7 @@ export default function CreatePost() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      <LeaveGuard when={form !== initialForm && !published} />
       <StepIndicator steps={visibleSteps} current={current} onSelect={goTo} />
 
       <form
@@ -331,6 +365,11 @@ export default function CreatePost() {
         className="flex flex-col gap-8 rounded-2xl bg-card p-5 shadow-xs sm:p-8"
       >
         <div>
+          {current > 0 && (
+            <Badge variant={postTypes[form.type].variant} className="mb-3">
+              {postTypes[form.type].label}
+            </Badge>
+          )}
           <h2
             ref={headingRef}
             tabIndex={-1}
@@ -349,20 +388,18 @@ export default function CreatePost() {
           onEdit={goToStep}
         />
 
-        <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-6">
-          {current > 0 ? (
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={() => goTo(current - 1)}
-            >
-              <ArrowLeft />
-              Voltar
-            </Button>
-          ) : (
-            <span />
-          )}
+        <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border/50 bg-card/95 px-5 py-4 backdrop-blur-sm sm:-mx-8 sm:-mb-8 sm:px-8 sm:py-5">
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={() =>
+              current > 0 ? goTo(current - 1) : navigate("/my-posts")
+            }
+          >
+            <ArrowLeft />
+            Voltar
+          </Button>
           <span className="hidden text-[0.8125rem] text-muted-foreground sm:block">
             Etapa {current + 1} de {visibleSteps.length}
           </span>

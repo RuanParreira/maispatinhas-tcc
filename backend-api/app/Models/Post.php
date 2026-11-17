@@ -31,6 +31,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'description',
     'municipality_id',
     'occurred_at',
+    'location_reference',
+    'with_finder',
 ])]
 class Post extends Model
 {
@@ -48,6 +50,7 @@ class Post extends Model
             'type' => PostType::class,
             'status' => PostStatus::class,
             'occurred_at' => 'date',
+            'with_finder' => 'boolean',
             'published_at' => 'datetime',
             'approved_at' => 'datetime',
         ];

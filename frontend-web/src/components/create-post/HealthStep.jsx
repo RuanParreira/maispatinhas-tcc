@@ -1,6 +1,7 @@
 import { Pill, Stethoscope, Syringe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { healthAnswers, healthQuestions } from "@/lib/posts";
+import { RequiredLabel } from "@/components/form/RequiredLabel";
 import { ChoiceField } from "@/components/form/ChoiceField";
 
 const questionDetails = {
@@ -38,7 +39,9 @@ export default function HealthStep({ form, update, errors }) {
                 <Icon className="size-5" />
               </span>
               <div>
-                <p className="font-semibold">{label}</p>
+                <p className="font-semibold">
+                  <RequiredLabel>{label}</RequiredLabel>
+                </p>
                 <p className="text-[0.8125rem] text-muted-foreground">{hint}</p>
               </div>
             </div>
