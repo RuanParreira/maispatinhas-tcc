@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * dependem de que nunca mudem (veja a migration de adoptions).
  *
  * @method static Builder<static> active()
+ * @method static Builder<static> reunited()
  * @method static Builder<static> withFavoriteFlag(?User $user)
  */
 #[Fillable([
@@ -65,6 +66,22 @@ class Post extends Model
     protected function active(Builder $query): void
     {
         $query->where('status', PostStatus::Active);
+    }
+
+    /**
+     * Reencontros: perdidos e encontrados que voltaram para casa. Ficam públicos como histórico.
+     *
+     * @param  Builder<Post>  $query
+     */
+    #[Scope]
+    protected function reunited(Builder $query): void
+    {
+        $query->where('status', PostStatus::Resolved)->whereIn('type', [PostType::Lost, PostType::Found]);
+    }
+
+    public function isReunion(): bool
+    {
+        return $this->status === PostStatus::Resolved && $this->type !== PostType::Adoption;
     }
 
     /**

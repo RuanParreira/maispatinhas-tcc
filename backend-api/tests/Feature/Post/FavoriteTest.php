@@ -28,6 +28,15 @@ it('does not favorite a post hidden from the user', function () {
         ->assertNotFound();
 });
 
+it('does not favorite a reunion, even though it is public', function () {
+    $user = User::factory()->create();
+    $reunion = Post::factory()->lost()->resolved()->create();
+
+    $this->actingAs($user)->putJson("/api/posts/{$reunion->id}/favorite")->assertConflict();
+
+    expect($user->favoritePosts()->count())->toBe(0);
+});
+
 it('requires authentication to favorite', function () {
     $post = Post::factory()->active()->create();
 

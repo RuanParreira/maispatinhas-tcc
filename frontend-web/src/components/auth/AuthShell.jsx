@@ -4,7 +4,7 @@ import logo from "@/assets/logo.png";
 
 const pillars = [
   { label: "Adoção responsável", icon: Heart },
-  { label: "Perdidos e encontrados", icon: Search },
+  { label: "Pets perdidos", icon: Search },
   { label: "Comunidade ativa", icon: Users },
 ];
 

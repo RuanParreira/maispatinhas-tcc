@@ -7,8 +7,8 @@ import ResetPassword from "./auth/ResetPassword.jsx";
 import EmailVerified from "./auth/EmailVerified.jsx";
 import VerifyEmailNotice from "./auth/VerifyEmailNotice.jsx";
 import Adoptions from "./pages/Adoptions.jsx";
-import Lost from "./pages/Lost.jsx";
-import Found from "./pages/Found.jsx";
+import LostAndFound from "./pages/LostAndFound.jsx";
+import Reunions from "./pages/Reunions.jsx";
 import Favorites from "./pages/Favorites.jsx";
 import MyPosts from "./pages/MyPosts.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
@@ -47,8 +47,13 @@ export default function App() {
       <Route element={<AuthGate when="guest" redirectTo="/login" />}>
         <Route element={<AppLayout />}>
           <Route path="/adoptions" element={<Adoptions />} />
-          <Route path="/lost" element={<Lost />} />
-          <Route path="/found" element={<Found />} />
+          <Route path="/lost" element={<LostAndFound />} />
+          {/* Encontrados virou o filtro "Achados"; o endereço antigo continua funcionando. */}
+          <Route
+            path="/found"
+            element={<Navigate to="/lost?view=found" replace />}
+          />
+          <Route path="/reunions" element={<Reunions />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/posts/create" element={<CreatePost />} />
           <Route path="/posts/:id/edit" element={<EditPost />} />

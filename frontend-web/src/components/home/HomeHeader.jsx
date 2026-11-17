@@ -4,8 +4,8 @@ import logo from "@/assets/logo.png";
 
 const links = [
   { label: "Adote", to: "/adoptions" },
-  { label: "Perdidos", to: "/lost" },
-  { label: "Encontrados", to: "/found" },
+  { label: "Pets perdidos", to: "/lost" },
+  { label: "Reencontros", to: "/reunions" },
   { label: "Como funciona", to: "#como-funciona" },
   { label: "Sobre nós", to: "#sobre" },
 ];

@@ -10,6 +10,14 @@ tags:
 
 PERDIDO e ENCONTRADO são fluxos opostos da mesma aba: tutor procurando o bicho vs. quem achou o bicho procurando o tutor. Ambos usam o mesmo [[Fluxo Status de Anuncio]] — o post se resolve (`RESOLVIDO`) quando tutor e animal se reencontram. Só ADOCAO termina em adoção ([[Fluxo Status de Adocao]]).
 
+## Como os tipos aparecem para o usuário
+
+- **Cadastro:** são dois cards, "Doação para adoção" e "Pet perdido ou achado". O segundo pergunta "Meu pet sumiu" (PERDIDO) ou "Encontrei um animal que parece ter tutor" (ENCONTRADO). Quem acha o animal não sabe se ele tem dono, então o texto descreve o que a pessoa viu sem afirmar que está perdido.
+- **Pets perdidos:** uma tela só, com filtro "Perdidos" / "Achados", que casa com o selo "Perdido" / "Achado" do card. Quem perdeu precisa ver os achados e vice-versa. "Achado" não afirma que o animal tem dono e não se confunde com "Reencontros". O nome evita "Achados e perdidos", que soa como objeto esquecido.
+- **Reencontros:** tela própria com PERDIDO e ENCONTRADO em `RESOLVIDO`, públicos como histórico. Só tem busca por nome ou cidade: porte, idade e ordem não ajudam a ver histórias. Adoção concluída não entra: ela aparece no perfil, como final feliz.
+
+Continuam dois tipos no banco porque o formulário, as regras abaixo e a finalização ("Reencontrei" / "Devolvi ao tutor") mudam entre eles.
+
 ## O que cada tipo pede no cadastro
 
 O cadastro é feito em etapas e o tipo define as perguntas. Cada regra parte do que a pessoa realmente sabe sobre o animal.

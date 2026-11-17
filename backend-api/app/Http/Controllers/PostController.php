@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AnimalAgeGroup;
+use App\Enums\PostStatus;
 use App\Http\Requests\Post\ListPostsRequest;
 use App\Http\Resources\PostCardResource;
 use App\Http\Resources\PostResource;
@@ -15,14 +16,17 @@ use Illuminate\Support\Facades\Gate;
 class PostController extends Controller
 {
     /**
-     * Listar anúncios públicos (apenas ativos).
+     * Listar anúncios públicos: os ativos ou, com status=resolved, os reencontros.
+     * Adoção concluída não entra: ela aparece no perfil, como final feliz.
      */
     public function index(ListPostsRequest $request): AnonymousResourceCollection
     {
         $filters = $request->validated();
+        $reunions = ($filters['status'] ?? null) === PostStatus::Resolved->value;
 
-        $posts = Post::active()
-            ->when($filters['type'] ?? null, fn (Builder $query, string $type) => $query->where('type', $type))
+        $posts = Post::query()
+            ->when($reunions, fn (Builder $query) => $query->reunited(), fn (Builder $query) => $query->active())
+            ->when($filters['type'] ?? null, fn (Builder $query, array $types) => $query->whereIn('type', $types))
             ->when($filters['search'] ?? null, fn (Builder $query, string $search) => $query->where(
                 fn (Builder $query) => $query
                     ->whereHas('animal', fn (Builder $animal) => $animal
@@ -40,7 +44,7 @@ class PostController extends Controller
             ->when(
                 ($filters['sort'] ?? null) === 'name',
                 fn (Builder $query) => $query->orderBy(Animal::select('name')->whereColumn('animals.id', 'posts.animal_id')),
-                fn (Builder $query) => $query->latest('published_at'),
+                fn (Builder $query) => $query->latest($reunions ? 'updated_at' : 'published_at'),
             )
             ->paginate(15)
             ->withQueryString();

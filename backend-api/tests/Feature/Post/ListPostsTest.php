@@ -45,12 +45,35 @@ function activePostWithAnimal(array $animal = [], array $municipality = []): Pos
 it('paginates 15 posts per page and keeps the filters in the page links', function () {
     Post::factory()->active()->count(16)->create();
 
-    $this->getJson('/api/posts?type=adoption&page=2')
+    $this->getJson('/api/posts?type[]=adoption&page=2')
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('meta.total', 16)
         ->assertJsonPath('meta.last_page', 2)
-        ->assertJsonPath('links.prev', fn (string $url) => str_contains($url, 'type=adoption'));
+        ->assertJsonPath('links.prev', fn (string $url) => str_contains(urldecode($url), 'type[0]=adoption'));
+});
+
+it('lists lost and found posts together', function () {
+    $lost = Post::factory()->lost()->active()->create();
+    $found = Post::factory()->found()->active()->create();
+    Post::factory()->active()->create();
+
+    $this->getJson('/api/posts?type[]=lost&type[]=found')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.*.id', fn (array $ids) => collect($ids)->sort()->values()->all() === [$lost->id, $found->id]);
+});
+
+it('lists reunions only from resolved lost and found posts', function () {
+    $reunion = Post::factory()->lost()->resolved()->create();
+    Post::factory()->resolved()->create();
+    Post::factory()->lost()->active()->create();
+
+    $this->getJson('/api/posts?status=resolved')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $reunion->id)
+        ->assertJsonPath('data.0.status', 'resolved');
 });
 
 it('filters by species, size and sex', function () {

@@ -87,11 +87,8 @@ const initialFilters = {
   sex: "all",
 };
 
-const catalogLabels = {
-  adoption: "para adoção",
-  lost: "perdidos",
-  found: "encontrados",
-};
+// Constante: um array novo a cada render refaria a busca em loop.
+const adoptionTypes = ["adoption"];
 
 const pageLinkClass = "size-10 rounded-xl font-semibold shadow-xs";
 const searchDelay = 300;
@@ -106,8 +103,9 @@ function pageNumbers(current, last) {
   return Array.from({ length: count }, (_, index) => first + index);
 }
 
-function toQueryParams(type, values, search, sort, page) {
-  const params = { type, sort, page, search: search.trim() };
+function toQueryParams(types, status, values, search, sort, page) {
+  const params = { type: types, sort, page, search: search.trim() };
+  if (status) params.status = status;
   if (values.species !== "all") params.species = values.species;
   if (values.size !== "all") params.size = values.size;
   if (values.sex !== "all") params.sex = values.sex;
@@ -116,13 +114,31 @@ function toQueryParams(type, values, search, sort, page) {
   return params;
 }
 
-export default function PostCatalog({ type = "adoption" }) {
+/**
+ * Catálogo público com busca, filtros e paginação. `types` e `status` definem o recorte
+ * (adoção, pets perdidos, reencontros); `header` entra no topo do painel de filtros.
+ * `searchOnly` deixa só a busca, para telas em que porte, idade e ordem não ajudam.
+ */
+export default function PostCatalog({
+  types = adoptionTypes,
+  status,
+  label = "para adoção",
+  header,
+  searchOnly = false,
+}) {
   const [values, setValues] = useState(initialFilters);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [page, setPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState({ key: null, posts: [], meta: null });
+  const [pagedTypes, setPagedTypes] = useState(types);
+
+  // Trocar o recorte (ex.: Perdidos/Achados) volta para a página 1, mas mantém busca e filtros.
+  if (pagedTypes !== types) {
+    setPagedTypes(types);
+    setPage(1);
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(values.search), searchDelay);
@@ -130,8 +146,8 @@ export default function PostCatalog({ type = "adoption" }) {
   }, [values.search]);
 
   const params = useMemo(
-    () => toQueryParams(type, values, search, sort, page),
-    [type, values, search, sort, page],
+    () => toQueryParams(types, status, values, search, sort, page),
+    [types, status, values, search, sort, page],
   );
   const requestKey = `${JSON.stringify(params)}#${attempt}`;
   const loading = result.key !== requestKey;
@@ -184,12 +200,17 @@ export default function PostCatalog({ type = "adoption" }) {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-xs sm:p-5">
+        {header}
         <div className="flex flex-wrap items-center gap-3">
           <InputGroup className="h-11 min-w-60 flex-1">
             <InputGroupInput
               type="search"
               aria-label="Buscar pets"
-              placeholder="Busque por nome, raça ou cidade"
+              placeholder={
+                searchOnly
+                  ? "Busque por nome ou cidade"
+                  : "Busque por nome, raça ou cidade"
+              }
               value={values.search}
               onChange={(e) => setFilter("search", e.target.value)}
               className="pr-4 text-body md:text-body"
@@ -199,78 +220,90 @@ export default function PostCatalog({ type = "adoption" }) {
             </InputGroupAddon>
           </InputGroup>
 
-          <div className="flex items-center gap-1 rounded-xl bg-secondary/50 p-1">
-            <ToggleGroup
-              type="single"
-              variant="solid"
-              size="lg"
-              spacing={1}
-              aria-label="Espécie"
-              value={isOtherSpecies ? "" : values.species}
-              onValueChange={(value) => value && setFilter("species", value)}
-            >
-              {speciesOptions.map((option) => (
-                <ToggleGroupItem
-                  key={option.value}
-                  value={option.value}
-                  className="px-3.5 text-muted-foreground hover:bg-transparent"
+          {!searchOnly && (
+            <>
+              <div className="flex items-center gap-1 rounded-xl bg-secondary/50 p-1">
+                <ToggleGroup
+                  type="single"
+                  variant="solid"
+                  size="lg"
+                  spacing={1}
+                  aria-label="Espécie"
+                  value={isOtherSpecies ? "" : values.species}
+                  onValueChange={(value) =>
+                    value && setFilter("species", value)
+                  }
                 >
-                  {option.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            <Select
-              value={isOtherSpecies ? values.species : ""}
-              onValueChange={(value) => setFilter("species", value)}
-            >
-              <SelectTrigger
-                aria-label="Outras espécies"
-                className={cn(
-                  "h-9 gap-1.5 rounded-lg border-transparent px-3.5 text-sm font-medium data-[size=default]:h-9 data-placeholder:text-muted-foreground",
-                  isOtherSpecies
-                    ? "bg-primary text-primary-foreground shadow-xs [&_svg]:text-primary-foreground"
-                    : "hover:text-foreground",
-                )}
-              >
-                <SelectValue placeholder="Outros" />
-              </SelectTrigger>
-              <SelectContent position="popper" align="end" className="min-w-40">
-                {otherSpeciesOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  {speciesOptions.map((option) => (
+                    <ToggleGroupItem
+                      key={option.value}
+                      value={option.value}
+                      className="px-3.5 text-muted-foreground hover:bg-transparent"
+                    >
+                      {option.label}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+                <Select
+                  value={isOtherSpecies ? values.species : ""}
+                  onValueChange={(value) => setFilter("species", value)}
+                >
+                  <SelectTrigger
+                    aria-label="Outras espécies"
+                    className={cn(
+                      "h-9 gap-1.5 rounded-lg border-transparent px-3.5 text-sm font-medium data-[size=default]:h-9 data-placeholder:text-muted-foreground",
+                      isOtherSpecies
+                        ? "bg-primary text-primary-foreground shadow-xs [&_svg]:text-primary-foreground"
+                        : "hover:text-foreground",
+                    )}
+                  >
+                    <SelectValue placeholder="Outros" />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="popper"
+                    align="end"
+                    className="min-w-40"
+                  >
+                    {otherSpeciesOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {filters.map((filter) => (
-            <Select
-              key={filter.key}
-              value={values[filter.key]}
-              onValueChange={(value) => setFilter(filter.key, value)}
-            >
-              <SelectTrigger
-                aria-label={filter.label}
-                size="lg"
-                variant="filled"
-              >
-                <span className="text-muted-foreground">{filter.label}:</span>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent
-                position="popper"
-                align="start"
-                className="min-w-40"
-              >
-                {filter.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ))}
+              {filters.map((filter) => (
+                <Select
+                  key={filter.key}
+                  value={values[filter.key]}
+                  onValueChange={(value) => setFilter(filter.key, value)}
+                >
+                  <SelectTrigger
+                    aria-label={filter.label}
+                    size="lg"
+                    variant="filled"
+                  >
+                    <span className="text-muted-foreground">
+                      {filter.label}:
+                    </span>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="popper"
+                    align="start"
+                    className="min-w-40"
+                  >
+                    {filter.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ))}
+            </>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-[0.8125rem] text-muted-foreground">
@@ -280,26 +313,26 @@ export default function PostCatalog({ type = "adoption" }) {
               <span className="font-semibold text-foreground">
                 {total} {total === 1 ? "pet" : "pets"}
               </span>{" "}
-              {catalogLabels[type]}
+              {label}
             </p>
           ) : (
-            <Skeleton
-              className={cn("h-4 w-40", result.error && "invisible")}
-            />
+            <Skeleton className={cn("h-4 w-40", result.error && "invisible")} />
           )}
-          <Select value={sort} onValueChange={changeSort}>
-            <SelectTrigger
-              aria-label="Ordenar por"
-              className="h-9 gap-2 border-transparent px-2 text-[0.8125rem] data-[size=default]:h-9"
-            >
-              <span className="text-muted-foreground">Ordenar por:</span>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent position="popper" align="end" className="min-w-40">
-              <SelectItem value="recent">Mais recentes</SelectItem>
-              <SelectItem value="name">Nome (A–Z)</SelectItem>
-            </SelectContent>
-          </Select>
+          {!searchOnly && (
+            <Select value={sort} onValueChange={changeSort}>
+              <SelectTrigger
+                aria-label="Ordenar por"
+                className="h-9 gap-2 border-transparent px-2 text-[0.8125rem] data-[size=default]:h-9"
+              >
+                <span className="text-muted-foreground">Ordenar por:</span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper" align="end" className="min-w-40">
+                <SelectItem value="recent">Mais recentes</SelectItem>
+                <SelectItem value="name">Nome (A–Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 
@@ -346,7 +379,9 @@ export default function PostCatalog({ type = "adoption" }) {
             </EmptyMedia>
             <EmptyTitle>Nenhum pet encontrado</EmptyTitle>
             <EmptyDescription>
-              Tente ajustar os filtros ou buscar por outro nome ou cidade.
+              {searchOnly
+                ? "Tente buscar por outro nome ou cidade."
+                : "Tente ajustar os filtros ou buscar por outro nome ou cidade."}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>

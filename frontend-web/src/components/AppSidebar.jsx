@@ -4,7 +4,7 @@ import {
   HandHeart,
   LogOut,
   MapPin,
-  ScanSearch,
+  PartyPopper,
   FileText,
   MessageSquare,
   User,
@@ -36,8 +36,8 @@ const navGroups = (userId) => [
     label: "Principal",
     items: [
       { title: "Adotar", url: "/adoptions", icon: Heart },
-      { title: "Perdidos", url: "/lost", icon: MapPin },
-      { title: "Encontrados", url: "/found", icon: ScanSearch },
+      { title: "Pets perdidos", url: "/lost", icon: MapPin },
+      { title: "Reencontros", url: "/reunions", icon: PartyPopper },
     ],
   },
   {

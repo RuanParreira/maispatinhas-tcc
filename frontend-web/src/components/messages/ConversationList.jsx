@@ -28,7 +28,7 @@ const kindOptions = [
   { value: "all", label: "Todos os tipos" },
   { value: "adoption", label: "Adoções" },
   { value: "lost", label: "Perdidos" },
-  { value: "found", label: "Encontrados" },
+  { value: "found", label: "Achados" },
 ];
 
 

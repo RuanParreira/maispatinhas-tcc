@@ -3,10 +3,17 @@ import { ArrowRight, Heart, MapPin, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api/axios";
-import { postTypes } from "@/lib/posts";
+import { postTypes, statusLabelOf } from "@/lib/posts";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+// "Achado" não afirma que o animal tem dono, só que alguém o achou.
+const catalogLabels = {
+  adoption: "Disponível para adoção",
+  lost: "Perdido",
+  found: "Achado",
+};
 
 export default function PetCard({
   pet,
@@ -14,9 +21,9 @@ export default function PetCard({
   onFavoriteChange,
 }) {
   const type = postTypes[pet.type] ? pet.type : "adoption";
-  const status = postTypes[type];
-  const statusLabel =
-    type === "adoption" ? "Disponível para adoção" : status.label;
+  const isReunion = pet.status === "resolved";
+  const badgeVariant = isReunion ? "success" : postTypes[type].variant;
+  const statusLabel = isReunion ? statusLabelOf(pet) : catalogLabels[type];
   const [favorite, setFavorite] = useState(Boolean(pet.is_favorite));
   const [favoritePending, setFavoritePending] = useState(false);
   const isFavoriteKnown = pet.is_favorite !== undefined;
@@ -78,7 +85,7 @@ export default function PetCard({
           </div>
         )}
         <Badge
-          variant={status.variant}
+          variant={badgeVariant}
           className="absolute top-4 left-4 h-6 px-3 shadow-xs"
         >
           {statusLabel}

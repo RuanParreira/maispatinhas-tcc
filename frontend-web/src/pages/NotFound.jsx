@@ -28,15 +28,15 @@ const destinations = [
     description:
       "Veja os alertas da sua região e ajude um tutor a reencontrar seu companheiro.",
     action: "Ver perdidos",
-    to: "/lost",
+    to: "/lost?view=lost",
     icon: MapPin,
   },
   {
-    title: "Pets encontrados",
+    title: "Pets achados",
     description:
       "Animais encontrados na rua, cuidados por alguém até o tutor aparecer.",
-    action: "Ver encontrados",
-    to: "/found",
+    action: "Ver achados",
+    to: "/lost?view=found",
     icon: LocateFixed,
   },
   {
@@ -59,7 +59,9 @@ export default function NotFound() {
           <p className="flex items-center justify-center gap-2 text-label font-semibold text-warning uppercase">
             <span className="size-2 rounded-full bg-primary" />
             <span className="text-foreground">Mais Patinhas</span>
-            <span aria-hidden="true" className="text-muted-foreground/60">/</span>
+            <span aria-hidden="true" className="text-muted-foreground/60">
+              /
+            </span>
             Página não encontrada
           </p>
 
@@ -105,7 +107,7 @@ export default function NotFound() {
                   to="/lost"
                   className="px-2 text-base font-semibold text-warning underline decoration-warning/40 underline-offset-4 transition-colors hover:decoration-warning"
                 >
-                  Perdidos e encontrados
+                  Pets perdidos
                 </Link>
               </div>
             </div>

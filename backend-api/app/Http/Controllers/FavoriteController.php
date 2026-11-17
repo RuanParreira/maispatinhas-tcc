@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostStatus;
 use App\Http\Resources\PostCardResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -28,11 +29,13 @@ class FavoriteController extends Controller
     }
 
     /**
-     * Favorita o anúncio. Repetir a chamada não duplica o registro.
+     * Favorita o anúncio. Repetir a chamada não duplica o registro. Só ativos: um
+     * reencontro é público, mas favoritá-lo criaria um registro que a lista nunca mostra.
      */
     public function store(Request $request, Post $post): Response
     {
         Gate::authorize('view', $post);
+        abort_unless($post->status === PostStatus::Active, 409, 'Só anúncios publicados podem ser favoritados.');
 
         $request->user()->favoritePosts()->syncWithoutDetaching([$post->id]);
 

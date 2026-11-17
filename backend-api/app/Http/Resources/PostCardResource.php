@@ -22,6 +22,7 @@ class PostCardResource extends JsonResource
         return [
             'id' => $this->id,
             'type' => $this->type,
+            'status' => $this->when($this->isReunion(), $this->status),
             'title' => $this->title,
             'description' => Str::limit($this->description, 160),
             'location_reference' => $this->location_reference,

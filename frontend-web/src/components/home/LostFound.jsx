@@ -15,7 +15,7 @@ const blocks = [
       "Ajude a procurar animais desaparecidos recentemente em sua região.",
     icon: ShieldAlert,
     accentClass: "text-destructive",
-    to: "/lost",
+    to: "/lost?view=lost",
     action: "Ver todos os perdidos",
     preview: {
       name: "Simba (Gato)",
@@ -27,13 +27,13 @@ const blocks = [
   {
     badge: "Resgate",
     badgeVariant: "default",
-    title: "Pets encontrados",
+    title: "Pets achados",
     description:
       "Encontrou um pet perdido? Cadastre aqui para que o tutor o encontre.",
     icon: HandHeart,
     accentClass: "text-warning",
-    to: "/found",
-    action: "Ver todos os encontrados",
+    to: "/lost?view=found",
+    action: "Ver todos os achados",
     preview: {
       name: "Cachorrinho sem coleira",
       place: "Encontrado na Vila Santa Cruz • Franca, SP",

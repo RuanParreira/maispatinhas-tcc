@@ -5,7 +5,7 @@ const petByName = Object.fromEntries(mockPets.map((pet) => [pet.name, pet]));
 export const conversationKinds = {
   adoption: { label: "Adoção", badge: "success", route: "/adoptions" },
   lost: { label: "Perdido", badge: "destructive", route: "/lost" },
-  found: { label: "Encontrado", badge: "info", route: "/found" },
+  found: { label: "Achado", badge: "info", route: "/lost?view=found" },
 };
 
 // Dados de exemplo enquanto o backend não expõe o chat.

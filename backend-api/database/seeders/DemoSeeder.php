@@ -49,6 +49,7 @@ class DemoSeeder extends Seeder
         $fred = $this->animal($walysson, 'Fred', AnimalSpecies::Dog, AnimalSex::Male, AnimalSize::Large);
         $bento = $this->animal($ruan, 'Bento', AnimalSpecies::Cat, AnimalSex::Male, AnimalSize::Small);
         $mel = $this->animal($leandro, 'Mel', AnimalSpecies::Dog, AnimalSex::Female, AnimalSize::Small);
+        $pacoca = $this->animal($leandro, 'Paçoca', AnimalSpecies::Cat, AnimalSex::Female, AnimalSize::Small);
 
         $thorPost = $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($ruan)->for($thor)->create([
             'municipality_id' => UserSeeder::UBERABA,
@@ -100,6 +101,12 @@ class DemoSeeder extends Seeder
             'municipality_id' => UserSeeder::UBERLANDIA,
             'title' => 'Mel, filhote de porte pequeno',
             'description' => 'Brincalhona e já sabe fazer as necessidades no lugar certo.',
+        ]));
+
+        $this->recordApproval(Post::factory()->recycle($this->admin)->lost()->resolved()->for($leandro)->for($pacoca)->create([
+            'municipality_id' => UserSeeder::UBERABA,
+            'title' => 'Paçoca fugiu durante os fogos de ano novo',
+            'description' => 'Gata assustada, sumiu do quintal na virada. Já voltou para casa graças a um vizinho.',
         ]));
 
         $fredPost = $this->recordApproval(Post::factory()->recycle($this->admin)->active()->for($walysson)->for($fred)->create([

@@ -2,7 +2,7 @@
 export const postTypes = {
   adoption: { label: "Adoção", variant: "success" },
   lost: { label: "Perdido", variant: "destructive" },
-  found: { label: "Encontrado", variant: "info" },
+  found: { label: "Achado", variant: "info" },
 };
 
 export const postStatuses = {

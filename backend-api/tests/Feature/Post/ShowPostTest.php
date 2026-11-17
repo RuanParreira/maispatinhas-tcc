@@ -42,3 +42,11 @@ it('shows a post in moderation to its owner and to admins', function () {
         ->getJson("/api/posts/{$post->id}")
         ->assertOk();
 });
+
+it('shows a reunion to guests but keeps a resolved adoption private', function () {
+    $reunion = Post::factory()->lost()->resolved()->create();
+    $adoption = Post::factory()->resolved()->create();
+
+    $this->getJson("/api/posts/{$reunion->id}")->assertOk();
+    $this->getJson("/api/posts/{$adoption->id}")->assertNotFound();
+});

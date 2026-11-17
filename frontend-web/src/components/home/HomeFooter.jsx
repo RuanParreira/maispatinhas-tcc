@@ -7,8 +7,9 @@ const columns = [
     title: "Explorar",
     links: [
       { label: "Quero adotar", to: "/adoptions" },
-      { label: "Pets perdidos", to: "/lost" },
-      { label: "Pets encontrados", to: "/found" },
+      { label: "Pets perdidos", to: "/lost?view=lost" },
+      { label: "Pets achados", to: "/lost?view=found" },
+      { label: "Reencontros", to: "/reunions" },
       { label: "Como funciona", href: "#como-funciona" },
     ],
   },

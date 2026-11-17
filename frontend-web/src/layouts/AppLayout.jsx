@@ -21,12 +21,13 @@ const PAGES = {
       "Pets esperando por uma nova história de afeto e cuidado mútuo.",
   },
   "/lost": {
-    title: "Perdidos",
-    description: "Ajude alguém a reencontrar seu companheiro desaparecido.",
+    title: "Pets perdidos",
+    description:
+      "Pets que sumiram e animais achados na rua esperando o tutor. Viu algum?",
   },
-  "/found": {
-    title: "Encontrados",
-    description: "Animais encontrados na rua, à espera do tutor.",
+  "/reunions": {
+    title: "Reencontros",
+    description: "Pets que estavam perdidos e voltaram para casa.",
   },
   "/my-posts": {
     title: "Meus anúncios",

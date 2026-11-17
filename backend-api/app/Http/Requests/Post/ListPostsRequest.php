@@ -6,6 +6,7 @@ use App\Enums\AnimalAgeGroup;
 use App\Enums\AnimalSex;
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
+use App\Enums\PostStatus;
 use App\Enums\PostType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -20,14 +21,17 @@ class ListPostsRequest extends FormRequest
 
     /**
      * Filtros do catálogo público. Todos são opcionais; "search" procura no nome
-     * e na raça do animal e no nome da cidade.
+     * e na raça do animal e no nome da cidade. type aceita vários tipos (perdidos e
+     * encontrados dividem a tela) e status=resolved lista os reencontros.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'type' => ['nullable', Rule::enum(PostType::class)],
+            'type' => ['nullable', 'array'],
+            'type.*' => [Rule::enum(PostType::class)],
+            'status' => ['nullable', Rule::in([PostStatus::Active->value, PostStatus::Resolved->value])],
             'search' => ['nullable', 'string', 'max:100'],
             'species' => ['nullable', Rule::enum(AnimalSpecies::class)],
             'size' => ['nullable', Rule::enum(AnimalSize::class)],

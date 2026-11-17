@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/input-group";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-const intents = ["Quero adotar", "Pet perdido", "Pet encontrado"];
+const intents = ["Quero adotar", "Pet perdido", "Pet achado"];
 
 export default function HomeSearch() {
   const [intent, setIntent] = useState(intents[0]);
