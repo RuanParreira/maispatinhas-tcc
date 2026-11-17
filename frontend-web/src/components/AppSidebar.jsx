@@ -43,7 +43,12 @@ const navGroups = (userId) => [
   {
     label: "Gerenciar",
     items: [
-      { title: "Meus anúncios", url: "/my-posts", icon: FileText },
+      {
+        title: "Meus anúncios",
+        url: "/my-posts",
+        icon: FileText,
+        activeOn: ["/posts/create"],
+      },
       { title: "Favoritos", url: "/favorites", icon: Bookmark },
       { title: "Minhas adoções", url: "/my-adoptions", icon: HandHeart },
       { title: "Mensagens", url: "/messages", icon: MessageSquare },
@@ -99,7 +104,10 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
                       asChild
-                      isActive={location.pathname === item.url}
+                      isActive={
+                        location.pathname === item.url ||
+                        item.activeOn?.includes(location.pathname)
+                      }
                       tooltip={item.title}
                       className="h-9 font-medium text-sidebar-foreground/80 transition-colors data-active:bg-primary data-active:text-primary-foreground data-active:shadow-xs data-active:hover:bg-primary data-active:hover:text-primary-foreground"
                     >

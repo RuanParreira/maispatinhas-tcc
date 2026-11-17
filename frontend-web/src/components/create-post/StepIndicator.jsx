@@ -26,7 +26,7 @@ export default function StepIndicator({ steps, current, onSelect }) {
                 disabled={!isDone}
                 onClick={() => onSelect(index)}
                 aria-current={isCurrent ? "step" : undefined}
-                className="group flex shrink-0 items-center gap-3 rounded-xl text-left disabled:cursor-default"
+                className="group flex shrink-0 cursor-pointer items-center gap-3 rounded-xl text-left disabled:cursor-default"
               >
                 <span
                   className={cn(

@@ -12,7 +12,7 @@ import {
   EmptyHeader,
   EmptyMedia,
 } from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -32,13 +32,7 @@ function EmptyState({ icon: Icon, action, children }) {
 
 function RemoteList({ list, icon, empty, children }) {
   if (!list.loaded && list.loading) {
-    return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
-        {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-96 rounded-2xl" />
-        ))}
-      </div>
-    );
+    return <PetCardSkeletonGrid label="Carregando anúncios" />;
   }
 
   if (list.error && list.items.length === 0) {

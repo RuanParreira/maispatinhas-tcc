@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
 
 const statusOptions = [
   { value: "all", label: "Todos" },
@@ -98,13 +98,7 @@ export default function MyPosts() {
 
   function renderContent() {
     if (loading) {
-      return (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
-          {[1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-96 rounded-2xl" />
-          ))}
-        </div>
-      );
+      return <PetCardSkeletonGrid label="Carregando anúncios" />;
     }
 
     if (error) {
@@ -189,15 +183,15 @@ export default function MyPosts() {
               value={values.status}
               onValueChange={(value) => setFilter("status", value)}
             >
-              <SelectTrigger
-                aria-label="Status"
-                size="lg"
-                variant="filled"
-              >
+              <SelectTrigger aria-label="Status" size="lg" variant="filled">
                 <span className="text-muted-foreground">Status:</span>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent position="popper" align="start" className="min-w-40">
+              <SelectContent
+                position="popper"
+                align="start"
+                className="min-w-40"
+              >
                 {statusOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
