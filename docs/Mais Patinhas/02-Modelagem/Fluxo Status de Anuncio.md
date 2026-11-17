@@ -10,6 +10,7 @@ stateDiagram-v2
     RASCUNHO --> PENDENTE_APROVACAO
     PENDENTE_APROVACAO --> REJEITADO
     PENDENTE_APROVACAO --> ATIVO
+    PENDENTE_APROVACAO --> CANCELADO
     REJEITADO --> PENDENTE_APROVACAO
     REJEITADO --> CANCELADO
     ATIVO --> PENDENTE_APROVACAO
@@ -70,10 +71,18 @@ Além disso, o fato de ter sido aprovado não depende do campo de status: fica r
 
 O prazo é regra de aplicação, não do banco.
 
+## Cancelar em vez de excluir
+
+O autor nunca apaga um anúncio: o "excluir" da interface leva o anúncio para `CANCELADO`. Ele sai do catálogo, mas o registro e o animal continuam no banco, porque conversas, moderações e o histórico do autor apontam para eles. O anúncio cancelado segue visível para o próprio autor em Meus anúncios, com o selo "Cancelado".
+
+- Pode cancelar a partir de `PENDENTE_APROVACAO`, `REJEITADO`, `ATIVO`, `PAUSADO` e `EXPIRADO`.
+- `RESOLVIDO`, `ENCERRADO` e `CANCELADO` não podem ser cancelados: são histórico ou já são terminais.
+- Com adoção `EM_ANDAMENTO`, o cancelamento é bloqueado até o doador desfazer a indicação. Ver [[Fluxo Status de Adocao]].
+
 ## Exclusão de conta
 
 Quando o autor exclui a conta, todo anúncio aberto (`RASCUNHO`, `PENDENTE_APROVACAO`, `REJEITADO`, `ATIVO`, `PAUSADO`, `EXPIRADO`) vai direto para `CANCELADO`, inclusive os que normalmente não teriam essa transição. `RESOLVIDO` e `ENCERRADO` ficam como estão, porque são histórico.
 
-Pedidos de adoção `SOLICITADA` nesses anúncios viram `RECUSADA`, e adoções `EM_ANDAMENTO` viram `CANCELADA`. Ver [[Fluxo Status de Adocao]].
+Adoções `EM_ANDAMENTO` nesses anúncios viram `CANCELADA`. Ver [[Fluxo Status de Adocao]].
 
 Ver [[Tipos Anuncio]] para os tipos de post e [[Fluxo Status de Adocao]] para o ciclo da adoção.

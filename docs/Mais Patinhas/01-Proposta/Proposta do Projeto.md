@@ -16,7 +16,7 @@ O Mais Patinhas é um website voltado à doação, adoção e busca de animais p
 
 - **Catálogo de adoção**: usuários cadastram perfis de animais disponíveis para adoção e podem navegar pelos pets publicados por outras pessoas.
 - **Aba de animais perdidos**: posts dedicados a animais perdidos (tutor procurando o bicho) e a animais encontrados (quem achou o bicho procurando o tutor), com município e data do ocorrido.
-- **Chat**: bate-papo entre as partes para combinar o encontro e efetivar a adoção.
+- **Chat**: bate-papo entre as partes para combinar o encontro. Não há pedido de adoção: quem tem interesse manda mensagem, e no fim o doador marca "Doei", escolhe entre as pessoas que conversaram com ele qual adotou, e o adotante confirma.
 - **Filtro por região**: os posts exibidos priorizam a localidade do usuário (ex.: morador de Uberaba vê primeiro posts de Uberaba e região), em vez de resultados do país inteiro.
 - **Moderação prévia**: todo post — doação ou perdido — fica pendente até um moderador aprovar ou recusar a publicação.
 - **Avaliação pós-adoção**: ao final do processo de adoção/doação, as partes avaliam a experiência, construindo reputação dentro da plataforma.
@@ -42,8 +42,8 @@ Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderaç
 
 ## Estado da implementação (nov/2026)
 
-- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e exclusão dos próprios anúncios com fotos; catálogo público de anúncios.
-- **A fazer:** painel de moderação, chat, favoritos, pedido e acompanhamento de adoção, avaliação pós-adoção e busca por raio ([[Busca por Proximidade]]).
+- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e cancelamento dos próprios anúncios com fotos; catálogo público de anúncios; favoritos.
+- **A fazer:** painel de moderação, chat, indicação e confirmação de adoção ("Doei"), avaliação pós-adoção e busca por raio ([[Busca por Proximidade]]).
 
 ## Documentos do TCC
 

@@ -6,21 +6,30 @@ tags:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> SOLICITADA
-    SOLICITADA --> RECUSADA
-    SOLICITADA --> EM_ANDAMENTO
-    EM_ANDAMENTO --> CANCELADA
+    [*] --> EM_ANDAMENTO
     EM_ANDAMENTO --> CONCLUIDA
+    EM_ANDAMENTO --> RECUSADA
+    EM_ANDAMENTO --> CANCELADA
     CONCLUIDA --> [*]
     RECUSADA --> [*]
     CANCELADA --> [*]
 ```
 
-- **SOLICITADA** — o interessado pediu a adoção. O doador ainda não respondeu.
-- **EM_ANDAMENTO** — o doador aceitou o pedido. As partes estão combinando a entrega.
-- **CONCLUIDA** — o animal foi entregue. Estado terminal, e o único que libera avaliação.
-- **RECUSADA** — o doador negou o pedido. Estado terminal.
-- **CANCELADA** — desistência de qualquer uma das partes depois do aceite. Estado terminal.
+## Como a adoção acontece
+
+Não existe pedido de adoção. O modelo é o de um marketplace:
+
+1. O doador publica o anúncio de adoção.
+2. Qualquer pessoa interessada manda mensagem pelo chat do anúncio. É na conversa que as partes se conhecem e combinam a entrega.
+3. Depois da entrega, o doador clica em **Doei** e escolhe, entre as pessoas que conversaram com ele naquele anúncio, quem adotou. Isso cria a adoção em `EM_ANDAMENTO`.
+4. O adotante recebe a pergunta "Você adotou este pet?" e confirma ou nega.
+
+- **EM_ANDAMENTO** — o doador indicou o adotante e aguarda a confirmação dele.
+- **CONCLUIDA** — o adotante confirmou. Estado terminal, e o único que libera avaliação (das duas partes).
+- **RECUSADA** — o adotante negou ter adotado. Estado terminal; o doador pode indicar outra pessoa.
+- **CANCELADA** — o doador desfez a indicação antes da confirmação (por exemplo, indicou a pessoa errada ou ela não responde). Estado terminal; o doador pode indicar outra pessoa.
+
+A confirmação do adotante é o que dá valor à avaliação: ninguém consegue se dar uma adoção concluída sozinho.
 
 ## Sincronia com o anúncio
 
@@ -28,23 +37,25 @@ Adoção e anúncio são máquinas de estado separadas, mas não independentes. 
 
 | Evento na adoção | Efeito obrigatório no anúncio |
 | --- | --- |
-| `SOLICITADA` criada | anúncio permanece `ATIVO` |
-| `EM_ANDAMENTO` | anúncio permanece `ATIVO` |
+| `EM_ANDAMENTO` criada | anúncio permanece `ATIVO` |
 | `CONCLUIDA` | anúncio vai para `RESOLVIDO` |
-| `RECUSADA` / `CANCELADA` | anúncio volta a aceitar novas solicitações |
+| `RECUSADA` / `CANCELADA` | anúncio continua `ATIVO` e aceita nova indicação |
 
 Restrições que decorrem disso:
 
-- Só um anúncio em `ATIVO` aceita nova adoção `SOLICITADA`.
-- No máximo uma adoção `EM_ANDAMENTO` ou `CONCLUIDA` por anúncio. Várias `SOLICITADA` podem coexistir — é o doador quem escolhe entre os interessados.
+- Só um anúncio `ATIVO` do tipo `ADOCAO` aceita indicação de adotante.
+- Só pode ser indicado quem conversou com o doador pelo chat daquele anúncio.
+- No máximo uma adoção `EM_ANDAMENTO` ou `CONCLUIDA` por anúncio.
+- Enquanto houver adoção `EM_ANDAMENTO`, o anúncio não pode ser cancelado: o doador precisa desfazer a indicação antes.
 - Uma adoção `CONCLUIDA` nunca volta atrás. Devolução do animal é um anúncio novo, não uma reversão de estado.
+
+Anúncios de `PERDIDO` e `ENCONTRADO` não têm adoção: o autor marca o animal como reencontrado e o anúncio vai direto para `RESOLVIDO`.
 
 ## Exclusão de conta
 
-A exclusão de conta é o único caso que cancela adoções automaticamente:
+A exclusão de conta cancela automaticamente as adoções em aberto:
 
-- Adotante exclui a conta: seus pedidos `SOLICITADA` e `EM_ANDAMENTO` viram `CANCELADA`. É a única forma de chegar em `CANCELADA` a partir de `SOLICITADA`.
-- Doador exclui a conta: pedidos `SOLICITADA` nos anúncios dele viram `RECUSADA`, e `EM_ANDAMENTO` vira `CANCELADA`.
+- Adotante ou doador exclui a conta: adoções `EM_ANDAMENTO` em que ele participa viram `CANCELADA`.
 - `CONCLUIDA` nunca muda, porque libera avaliação e é histórico.
 
 Ver [[Fluxo Status de Anuncio]] para o ciclo de vida do anúncio.

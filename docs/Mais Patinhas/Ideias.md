@@ -1,2 +1,2 @@
 - Na hora de adotar o dono do post marca quem adotou e vai direto salvar na tabela de adoções.
-  - Conflita com [[Fluxo Status de Adocao]], em que o interessado pede (`SOLICITADA`) e o doador aceita. Decidir qual dos dois fluxos vale.
+  - **Decidido (nov/2026):** vale este fluxo, estilo marketplace. Não existe pedido de adoção: o doador marca "Doei", escolhe entre quem conversou com ele no chat do anúncio e o adotante confirma. Ver [[Fluxo Status de Adocao]].
