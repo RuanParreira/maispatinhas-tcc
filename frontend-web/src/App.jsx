@@ -12,6 +12,7 @@ import Found from "./pages/Found.jsx";
 import Favorites from "./pages/Favorites.jsx";
 import MyPosts from "./pages/MyPosts.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
+import EditPost from "./pages/EditPost.jsx";
 import PostDetails from "./pages/PostDetails.jsx";
 import MyAdoptions from "./pages/MyAdoptions.jsx";
 import Messages from "./pages/Messages.jsx";
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/found" element={<Found />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/posts/create" element={<CreatePost />} />
+          <Route path="/posts/:id/edit" element={<EditPost />} />
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/my-adoptions" element={<MyAdoptions />} />

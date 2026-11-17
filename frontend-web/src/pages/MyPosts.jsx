@@ -4,6 +4,7 @@ import { PawPrint, Plus, Search } from "lucide-react";
 import api from "@/api/axios";
 import { postStatuses } from "@/lib/posts";
 import { normalize } from "@/lib/text";
+import PostActions from "@/components/PostActions";
 import PostCard from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PetCardSkeletonGrid } from "@/components/PetCardSkeleton";
+
+// Histórico: não se editam nem se cancelam (mesma regra do PostStatus::isFinished).
+const finishedStatuses = ["resolved", "closed", "canceled"];
 
 const statusOptions = [
   { value: "all", label: "Todos" },
@@ -154,7 +158,24 @@ export default function MyPosts() {
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6">
         {filteredPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard
+            key={post.id}
+            post={post}
+            actions={
+              !finishedStatuses.includes(post.status) && (
+                <PostActions
+                  post={post}
+                  onCanceled={(id) =>
+                    setPosts((current) =>
+                      current.map((item) =>
+                        item.id === id ? { ...item, status: "canceled" } : item,
+                      ),
+                    )
+                  }
+                />
+              )
+            }
+          />
         ))}
       </div>
     );

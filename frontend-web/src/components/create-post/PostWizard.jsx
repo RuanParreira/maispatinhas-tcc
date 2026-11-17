@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Send } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/api/axios";
-import { toDateInputValue } from "@/lib/date";
-import { healthQuestions, postTextMinLengths, postTypes } from "@/lib/posts";
+import { isEmpty } from "@/lib/postForm";
+import { postTextMinLengths, postTypes } from "@/lib/posts";
 import DetailsStep from "@/components/create-post/DetailsStep";
 import HealthStep from "@/components/create-post/HealthStep";
 import LeaveGuard from "@/components/create-post/LeaveGuard";
@@ -59,7 +59,7 @@ const steps = [
     description: "Anúncios com foto recebem muito mais atenção. São opcionais.",
     Component: PhotosStep,
     required: [],
-    serverFields: ["images"],
+    serverFields: ["images", "photo_order", "delete_photo_ids"],
   },
   {
     id: "details",
@@ -85,35 +85,6 @@ const steps = [
     required: [],
   },
 ];
-
-const initialForm = {
-  type: "",
-  "animal.name": "",
-  "animal.species": "",
-  "animal.breed": "",
-  "animal.color": "",
-  "animal.sex": "",
-  "animal.size": "",
-  "animal.distinctive_features": "",
-  "animal.vaccinated": "",
-  "animal.dewormed": "",
-  "animal.neutered": "",
-  age_amount: "",
-  age_unit: "years",
-  municipality_id: "",
-  occurred_at: "",
-  location_reference: "",
-  with_finder: "",
-  title: "",
-  description: "",
-  images: [],
-};
-
-const healthValues = { yes: "1", no: "0", unknown: "" };
-
-function isEmpty(value) {
-  return String(value ?? "").trim() === "";
-}
 
 /**
  * Campos obrigatórios vazios da etapa. A data do ocorrido só vale para perdido
@@ -174,9 +145,11 @@ function stepErrorsOf(step, form) {
  * A saúde só importa para quem vai adotar: quem encontrou não sabe e, no
  * perdido, não ajuda a reconhecer o pet. Sem tipo escolhido, mostra todas.
  */
-function stepsFor(type) {
+function stepsFor(type, editing) {
   return steps.filter(
-    (step) => !type || !step.onlyFor || step.onlyFor === type,
+    (step) =>
+      (!type || !step.onlyFor || step.onlyFor === type) &&
+      !(editing && step.id === "type"),
   );
 }
 
@@ -189,52 +162,11 @@ function stepOfField(field, visibleSteps) {
   return index === -1 ? 0 : index;
 }
 
-function birthDateFromAge(amount, unit) {
-  const months = unit === "years" ? Number(amount) * 12 : Number(amount);
-  const date = new Date();
-  date.setMonth(date.getMonth() - months);
-  return toDateInputValue(date);
-}
-
 /**
- * Monta o multipart no formato do StorePostRequest: animal[campo] e images[].
+ * Cadastro em etapas, usado para criar e para editar. Na edição o tipo fica
+ * travado (ele muda as regras do anúncio), então a etapa Tipo some.
  */
-function toFormData(form) {
-  const data = new FormData();
-  data.append("type", form.type);
-  data.append("title", form.title.trim());
-  data.append("description", form.description.trim());
-  data.append("municipality_id", form.municipality_id);
-  if (form.type !== "adoption") {
-    data.append("occurred_at", form.occurred_at);
-    data.append("location_reference", form.location_reference.trim());
-  }
-  if (form.type === "found") {
-    data.append("with_finder", form.with_finder === "yes" ? "1" : "0");
-  }
-
-  Object.entries(form)
-    .filter(([field]) => field.startsWith("animal."))
-    .forEach(([field, value]) => {
-      const name = `animal[${field.slice("animal.".length)}]`;
-      const isHealthField = healthQuestions.some(
-        (question) => question.field === field,
-      );
-      const healthValue = form.type === "adoption" ? healthValues[value] : "";
-      data.append(name, isHealthField ? healthValue : value.trim());
-    });
-  data.append(
-    "animal[approximate_birth_date]",
-    isEmpty(form.age_amount)
-      ? ""
-      : birthDateFromAge(form.age_amount, form.age_unit),
-  );
-  form.images.forEach((image) => data.append("images[]", image.file));
-
-  return data;
-}
-
-export default function CreatePost() {
+export default function PostWizard({ initialForm, editing = false, onSubmit }) {
   const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -246,7 +178,7 @@ export default function CreatePost() {
   const hasNavigated = useRef(false);
   const latestImages = useRef([]);
 
-  const visibleSteps = stepsFor(form.type);
+  const visibleSteps = stepsFor(form.type, editing);
   const step = visibleSteps[current];
   const isLast = current === visibleSteps.length - 1;
 
@@ -309,15 +241,16 @@ export default function CreatePost() {
   async function submit() {
     setSubmitting(true);
     try {
-      await api.post("/api/my-posts", toFormData(form));
-      toast.success(
-        "Anúncio enviado! Ele aparece para todos após a moderação.",
-      );
+      await onSubmit(form);
       setPublished(true);
     } catch (error) {
       const serverErrors = error.response?.data?.errors;
       if (!serverErrors) {
-        toast.error("Não foi possível publicar. Tente novamente.");
+        toast.error(
+          editing
+            ? "Não foi possível salvar. Tente novamente."
+            : "Não foi possível publicar. Tente novamente.",
+        );
         return;
       }
       const firstMessages = Object.fromEntries(
@@ -356,7 +289,7 @@ export default function CreatePost() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <LeaveGuard when={form !== initialForm && !published} />
+      <LeaveGuard when={form !== initialForm && !published} editing={editing} />
       <StepIndicator steps={visibleSteps} current={current} onSelect={goTo} />
 
       <form
@@ -365,7 +298,7 @@ export default function CreatePost() {
         className="flex flex-col gap-8 rounded-2xl bg-card p-5 shadow-xs sm:p-8"
       >
         <div>
-          {current > 0 && (
+          {step.id !== "type" && (
             <Badge variant={postTypes[form.type].variant} className="mb-3">
               {postTypes[form.type].label}
             </Badge>
@@ -407,12 +340,12 @@ export default function CreatePost() {
             {submitting ? (
               <>
                 <Spinner />
-                Publicando
+                {editing ? "Salvando" : "Publicando"}
               </>
             ) : isLast ? (
               <>
-                <Send />
-                Publicar anúncio
+                {editing ? <Check /> : <Send />}
+                {editing ? "Salvar alterações" : "Publicar anúncio"}
               </>
             ) : (
               <>

@@ -35,6 +35,11 @@ const PAGES = {
     title: "Novo anúncio",
     description: "Cadastre o pet e o anúncio em poucas etapas.",
   },
+  "/posts/:id/edit": {
+    title: "Editar anúncio",
+    description:
+      "Ajuste o que precisar. Mudanças em anúncio publicado passam pela moderação.",
+  },
   "/favorites": {
     title: "Favoritos",
     description: "Pets que você guardou para ver com calma.",

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\EncodeImageAsWebp;
+use App\Enums\AdoptionStatus;
 use App\Enums\PostStatus;
 use App\Http\Requests\Post\StorePostRequest;
 use App\Http\Requests\Post\UpdatePostRequest;
@@ -83,7 +84,7 @@ class MyPostsController extends Controller
 
         try {
             DB::transaction(function () use ($request, $post, $encodeImageAsWebp, &$storedPaths, &$removedPaths) {
-                $post->fill($request->safe()->except(['animal', 'images', 'delete_photo_ids']));
+                $post->fill($request->safe()->except(['animal', 'images', 'delete_photo_ids', 'photo_order']));
                 $post->animal->fill($request->validated('animal', []));
 
                 $removed = $post->files()->whereIn('id', $request->validated('delete_photo_ids', []))->get();
@@ -91,9 +92,10 @@ class MyPostsController extends Controller
                 $removed->each->delete();
 
                 $nextPosition = ($post->files()->reorder()->max('position') ?? -1) + 1;
-                $this->storePhotos($post, $request->file('images', []), $encodeImageAsWebp, $nextPosition, $storedPaths);
+                $newFiles = $this->storePhotos($post, $request->file('images', []), $encodeImageAsWebp, $nextPosition, $storedPaths);
+                $reordered = $this->applyPhotoOrder($post, $request->validated('photo_order'), $newFiles);
 
-                $changed = $post->isDirty() || $post->animal->isDirty() || $removedPaths !== [] || $storedPaths !== [];
+                $changed = $post->isDirty() || $post->animal->isDirty() || $removedPaths !== [] || $storedPaths !== [] || $reordered;
 
                 if ($changed && in_array($post->status, [PostStatus::Active, PostStatus::Rejected], true)) {
                     $post->status = PostStatus::PendingApproval;
@@ -115,16 +117,27 @@ class MyPostsController extends Controller
     }
 
     /**
-     * Remove o anúncio e o seu animal juntos (soft delete: fotos e histórico continuam no banco).
+     * O "excluir" do autor cancela o anúncio: ele sai do catálogo, mas continua no banco
+     * com o animal, porque conversas, moderações e o histórico apontam para ele.
+     * Com adoção aguardando confirmação, o doador precisa desfazer a indicação antes.
      */
     public function destroy(Post $post): Response
     {
         Gate::authorize('delete', $post);
 
-        DB::transaction(function () use ($post) {
-            $post->delete();
-            $post->animal->delete();
-        });
+        abort_if(
+            $post->status->isFinished(),
+            409,
+            'Este anúncio já foi finalizado e não pode ser cancelado.'
+        );
+        abort_if(
+            $post->adoptions()->where('status', AdoptionStatus::InProgress)->exists(),
+            409,
+            'Há uma adoção aguardando confirmação. Desfaça a indicação antes de cancelar o anúncio.'
+        );
+
+        $post->status = PostStatus::Canceled;
+        $post->save();
 
         return response()->noContent();
     }
@@ -135,9 +148,12 @@ class MyPostsController extends Controller
      *
      * @param  array<int, UploadedFile>  $uploads
      * @param  array<int, string>  $storedPaths
+     * @return array<int, PostFile>
      */
-    private function storePhotos(Post $post, array $uploads, EncodeImageAsWebp $encodeImageAsWebp, int $position, array &$storedPaths): void
+    private function storePhotos(Post $post, array $uploads, EncodeImageAsWebp $encodeImageAsWebp, int $position, array &$storedPaths): array
     {
+        $files = [];
+
         foreach ($uploads as $upload) {
             $image = $encodeImageAsWebp->handle(
                 $upload,
@@ -156,6 +172,38 @@ class MyPostsController extends Controller
             $file->mime_type = 'image/webp';
             $file->position = $position++;
             $post->files()->save($file);
+            $files[] = $file;
         }
+
+        return $files;
+    }
+
+    /**
+     * Reposiciona as fotos conforme photo_order ("id:{id}" ou "new:{índice}"), já
+     * validado contra as fotos do post. Diz se alguma posição mudou.
+     *
+     * @param  array<int, string>|null  $order
+     * @param  array<int, PostFile>  $newFiles
+     */
+    private function applyPhotoOrder(Post $post, ?array $order, array $newFiles): bool
+    {
+        if ($order === null) {
+            return false;
+        }
+
+        $filesByToken = $post->files()->get()->keyBy(fn (PostFile $file) => "id:{$file->id}");
+        foreach ($newFiles as $index => $file) {
+            $filesByToken["new:$index"] = $file;
+        }
+
+        $reordered = false;
+        foreach ($order as $position => $token) {
+            $file = $filesByToken[$token];
+            $file->position = $position;
+            $reordered = $reordered || $file->isDirty('position');
+            $file->save();
+        }
+
+        return $reordered;
     }
 }

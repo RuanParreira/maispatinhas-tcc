@@ -4,7 +4,6 @@ namespace App\Http\Requests\Post;
 
 use App\Enums\AnimalSize;
 use App\Enums\AnimalSpecies;
-use App\Enums\PostType;
 use App\Http\Requests\Animal\StoreAnimalRequest;
 use App\Models\Post;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -48,8 +47,7 @@ class UpdatePostRequest extends FormRequest
                 ...array_diff($baseAnimalRules['approximate_birth_date'], ['required']),
             ],
 
-            // animal_id não entra: não deve mudar após a criação.
-            'type' => ['sometimes', Rule::enum(PostType::class)],
+            // animal_id e type não entram: não mudam após a criação (o tipo define as regras do anúncio).
             'title' => ['sometimes', 'string', 'min:10', 'max:120'],
             'description' => ['sometimes', 'string', 'min:30'],
             'municipality_id' => ['sometimes', 'integer', 'exists:municipalities,ibge_code'],
@@ -79,6 +77,10 @@ class UpdatePostRequest extends FormRequest
                     ->where('post_id', $post->id)
                     ->withoutTrashed(),
             ],
+
+            // Ordem final das fotos: "id:{id}" para as que ficam e "new:{índice em images}" para as novas.
+            'photo_order' => ['sometimes', 'array', 'max:5'],
+            'photo_order.*' => ['string', 'distinct', 'regex:/^(id|new):\d+$/'],
         ];
     }
 
@@ -98,7 +100,7 @@ class UpdatePostRequest extends FormRequest
                 /** @var Post $post */
                 $post = $this->route('post');
 
-                $type = $this->input('type', $post->type->value);
+                $type = $post->type->value;
                 $occurredAt = $this->has('occurred_at')
                     ? $this->input('occurred_at')
                     : $post->occurred_at?->toDateString();
@@ -177,13 +179,27 @@ class UpdatePostRequest extends FormRequest
                     );
                 }
 
-                $deletedCount = count($this->input('delete_photo_ids', []));
+                $deletedIds = array_map('intval', $this->input('delete_photo_ids', []));
                 $newPhotosCount = count($this->file('images', []));
+                $keptTokens = $post->files()->pluck('id')
+                    ->reject(fn (int $id) => in_array($id, $deletedIds, true))
+                    ->map(fn (int $id) => "id:$id");
+                $expectedTokens = $keptTokens
+                    ->merge(collect()->times($newPhotosCount, fn (int $number) => 'new:'.($number - 1)))
+                    ->sort()
+                    ->values();
 
-                if (($post->files()->count() - $deletedCount + $newPhotosCount) > 5) {
+                if ($expectedTokens->count() > 5) {
                     $validator->errors()->add(
                         'images',
                         'O post pode ter no máximo 5 fotos.'
+                    );
+                }
+
+                if ($this->has('photo_order') && collect($this->input('photo_order'))->sort()->values()->all() !== $expectedTokens->all()) {
+                    $validator->errors()->add(
+                        'photo_order',
+                        'A ordem das fotos não confere com as fotos do anúncio.'
                     );
                 }
             },

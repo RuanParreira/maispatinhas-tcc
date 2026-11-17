@@ -47,6 +47,7 @@ class PostResource extends JsonResource
                 'avatar_url' => $this->user->avatar_url,
             ]),
             'municipality' => $this->whenLoaded('municipality', fn () => [
+                'ibge_code' => $this->municipality->ibge_code,
                 'name' => $this->municipality->name,
                 'state' => $this->municipality->state,
             ]),

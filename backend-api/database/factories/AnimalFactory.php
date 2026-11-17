@@ -22,13 +22,15 @@ class AnimalFactory extends Factory
      */
     public function definition(): array
     {
+        $species = fake()->randomElement(AnimalSpecies::cases());
+
         return [
             'user_id' => User::factory(),
             'name' => fake()->optional()->firstName(),
-            'species' => fake()->randomElement(AnimalSpecies::cases()),
+            'species' => $species,
             'breed' => 'SRD',
             'sex' => fake()->randomElement(AnimalSex::cases()),
-            'size' => fake()->randomElement(AnimalSize::cases()),
+            'size' => $species->isAlwaysSmall() ? AnimalSize::Small : fake()->randomElement(AnimalSize::cases()),
             'color' => fake()->randomElement(AnimalColor::cases()),
             'distinctive_features' => fake()->sentence(),
             'approximate_birth_date' => fake()->dateTimeBetween('-10 years', '-2 months'),

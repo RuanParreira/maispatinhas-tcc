@@ -26,15 +26,19 @@ class PostPolicy
 
     public function update(User $user, Post $post): Response
     {
-        return $user->id === $post->user_id || $user->isAdmin()
-            ? Response::allow()
-            : Response::deny('Você não tem permissão para editar este anúncio.');
+        if ($user->id !== $post->user_id && ! $user->isAdmin()) {
+            return Response::deny('Você não tem permissão para editar este anúncio.');
+        }
+
+        return $post->status->isFinished()
+            ? Response::deny('Este anúncio foi finalizado e não pode ser editado.')
+            : Response::allow();
     }
 
     public function delete(User $user, Post $post): Response
     {
         return $user->id === $post->user_id || $user->isAdmin()
             ? Response::allow()
-            : Response::deny('Você não tem permissão para excluir este anúncio.');
+            : Response::deny('Você não tem permissão para cancelar este anúncio.');
     }
 }

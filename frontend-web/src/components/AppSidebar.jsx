@@ -10,7 +10,7 @@ import {
   User,
   Settings,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/auth/useAuth";
 import { initialsOf } from "@/lib/initials";
@@ -47,7 +47,7 @@ const navGroups = (userId) => [
         title: "Meus anúncios",
         url: "/my-posts",
         icon: FileText,
-        activeOn: ["/posts/create"],
+        activeOn: ["/posts/create", "/posts/:id/edit"],
       },
       { title: "Favoritos", url: "/favorites", icon: Bookmark },
       { title: "Minhas adoções", url: "/my-adoptions", icon: HandHeart },
@@ -106,7 +106,9 @@ export function AppSidebar() {
                       asChild
                       isActive={
                         location.pathname === item.url ||
-                        item.activeOn?.includes(location.pathname)
+                        item.activeOn?.some((pattern) =>
+                          matchPath(pattern, location.pathname),
+                        )
                       }
                       tooltip={item.title}
                       className="h-9 font-medium text-sidebar-foreground/80 transition-colors data-active:bg-primary data-active:text-primary-foreground data-active:shadow-xs data-active:hover:bg-primary data-active:hover:text-primary-foreground"

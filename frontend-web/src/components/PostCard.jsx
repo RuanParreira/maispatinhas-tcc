@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 
 const fallbackBadge = (label) => ({ label, variant: "muted" });
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, actions }) {
   const type = postTypes[post.type] ?? fallbackBadge(post.type);
   // A listagem pública não traz status: lá todo anúncio está publicado.
   const status = post.status
@@ -100,17 +100,20 @@ export default function PostCard({ post }) {
           <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
             <Badge variant="muted">
               <Calendar />
-              {new Date(post.published_at ?? post.created_at).toLocaleDateString(
-                "pt-BR",
-              )}
+              {new Date(
+                post.published_at ?? post.created_at,
+              ).toLocaleDateString("pt-BR")}
             </Badge>
-            <Link
-              to={`/posts/${post.id}`}
-              className="group inline-flex items-center gap-1 text-base font-semibold text-warning"
-            >
-              Ver detalhes
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                to={`/posts/${post.id}`}
+                className="group inline-flex items-center gap-1 text-base font-semibold text-warning"
+              >
+                Ver detalhes
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              {actions}
+            </div>
           </div>
         </div>
       </div>

@@ -13,4 +13,12 @@ enum PostStatus: string
     case Resolved = 'resolved';
     case Closed = 'closed';
     case Canceled = 'canceled';
+
+    /**
+     * Resolvido, encerrado e cancelado são histórico: não se editam nem se cancelam.
+     */
+    public function isFinished(): bool
+    {
+        return in_array($this, [self::Resolved, self::Closed, self::Canceled], true);
+    }
 }
