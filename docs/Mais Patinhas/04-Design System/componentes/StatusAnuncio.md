@@ -7,11 +7,11 @@ Selo `Badge` que mostra em que etapa do fluxo de moderação está cada anúncio
 | `active` | Publicado | `success` |
 | `pending_approval` | Aguardando moderação | `warning`, com ponto pulsante |
 | `rejected` | Rejeitado | `destructive` |
-| `resolved` | Resolvido | `info` |
+| `resolved` | No card, conforme o tipo: Adotado (adoção), Reencontrado (perdido), Devolvido ao tutor (encontrado). No filtro: Finalizado com sucesso | `success` |
 | `paused` | Pausado | `secondary` |
-| `draft`, `expired`, `closed`, `canceled` | Rascunho, Expirado, Encerrado, Cancelado | `muted` |
+| `expired`, `canceled` | Expirado, Cancelado | `muted` |
 
-Um anúncio aguardando moderação aparece em "Meus anúncios" com borda tracejada em `warning` e foto esmaecida.
+Em "Meus anúncios" o selo fica sobre a foto, com fundo sólido e um ponto na cor do estado. Aguardando moderação, pausado e expirado mostram também uma faixa explicativa no corpo do card; resolvido mantém as cores (é um final feliz) e cancelado aparece com a foto em tons de cinza.
 
 **Faça**
 - Escreva o estado em caixa de frase: "Aguardando moderação".
