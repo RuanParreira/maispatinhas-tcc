@@ -21,6 +21,18 @@ it('shows an active post to guests', function () {
         ->assertJsonMissingPath('data.user.email');
 });
 
+it('flags the favorite only for the logged user', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->active()->create();
+    $user->favoritePosts()->attach($post);
+
+    $this->getJson("/api/posts/{$post->id}")->assertJsonMissingPath('data.is_favorite');
+
+    $this->actingAs($user)->getJson("/api/posts/{$post->id}")
+        ->assertJsonPath('data.is_favorite', true)
+        ->assertJsonPath('data.user.removed', false);
+});
+
 it('hides a post in moderation from guests and other users', function () {
     $post = Post::factory()->pendingApproval()->create();
 

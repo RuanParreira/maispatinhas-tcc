@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, ScrollRestoration } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./auth/Login.jsx";
 import Register from "./auth/Register.jsx";
@@ -23,50 +23,57 @@ import { AuthGate } from "./auth/AuthProvider.jsx";
 import GuestLayout from "./layouts/GuestLayout.jsx";
 import AppLayout from "./layouts/AppLayout.jsx";
 
+// Rolagem por página (caminho): abrir outra tela começa no topo, voltar devolve a posição
+// e mudar filtros (que só mexem na URL) não pula para o topo.
+const scrollKeyOf = (location) => location.pathname;
+
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/home" replace />} />
+    <>
+      <ScrollRestoration getKey={scrollKeyOf} />
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
 
-      <Route element={<GuestLayout />}>
-        <Route path="/home" element={<Home />} />
-        <Route path="/email-verified" element={<EmailVerified />} />
+        <Route element={<GuestLayout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/email-verified" element={<EmailVerified />} />
 
-        {/* Bloqueia acesso de quem já está autenticado */}
-        <Route
-          element={<AuthGate when="authenticated" redirectTo="/adoptions" />}
-        >
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Route>
-      </Route>
-
-      {/* Exige autenticação */}
-      <Route element={<AuthGate when="guest" redirectTo="/login" />}>
-        <Route element={<AppLayout />}>
-          <Route path="/adoptions" element={<Adoptions />} />
-          <Route path="/lost" element={<LostAndFound />} />
-          {/* Encontrados virou o filtro "Achados"; o endereço antigo continua funcionando. */}
+          {/* Bloqueia acesso de quem já está autenticado */}
           <Route
-            path="/found"
-            element={<Navigate to="/lost?view=found" replace />}
-          />
-          <Route path="/reunions" element={<Reunions />} />
-          <Route path="/my-posts" element={<MyPosts />} />
-          <Route path="/posts/create" element={<CreatePost />} />
-          <Route path="/posts/:id/edit" element={<EditPost />} />
-          <Route path="/posts/:id" element={<PostDetails />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/my-adoptions" element={<MyAdoptions />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/users/:id" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/verify-email" element={<VerifyEmailNotice />} />
+            element={<AuthGate when="authenticated" redirectTo="/adoptions" />}
+          >
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
         </Route>
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+
+        {/* Exige autenticação */}
+        <Route element={<AuthGate when="guest" redirectTo="/login" />}>
+          <Route element={<AppLayout />}>
+            <Route path="/adoptions" element={<Adoptions />} />
+            <Route path="/lost" element={<LostAndFound />} />
+            {/* Encontrados virou o filtro "Achados"; o endereço antigo continua funcionando. */}
+            <Route
+              path="/found"
+              element={<Navigate to="/lost?view=found" replace />}
+            />
+            <Route path="/reunions" element={<Reunions />} />
+            <Route path="/my-posts" element={<MyPosts />} />
+            <Route path="/posts/create" element={<CreatePost />} />
+            <Route path="/posts/:id/edit" element={<EditPost />} />
+            <Route path="/posts/:id" element={<PostDetails />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/my-adoptions" element={<MyAdoptions />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/users/:id" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/verify-email" element={<VerifyEmailNotice />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }

@@ -42,7 +42,7 @@ function birthDateFromAge(amount, unit) {
  * Converte a data de nascimento salva de volta em número + unidade:
  * meses até 3 anos (se não for ano cheio), anos daí para cima.
  */
-function ageFromBirthDate(birthDate) {
+export function ageFromBirthDate(birthDate) {
   if (!birthDate) return { age_amount: "", age_unit: "years" };
   const born = new Date(`${birthDate}T00:00`);
   const today = new Date();
@@ -56,6 +56,19 @@ function ageFromBirthDate(birthDate) {
     return { age_amount: String(months), age_unit: "months" };
   }
   return { age_amount: String(Math.round(months / 12)), age_unit: "years" };
+}
+
+const ageUnitLabels = {
+  years: ["ano", "anos"],
+  months: ["mês", "meses"],
+};
+
+export function formatAge(amount, unit) {
+  if (String(amount).trim() === "") return null;
+  const [singular, plural] = ageUnitLabels[unit];
+  const value = Number(amount);
+  if (value === 0) return `Menos de 1 ${singular}`;
+  return `${value} ${value === 1 ? singular : plural}`;
 }
 
 /**

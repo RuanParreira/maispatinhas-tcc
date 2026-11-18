@@ -5,6 +5,13 @@ export const postTypes = {
   found: { label: "Achado", variant: "info" },
 };
 
+// "Achado" não afirma que o animal tem dono, só que alguém o achou.
+export const catalogLabels = {
+  adoption: "Disponível para adoção",
+  lost: "Perdido",
+  found: "Achado",
+};
+
 export const postStatuses = {
   pending_approval: { label: "Aguardando moderação", variant: "warning" },
   rejected: { label: "Rejeitado", variant: "destructive" },

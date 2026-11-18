@@ -41,11 +41,8 @@ class PostResource extends JsonResource
                 'id' => $file->id,
                 'url' => $file->url,
             ])),
-            'user' => $this->whenLoaded('user', fn () => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'avatar_url' => $this->user->avatar_url,
-            ]),
+            'is_favorite' => $this->whenHas('is_favorite'),
+            'user' => $this->whenLoaded('user', fn () => new UserSummaryResource($this->user)),
             'municipality' => $this->whenLoaded('municipality', fn () => [
                 'ibge_code' => $this->municipality->ibge_code,
                 'name' => $this->municipality->name,

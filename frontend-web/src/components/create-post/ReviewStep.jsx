@@ -19,22 +19,10 @@ import {
   healthQuestions,
   postTypes,
 } from "@/lib/posts";
+import { formatAge } from "@/lib/postForm";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const ageUnitLabels = {
-  years: ["ano", "anos"],
-  months: ["mês", "meses"],
-};
-
-function formatAge(amount, unit) {
-  if (String(amount).trim() === "") return null;
-  const [singular, plural] = ageUnitLabels[unit];
-  const value = Number(amount);
-  if (value === 0) return `Menos de 1 ${singular}`;
-  return `${value} ${value === 1 ? singular : plural}`;
-}
 
 const healthBadgeVariants = {
   yes: "success",
@@ -109,7 +97,7 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
             <img
               src={previews[0]}
               alt="Capa do anúncio"
-              className="size-full object-cover"
+              className="size-full object-cover object-[50%_25%]"
             />
           ) : (
             <PawPrint className="size-12" />
@@ -252,7 +240,7 @@ export default function ReviewStep({ form, municipalities, onEdit }) {
                     src={url}
                     alt={index === 0 ? "Capa" : `Foto ${index + 1}`}
                     className={cn(
-                      "size-20 rounded-xl object-cover shadow-xs",
+                      "size-20 rounded-xl object-cover object-[50%_25%] shadow-xs",
                       index === 0 &&
                         "ring-2 ring-primary ring-offset-2 ring-offset-card",
                     )}

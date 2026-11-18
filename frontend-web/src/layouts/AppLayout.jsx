@@ -3,6 +3,7 @@ import { useAuth } from "@/auth/useAuth";
 import AdoptionPrompt from "@/components/adoptions/AdoptionPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
+import { cn } from "@/lib/utils";
 import {
   SidebarProvider,
   SidebarInset,
@@ -65,6 +66,7 @@ const PAGES = {
   "/verify-email": { title: "Verificar e-mail" },
 };
 
+// Em tela sem título, o header não ocupa linha própria no desktop: o sino flutua no canto e a página sobe.
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { user } = useAuth();
@@ -77,7 +79,13 @@ export default function AppLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex items-start justify-between gap-4 px-6 pt-8 lg:px-8">
+        <header
+          className={cn(
+            "flex items-start justify-between gap-4 px-6 pt-8 lg:px-8",
+            !page &&
+              "md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10 md:justify-end md:pt-6 md:*:pointer-events-auto",
+          )}
+        >
           <div className="flex min-w-0 items-start gap-3">
             <SidebarTrigger className="mt-1.5 md:hidden" />
             {page && (

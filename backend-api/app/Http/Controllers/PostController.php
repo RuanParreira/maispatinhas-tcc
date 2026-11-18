@@ -10,6 +10,7 @@ use App\Http\Resources\PostResource;
 use App\Models\Animal;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
@@ -53,13 +54,17 @@ class PostController extends Controller
     }
 
     /**
-     * Detalhes de um anúncio específico.
+     * Detalhes de um anúncio específico. is_favorite só vai para o usuário logado.
      */
-    public function show(Post $post): PostResource
+    public function show(Request $request, Post $post): PostResource
     {
         Gate::authorize('view', $post);
 
-        $post->load(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path', 'files']);
+        $post->load(['animal', 'municipality:ibge_code,name,state', 'user:id,name,avatar_path,anonymized_at', 'files']);
+
+        if ($user = $request->user('sanctum')) {
+            $post->is_favorite = $user->favoritePosts()->whereKey($post->id)->exists();
+        }
 
         return new PostResource($post);
     }

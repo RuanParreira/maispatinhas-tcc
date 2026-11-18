@@ -1,19 +1,11 @@
-import { useState } from "react";
 import { ArrowRight, Heart, MapPin, PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import api from "@/api/axios";
-import { postTypes, statusLabelOf } from "@/lib/posts";
+import { useAuth } from "@/auth/useAuth";
+import { useFavorite } from "@/hooks/useFavorite";
+import { catalogLabels, postTypes, statusLabelOf } from "@/lib/posts";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-// "Achado" não afirma que o animal tem dono, só que alguém o achou.
-const catalogLabels = {
-  adoption: "Disponível para adoção",
-  lost: "Perdido",
-  found: "Achado",
-};
 
 export default function PetCard({
   pet,
@@ -24,31 +16,16 @@ export default function PetCard({
   const isReunion = pet.status === "resolved";
   const badgeVariant = isReunion ? "success" : postTypes[type].variant;
   const statusLabel = isReunion ? statusLabelOf(pet) : catalogLabels[type];
-  const [favorite, setFavorite] = useState(Boolean(pet.is_favorite));
-  const [favoritePending, setFavoritePending] = useState(false);
-  const isFavoriteKnown = pet.is_favorite !== undefined;
-  const canFavorite = type === "adoption" && isFavoriteKnown;
+  const {
+    favorite,
+    pending: favoritePending,
+    toggle: toggleFavorite,
+  } = useFavorite(pet.id, pet.is_favorite, onFavoriteChange);
+  const { user } = useAuth();
+  const isOwn = Boolean(user) && pet.user?.id === user.id;
+  const canFavorite =
+    type === "adoption" && pet.is_favorite !== undefined && !isOwn;
 
-  function toggleFavorite() {
-    const next = !favorite;
-    setFavorite(next);
-    setFavoritePending(true);
-    const request = next
-      ? api.put(`/api/posts/${pet.id}/favorite`)
-      : api.delete(`/api/posts/${pet.id}/favorite`);
-    request
-      .then(() => {
-        toast.success(
-          next ? "Adicionado aos favoritos." : "Removido dos favoritos.",
-        );
-        onFavoriteChange?.(next);
-      })
-      .catch(() => {
-        setFavorite(!next);
-        toast.error("Não foi possível atualizar os favoritos.");
-      })
-      .finally(() => setFavoritePending(false));
-  }
   const animal = pet.animal || {};
   const city = pet.municipality
     ? [
@@ -77,7 +54,7 @@ export default function PetCard({
           <img
             src={pet.cover_url}
             alt={name}
-            className="h-70 w-full object-cover"
+            className="h-70 w-full object-cover object-[50%_25%]"
           />
         ) : (
           <div className="flex h-70 w-full items-center justify-center text-muted-foreground/40">
@@ -119,8 +96,13 @@ export default function PetCard({
           </span>
         </div>
         <p className="mt-2 flex items-center gap-1 text-[0.8125rem] leading-5 text-muted-foreground">
-          <MapPin className="size-3.5" />
-          {city}
+          <MapPin className="size-3.5 shrink-0" />
+          <span className="truncate">{city}</span>
+          {pet.distance_km > 0 && (
+            <span className="shrink-0 font-medium text-warning">
+              · a {pet.distance_km} km
+            </span>
+          )}
         </p>
         <p className="mt-4 text-[0.8125rem] leading-5 text-muted-foreground">
           {description}
