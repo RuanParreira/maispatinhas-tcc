@@ -26,6 +26,8 @@ stateDiagram-v2
     CANCELADO --> [*]
 ```
 
+> **Situação (nov/2026):** pausar, retomar, expirar, renovar, marcar como reencontrado, editar (voltando para a moderação) e cancelar estão prontos. Aprovar e rejeitar ainda não têm tela: o painel de moderação está por fazer, e por enquanto os anúncios publicados vêm do seeder.
+
 ## Os estados
 
 | Estado | Significado | Quem provoca |

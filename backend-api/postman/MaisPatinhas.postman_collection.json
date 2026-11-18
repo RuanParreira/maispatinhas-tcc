@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7318ad2a-eb5e-4f6a-aa70-c57487acdd19",
     "name": "Mais Patinhas API",
-    "description": "Fluxo: rode Login uma vez e depois qualquer requisição.\n\nOs scripts da collection cuidam de tudo:\n- adicionam Accept, Referer e X-XSRF-TOKEN em toda requisição;\n- buscam o token CSRF sozinhos quando ainda não existe;\n- guardam o token novo que o Laravel devolve em cada resposta;\n- 'Cadastrar' salva o id do post criado em {{post_id}} (e da primeira foto em {{photo_id}}), usado por Editar/Deletar/Buscar.",
+    "description": "Fluxo: rode Login uma vez e depois qualquer requisição.\n\nOs scripts da collection cuidam de tudo:\n- adicionam Accept, Referer e X-XSRF-TOKEN em toda requisição;\n- buscam o token CSRF sozinhos quando ainda não existe;\n- guardam o token novo que o Laravel devolve em cada resposta;\n- 'Cadastrar' salva o id do post criado em {{post_id}} (e da primeira foto em {{photo_id}}), usado por Editar, Cancelar, Pausar, Renovar, Favoritar e Buscar.\n- 'Minhas adoções > Listar' salva a primeira adoção pendente em {{adoption_id}}.\n- Para o perfil público, preencha {{user_id}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -24,6 +24,14 @@
     },
     {
       "key": "photo_id",
+      "value": ""
+    },
+    {
+      "key": "adoption_id",
+      "value": ""
+    },
+    {
+      "key": "user_id",
       "value": ""
     }
   ],
@@ -159,6 +167,73 @@
             "header": [],
             "url": "{{base_url}}/sanctum/csrf-cookie",
             "description": "Não precisa rodar: a collection busca o token sozinha. Fica aqui só para casos de emergência."
+          },
+          "response": []
+        },
+        {
+          "name": "Cadastrar conta",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Pessoa Teste\",\n    \"email\": \"pessoa.teste@gmail.com\",\n    \"phone\": \"34999999999\",\n    \"municipality_id\": 3170107,\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "municipality_id é o código IBGE da cidade (3170107 = Uberaba). Já entra logado."
+          },
+          "response": []
+        },
+        {
+          "name": "Esqueci a senha",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/forgot-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"ruan@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Envia o link de redefinição. Sempre responde a mesma mensagem, exista ou não a conta."
+          },
+          "response": []
+        },
+        {
+          "name": "Redefinir senha",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/reset-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"TOKEN_DO_EMAIL\",\n    \"email\": \"ruan@gmail.com\",\n    \"password\": \"nova-senha-123\",\n    \"password_confirmation\": \"nova-senha-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "O token vem no link do e-mail de redefinição."
+          },
+          "response": []
+        },
+        {
+          "name": "Reenviar verificação de e-mail",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/email/verification-notification",
+            "description": "Exige login. Responde 202 ou avisa que o e-mail já foi verificado."
           },
           "response": []
         }
@@ -417,12 +492,52 @@
           "response": []
         },
         {
-          "name": "Deletar",
+          "name": "Cancelar",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": "{{base_url}}/api/my-posts/{{post_id}}",
-            "description": "Deve responder 204. Apaga o post e o animal dele."
+            "description": "Deve responder 204. Não apaga: o anúncio vai para canceled e continua em Meus anúncios. Responde 409 se já estiver finalizado ou com adoção aguardando confirmação."
+          },
+          "response": []
+        },
+        {
+          "name": "Pausar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts/{{post_id}}/pause",
+            "description": "Só anúncio active (409 nos demais). Sai do catálogo sem perder a aprovação."
+          },
+          "response": []
+        },
+        {
+          "name": "Retomar",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts/{{post_id}}/pause",
+            "description": "Só anúncio paused. Volta para active sem passar pela moderação."
+          },
+          "response": []
+        },
+        {
+          "name": "Renovar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts/{{post_id}}/renewal",
+            "description": "Só anúncio expired. Volta para active e reinicia published_at (o prazo recomeça)."
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar como resolvido",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/my-posts/{{post_id}}/resolution",
+            "description": "Só perdido ou achado, active ou paused. Adoção é finalizada pela confirmação do adotante (409)."
           },
           "response": []
         }
@@ -432,12 +547,12 @@
       "name": "Anúncios públicos",
       "item": [
         {
-          "name": "Todos os anúncios",
+          "name": "Catálogo",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/posts?type=adoption",
+              "raw": "{{base_url}}/api/posts?type[]=adoption",
               "host": [
                 "{{base_url}}"
               ],
@@ -447,56 +562,170 @@
               ],
               "query": [
                 {
-                  "key": "type",
+                  "key": "type[]",
                   "value": "adoption",
-                  "disabled": true,
-                  "description": "adoption, lost ou found"
+                  "description": "adoption, lost ou found. Repita para combinar: type[]=lost&type[]=found",
+                  "disabled": false
                 },
                 {
-                  "key": "search",
-                  "value": "",
-                  "disabled": true,
-                  "description": "Busca no nome e na raça do animal e no nome da cidade"
+                  "key": "status",
+                  "value": "resolved",
+                  "description": "Vazio = publicados (active). resolved = reencontros (perdidos e achados resolvidos)",
+                  "disabled": true
+                },
+                {
+                  "key": "near",
+                  "value": "3170107",
+                  "description": "Código IBGE da cidade de origem (3170107 = Uberaba). Liga a busca por região e devolve distance_km em cada anúncio",
+                  "disabled": true
+                },
+                {
+                  "key": "radius",
+                  "value": "100",
+                  "description": "Raio em km a partir de near (0 a 1000). 0 = só a cidade. Sem radius = sem limite, só ordena",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "distance",
+                  "description": "distance (mais perto primeiro, exige near) ou recent (padrão, mais recentes)",
+                  "disabled": true
                 },
                 {
                   "key": "species",
                   "value": "dog",
-                  "disabled": true,
-                  "description": "dog, cat, bird, rodent, rabbit ou other"
+                  "description": "dog, cat, bird, rodent, rabbit ou other",
+                  "disabled": true
                 },
                 {
                   "key": "size",
                   "value": "small",
-                  "disabled": true,
-                  "description": "small, medium ou large"
+                  "description": "small, medium ou large",
+                  "disabled": true
                 },
                 {
                   "key": "sex",
                   "value": "female",
-                  "disabled": true,
-                  "description": "male, female ou undefined"
+                  "description": "male, female ou undefined",
+                  "disabled": true
                 },
                 {
                   "key": "age_group",
                   "value": "young",
-                  "disabled": true,
-                  "description": "young (até 1 ano), adult (1 a 8 anos) ou senior (8 anos ou mais)"
-                },
-                {
-                  "key": "sort",
-                  "value": "recent",
-                  "disabled": true,
-                  "description": "recent (padrão, mais recentes) ou name (nome do animal, A–Z)"
+                  "description": "young (até 1 ano), adult (1 a 8 anos) ou senior (8 anos ou mais)",
+                  "disabled": true
                 },
                 {
                   "key": "page",
                   "value": "1",
-                  "disabled": true,
-                  "description": "Página do resultado (15 anúncios por página)"
+                  "description": "Página do resultado (15 anúncios por página)",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Só mostra posts ativos (aprovados). Os que você acabou de criar ficam em pending_approval e não aparecem aqui."
+            "description": "Só mostra anúncios publicados (active), ou reencontros com status=resolved. Os que você acabou de criar ficam em pending_approval e não aparecem aqui. Funciona sem login; logado, cada anúncio traz is_favorite."
+          },
+          "response": []
+        },
+        {
+          "name": "Pets perdidos e achados perto de Uberaba",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts?type[]=lost&type[]=found&near=3170107&radius=50&sort=distance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "type[]",
+                  "value": "lost",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "type[]",
+                  "value": "found",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "near",
+                  "value": "3170107",
+                  "description": "Uberaba",
+                  "disabled": false
+                },
+                {
+                  "key": "radius",
+                  "value": "50",
+                  "description": "Padrão da tela Pets perdidos",
+                  "disabled": false
+                },
+                {
+                  "key": "sort",
+                  "value": "distance",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "O mesmo que a tela Pets perdidos faz por padrão: até 50 km, mais perto primeiro."
+          },
+          "response": []
+        },
+        {
+          "name": "Reencontros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts?type[]=lost&type[]=found&status=resolved",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "type[]",
+                  "value": "lost",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "type[]",
+                  "value": "found",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "status",
+                  "value": "resolved",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "near",
+                  "value": "3170107",
+                  "description": "Filtra por uma cidade (use radius=0)",
+                  "disabled": true
+                },
+                {
+                  "key": "radius",
+                  "value": "0",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Pets que estavam perdidos e voltaram para casa, do mais recente."
           },
           "response": []
         },
@@ -505,7 +734,8 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url}}/api/posts/{{post_id}}"
+            "url": "{{base_url}}/api/posts/{{post_id}}",
+            "description": "Público para anúncio active e reencontro; os demais só para o dono e admin (404 para o resto). Logado, traz is_favorite."
           },
           "response": []
         }
@@ -520,6 +750,296 @@
             "method": "GET",
             "header": [],
             "url": "{{base_url}}/api/animals"
+          },
+          "response": []
+        },
+        {
+          "name": "Animal pelo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/animals/1",
+            "description": "Só o dono do animal (ou admin)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Favoritos",
+      "item": [
+        {
+          "name": "Meus favoritos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/favorites",
+            "description": "Só os favoritos ainda publicados, mais recentes primeiro."
+          },
+          "response": []
+        },
+        {
+          "name": "Favoritar",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{base_url}}/api/posts/{{post_id}}/favorite",
+            "description": "204. Repetir não duplica. 403 no próprio anúncio, 409 em anúncio que não está publicado (ex.: reencontro), 404 se você não pode ver o anúncio."
+          },
+          "response": []
+        },
+        {
+          "name": "Desfavoritar",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/posts/{{post_id}}/favorite",
+            "description": "204."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Minhas adoções",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/my-adoptions",
+            "description": "Adoções em que você é o adotante: aguardando sua confirmação (in_progress) e concluídas. Guarda a primeira pendente em {{adoption_id}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o id do primeiro item em {{adoption_id}}, usado pelas outras requisições da pasta.",
+                  "const items = pm.response.json().data || [];",
+                  "const first = items.filter(a => a.status === 'in_progress')[0];",
+                  "if (first) pm.collectionVariables.set('adoption_id', first.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirmar que adotei",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/my-adoptions/{{adoption_id}}/confirmation",
+            "description": "Conclui a adoção e resolve o anúncio. Só o adotante (404 para os outros); 409 se já foi respondida."
+          },
+          "response": []
+        },
+        {
+          "name": "Não adotei",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/my-adoptions/{{adoption_id}}/confirmation",
+            "description": "Recusa a indicação; o anúncio continua publicado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Perfil público",
+      "description": "Preencha {{user_id}} com o id da pessoa (ex.: 2 = Ruan no seeder).",
+      "item": [
+        {
+          "name": "Perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/users/{{user_id}}",
+            "description": "Dados públicos, cidade e indicadores (avaliação, adoções, anúncios ativos). Conta anonimizada responde 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Anúncios do perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/users/{{user_id}}/posts",
+            "description": "Anúncios publicados da pessoa, 9 por página."
+          },
+          "response": []
+        },
+        {
+          "name": "Finais felizes do perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/users/{{user_id}}/adoptions",
+            "description": "Adoções concluídas em que a pessoa doou ou adotou."
+          },
+          "response": []
+        },
+        {
+          "name": "Avaliações do perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/users/{{user_id}}/reviews",
+            "description": "Avaliações recebidas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Configurações",
+      "item": [
+        {
+          "name": "Atualizar perfil",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{base_url}}/api/user/profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Ruan\",\n    \"phone\": \"34999999999\",\n    \"bio\": \"Protetor independente em Uberaba.\",\n    \"municipality_id\": 3170107\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trocar foto",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/user/avatar",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": [],
+                  "description": "JPG, PNG ou WebP"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover foto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/user/avatar"
+          },
+          "response": []
+        },
+        {
+          "name": "Trocar e-mail",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{base_url}}/api/user/email",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"novo.email@gmail.com\",\n    \"current_password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "O e-mail novo precisa ser verificado de novo."
+          },
+          "response": []
+        },
+        {
+          "name": "Trocar senha",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{base_url}}/api/user/password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_password\": \"password\",\n    \"password\": \"nova-senha-123\",\n    \"password_confirmation\": \"nova-senha-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sessões ativas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/user/sessions"
+          },
+          "response": []
+        },
+        {
+          "name": "Sair dos outros aparelhos",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/user/sessions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir conta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/user",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cuidado: anonimiza a conta e cancela os anúncios e adoções em aberto. Não tem volta."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Municípios",
+      "item": [
+        {
+          "name": "Listar cidades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/municipalities",
+            "description": "Todas as cidades (código IBGE, nome e UF), para o seletor de cidade."
           },
           "response": []
         }

@@ -15,6 +15,8 @@ stateDiagram-v2
     CANCELADA --> [*]
 ```
 
+> **Situação (nov/2026):** a resposta do adotante está pronta (modal ao entrar e Minhas adoções). A indicação pelo doador ("Doei") ainda não existe, porque depende do chat; por enquanto as adoções `EM_ANDAMENTO` vêm do seeder de demonstração.
+
 ## Como a adoção acontece
 
 Não existe pedido de adoção. O modelo é o de um marketplace:

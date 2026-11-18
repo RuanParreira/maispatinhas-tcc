@@ -14,7 +14,13 @@ Vault do TCC. Estrutura:
 ## 02 - Modelagem
 - [[Entidades.canvas|Entidades]] — diagrama de entidades
 - [[Fluxo Status de Anuncio]] — ciclo de vida do anúncio
-- [[Tipos Anuncio]] — tipos de post
+- [[Fluxo Status de Adocao]] — ciclo da adoção e a confirmação do adotante
+- [[Tipos Anuncio]] — tipos de post e como aparecem nas telas
+- [[Busca por Proximidade]] — cidade, raio e ordem por distância
+- `DER.pdf`, `Dicionario de Dados.pdf`, `Casos de Uso.pdf`, `Diagramas de Estado.pdf` — versões para entrega
+
+## [[Ideias]]
+- Decisões tomadas e possíveis features
 
 ## [[Conversas IA|03 - Pesquisa]]
 - [[Conversas IA]] — links de conversas de apoio

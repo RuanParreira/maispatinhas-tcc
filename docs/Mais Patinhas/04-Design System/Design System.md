@@ -10,7 +10,7 @@ Identidade visual e componentes de interface do sistema "Mais Patinhas". Substit
 
 Este guia descreve o que o `frontend-web` implementa. Os componentes são os do próprio frontend (React, Tailwind 4 e shadcn/ui); quando o código e o guia divergirem, o guia é que deve ser atualizado, exceto nas regras de acessibilidade marcadas como obrigatórias.
 
-- **Atualizado em:** 10/11/2026
+- **Atualizado em:** 18/11/2026
 
 ## Arquivos desta pasta
 
@@ -95,6 +95,9 @@ Uma família quente única — creme, âmbar e marrom — com títulos em Instru
 ## Imagens
 
 - Fotos reais dos animais, enviadas pelos anunciantes (WebP, até 5 por anúncio), em `object-cover` com 280px de altura nos cartões (`h-70`).
+- Nos cartões e miniaturas, o corte mira o terço de cima da foto (`object-[50%_25%]`), onde costuma estar o rosto do pet.
+- Onde a foto precisa aparecer inteira (capa no cadastro e galeria da tela de detalhes), use `WholePhoto`: a foto em `object-contain` sobre a própria foto desfocada, que preenche as sobras da moldura.
+- Ao clicar na foto da galeria, ela abre ampliada num `Dialog`, com setas e as teclas ← →.
 - Sem foto, mostre o bloco `realce` com o ícone `paw-print` — não use foto genérica de outro animal.
 - Nunca aplique filtros de cor sobre as fotos. Exceção: anúncio aguardando moderação, que aparece esmaecido em "Meus anúncios".
 - Texto sobre foto (login, 404) vai em branco sobre degradê escuro.
@@ -104,7 +107,7 @@ Uma família quente única — creme, âmbar e marrom — com títulos em Instru
 - **Lucide** (`lucide-react`), traço padrão de 2px, cantos arredondados.
 - Tamanhos: 16px (`size-4`) dentro de botões e junto de texto, 14px (`size-3.5`) na meta do cartão, 18px (`size-4.5`) nos campos.
 - Cor por `currentColor`, herdando a cor do texto ou do estado. Ícone sozinho sempre leva `aria-label`.
-- Ícones recorrentes: `heart` (favoritar), `map-pin` (cidade), `message-circle` (chat), `paw-print` (anúncios e foto ausente), `mail-check` (e-mail verificado), `star` (avaliações), `arrow-right` (seguir).
+- Ícones recorrentes: `heart` (favoritar), `map-pin` (cidade), `message-circle` (chat), `paw-print` (anúncios e foto ausente), `mail-check` (e-mail verificado), `star` (avaliações), `arrow-right` (seguir), `navigation` (distância no catálogo), `sliders-horizontal` (painel de filtros).
 - Sem emoji como ícone.
 
 ## Marca

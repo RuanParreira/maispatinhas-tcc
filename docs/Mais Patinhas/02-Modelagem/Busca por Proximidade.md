@@ -20,7 +20,7 @@ Como o sistema mostra primeiro os anúncios da cidade do usuário e depois os da
 - Existe uma tabela de referência `municipalities` com o código IBGE e a latitude/longitude do centro de cada cidade.
 - `users` e `posts` guardam apenas `municipality_id` (FK para `municipalities.ibge_code`). Nome da cidade e UF vêm do JOIN, sem duplicar dado.
 - A distância é calculada no próprio banco, em linha reta, com uma conta plana (veja [[#Query de busca]]). Nenhuma API externa é consultada na hora da busca.
-- A origem da busca é um parâmetro. O município do usuário é só o valor padrão, então visitante sem login ou quem procura em outra cidade também consegue buscar.
+- A origem da busca é um parâmetro. O município do usuário é só o valor padrão, então quem procura em outra cidade também consegue buscar. A API aceita visitante sem login, mas hoje as telas do catálogo exigem conta; só a vitrine da home funciona sem login (ver [[Ideias]]).
 
 ### Por que não guardar lat/long do usuário
 
@@ -90,9 +90,11 @@ LIMIT 15 OFFSET :offset;
 - **Por que não `ST_Distance_Sphere`:** os testes rodam em SQLite, que não tem essa função nem `POW`. A conta plana usa só soma e multiplicação, roda igual nos dois bancos, e o erro em raios de até 200 km é de poucos quilômetros.
 - O `BETWEEN` (bounding box) usa o índice e corta a busca para poucas dezenas de municípios. A condição do círculo vem depois, para os cantos do quadrado não entrarem.
 - A própria cidade fica no km 0, então "Uberaba primeiro, depois a região" sai direto do `ORDER BY`. O card mostra `distance_km` ("a 38 km").
-- `radius=0` é só a própria cidade; sem `radius` (Todo o Brasil) a distância é calculada para ordenar, sem cortar.
+- `radius=0` é só a própria cidade; sem `radius` ("Sem limite") a distância é calculada para ordenar, sem cortar.
 - Opções no catálogo: só a cidade, 50, 100 e 200 km, ou "Sem limite" (padrão de Adotar; Pets perdidos começa em 50 km). Com raio e sem resultado, a tela oferece "Ver mais longe".
 - Na tela de detalhes, "Outros pets" usa a cidade do anúncio e 100 km.
+- Na home, a vitrine mostra os 3 anúncios mais recentes do Brasil; ao escolher uma cidade na busca, os 3 mais recentes só dela (`radius=0`, `sort=recent`).
+- No catálogo, cidade, raio e filtros ficam na URL (`?city=…&radius=…&species=…`); o valor igual ao padrão da tela não aparece. Cidade inexistente na URL vale como a cidade padrão.
 
 ## Exemplo real a partir de Uberaba
 

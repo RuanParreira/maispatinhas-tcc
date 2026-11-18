@@ -42,8 +42,18 @@ Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderaç
 
 ## Estado da implementação (nov/2026)
 
-- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e cancelamento dos próprios anúncios com fotos; catálogo público de anúncios por região ([[Busca por Proximidade]]); favoritos.
-- **A fazer:** painel de moderação, chat, indicação e confirmação de adoção ("Doei"), avaliação pós-adoção.
+- **Pronto:**
+  - cadastro, login (com volta para a página de origem) e recuperação de senha;
+  - perfil público (anúncios, adoções e avaliações recebidas);
+  - configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização);
+  - cadastro em etapas, edição e cancelamento dos próprios anúncios, com fotos conferidas e reduzidas no envio;
+  - ciclo do anúncio: pausar, retomar, expirar (comando diário), renovar e marcar como reencontrado ([[Fluxo Status de Anuncio]]);
+  - catálogo por região em Adotar, Pets perdidos e Reencontros, com filtros guardados no endereço ([[Busca por Proximidade]]);
+  - tela de detalhes do anúncio, com galeria, ficha do pet, card de quem anunciou e outros pets da região;
+  - favoritos (só de anúncios de outras pessoas);
+  - confirmação da adoção pelo adotante em Minhas adoções ([[Fluxo Status de Adocao]]);
+  - home com busca por cidade e vitrine dos anúncios mais recentes.
+- **A fazer:** painel de moderação, chat, indicação do adotante pelo doador ("Doei", depende do chat), avaliação pós-adoção. Ideias em estudo ficam em [[Ideias]].
 
 ## Documentos do TCC
 

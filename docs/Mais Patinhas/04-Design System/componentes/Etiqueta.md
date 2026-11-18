@@ -4,8 +4,8 @@ Componente `Badge` (`src/components/ui/badge.jsx`): pílula pequena que classifi
 
 | Uso | `variant` | Exemplo |
 | --- | --- | --- |
-| Tipo do anúncio | `success`, `destructive`, `info` (de `postTypes` em `lib/posts.js`) | "Adoção", "Perdido", "Encontrado" |
-| Disponibilidade no catálogo | `success` | "Disponível para adoção" |
+| Tipo do anúncio | `success`, `destructive`, `info` (de `postTypes` em `lib/posts.js`) | "Adoção", "Perdido", "Achado" |
+| Situação no catálogo (de `catalogLabels`) | cor do tipo; `success` no reencontro | "Disponível para adoção", "Perdido", "Achado", "Reencontrado" |
 | Atributo do animal | `muted` (contorno `borda`, texto `tinta-suave`) | "Porte médio" |
 | Destaque de marca | `default` (`ambar`) | Contadores e novidades |
 
