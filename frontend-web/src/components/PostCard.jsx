@@ -101,7 +101,7 @@ export default function PostCard({ post, actions }) {
             alt={post.animal?.name ?? post.title}
             loading="lazy"
             className={cn(
-              "h-70 w-full object-cover",
+              "h-70 w-full object-cover object-[50%_25%]",
               isCanceled && "grayscale",
             )}
           />

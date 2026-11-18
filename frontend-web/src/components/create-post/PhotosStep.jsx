@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Focus,
+  ImageOff,
   ImagePlus,
   Images,
   Lightbulb,
@@ -9,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import WholePhoto from "@/components/WholePhoto";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
@@ -28,6 +30,66 @@ const tips = [
     text: "Mostre o rosto e o corpo inteiro em fotos diferentes.",
   },
 ];
+
+// Mesmos limites do StorePostRequest. Foto grande ou pesada demais é reduzida aqui; pequena não tem conserto.
+const minPhotoSide = 300;
+const maxPhotoSide = 6000;
+const resizedPhotoSide = 4000;
+
+// Regrava em no máximo 4000 px; também baixa o peso de foto que já tem tamanho bom.
+async function shrink(file, bitmap) {
+  const scale = Math.min(
+    1,
+    resizedPhotoSide / Math.max(bitmap.width, bitmap.height),
+  );
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const type = file.type === "image/jpeg" ? "image/jpeg" : "image/webp";
+  const blob = await new Promise((resolve) =>
+    canvas.toBlob(resolve, type, 0.9),
+  );
+  return new File([blob], file.name, { type: blob.type });
+}
+
+async function checkPhoto(file) {
+  if (!acceptedTypes.includes(file.type)) {
+    return { file, reason: "Não é JPG, PNG ou WebP" };
+  }
+
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    return { file, reason: "Não foi possível abrir" };
+  }
+
+  try {
+    const { width, height } = bitmap;
+    if (width < minPhotoSide || height < minPhotoSide) {
+      return {
+        file,
+        preview: true,
+        reason: `Pequena demais: ${width}×${height}. Mínimo ${minPhotoSide}×${minPhotoSide}`,
+      };
+    }
+    const photo =
+      width > maxPhotoSide || height > maxPhotoSide || file.size > maxPhotoBytes
+        ? await shrink(file, bitmap)
+        : file;
+    if (photo.size > maxPhotoBytes) {
+      return { file, preview: true, reason: "Passa de 5 MB" };
+    }
+    return { file: photo, ok: true };
+  } finally {
+    bitmap.close();
+  }
+}
+
+function revokePreviews(photos) {
+  photos.forEach(({ url }) => url && URL.revokeObjectURL(url));
+}
 
 function hasFiles(event) {
   return Array.from(event.dataTransfer.types).includes("Files");
@@ -68,9 +130,7 @@ function UploadArea({ compact, remaining, onFiles }) {
         {compact ? "Adicionar" : "Arraste as fotos ou clique para escolher"}
       </span>
       <span className="text-xs text-muted-foreground">
-        {compact
-          ? `Mais ${remaining}`
-          : "JPG, PNG ou WebP, até 5 MB cada, no máximo 5 fotos"}
+        {compact ? `Mais ${remaining}` : "JPG, PNG ou WebP, no máximo 5 fotos"}
       </span>
       <input
         type="file"
@@ -91,6 +151,7 @@ function PhotoTile({
   index,
   isCover,
   isDropTarget,
+  isInvalid,
   onRemove,
   onMakeCover,
   dragHandlers,
@@ -101,18 +162,21 @@ function PhotoTile({
       {...dragHandlers}
       className={cn(
         "group relative cursor-grab overflow-hidden rounded-2xl bg-secondary shadow-xs transition-all active:cursor-grabbing",
-        isCover
-          ? "aspect-[4/3] md:aspect-auto md:h-full md:min-h-80"
-          : "aspect-square",
+        isCover ? "aspect-[4/3] self-start" : "aspect-square",
         isDropTarget && "ring-4 ring-primary/60",
+        isInvalid && "ring-4 ring-destructive",
       )}
     >
-      <img
-        src={image.url}
-        alt={isCover ? "Capa do anúncio" : `Foto ${index + 1}`}
-        draggable={false}
-        className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-      />
+      {isCover ? (
+        <WholePhoto src={image.url} alt="Capa do anúncio" />
+      ) : (
+        <img
+          src={image.url}
+          alt={`Foto ${index + 1}`}
+          draggable={false}
+          className="absolute inset-0 size-full object-cover object-[50%_25%] transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+      )}
       <span className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-transparent opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100" />
 
       {isCover && (
@@ -148,38 +212,103 @@ function PhotoTile({
   );
 }
 
+// Foto que não entrou no anúncio: fica na grade, marcada, até a pessoa dispensar.
+function RejectedTile({ photo, onDismiss }) {
+  return (
+    <li className="relative aspect-square overflow-hidden rounded-2xl bg-secondary ring-4 ring-destructive">
+      {photo.url ? (
+        <img
+          src={photo.url}
+          alt={`${photo.name}, não adicionada`}
+          className="absolute inset-0 size-full object-cover object-[50%_25%] opacity-50"
+        />
+      ) : (
+        <ImageOff className="absolute top-1/3 left-1/2 size-8 -translate-1/2 text-muted-foreground/60" />
+      )}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label={`Dispensar ${photo.name}`}
+        onClick={onDismiss}
+        className="absolute top-2 right-2 rounded-full bg-background/85 shadow-xs backdrop-blur-xs hover:bg-background"
+      >
+        <X />
+      </Button>
+      <div
+        role="alert"
+        className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-destructive px-3 py-2 text-white"
+      >
+        <p className="truncate text-xs font-semibold" title={photo.name}>
+          {photo.name}
+        </p>
+        <p className="text-xs leading-snug">{photo.reason}</p>
+      </div>
+    </li>
+  );
+}
+
+// O servidor numera só as fotos novas (images.N), na ordem em que aparecem, e é assim que o erro
+// dele marca a foto certa. Sair da tela libera as miniaturas das fotos recusadas.
 export default function PhotosStep({ form, update, errors }) {
-  const [localError, setLocalError] = useState("");
+  const [rejected, setRejected] = useState([]);
+  const rejectedRef = useRef(rejected);
+  useEffect(() => {
+    rejectedRef.current = rejected;
+  }, [rejected]);
+  useEffect(() => () => revokePreviews(rejectedRef.current), []);
+  const [skipped, setSkipped] = useState(0);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [targetIndex, setTargetIndex] = useState(null);
   const images = form.images;
+  const imagesRef = useRef(images);
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
   const remaining = maxPhotos - images.length;
+  const newFiles = images
+    .filter((image) => image.file)
+    .map((image) => image.file);
+  const rejectedFiles = new Set(
+    Object.keys(errors)
+      .map((key) => key.match(/^images\.(\d+)$/)?.[1])
+      .filter(Boolean)
+      .map((index) => newFiles[Number(index)]),
+  );
   const serverError =
     errors.images ??
     Object.entries(errors).find(([key]) => key.startsWith("images."))?.[1];
 
-  function addFiles(files) {
-    const valid = files.filter(
-      (file) => acceptedTypes.includes(file.type) && file.size <= maxPhotoBytes,
-    );
-    const accepted = valid.slice(0, remaining);
+  // Cada envio substitui a lista de recusadas, para ela falar só das últimas fotos escolhidas.
+  // Conferir as fotos leva tempo e outro envio pode terminar antes: por isso usa a lista de agora.
+  async function addFiles(files) {
+    const checked = await Promise.all(files.map(checkPhoto));
+    const current = imagesRef.current;
+    const valid = checked.filter((result) => result.ok);
+    const accepted = valid.slice(0, maxPhotos - current.length);
+    setSkipped(valid.length - accepted.length);
 
-    setLocalError(
-      valid.length < files.length
-        ? "Use fotos JPG, PNG ou WebP de até 5 MB."
-        : accepted.length < valid.length
-          ? `Você pode enviar no máximo ${maxPhotos} fotos.`
-          : "",
-    );
-    update("images", [
-      ...images,
-      ...accepted.map((file) => ({ file, url: URL.createObjectURL(file) })),
-    ]);
+    revokePreviews(rejectedRef.current);
+    const nextRejected = checked
+      .filter((result) => !result.ok)
+      .map(({ file, preview, reason }) => ({
+        name: file.name,
+        reason,
+        url: preview ? URL.createObjectURL(file) : null,
+      }));
+    rejectedRef.current = nextRejected;
+    setRejected(nextRejected);
+    const next = [
+      ...current,
+      ...accepted.map(({ file }) => ({ file, url: URL.createObjectURL(file) })),
+    ];
+    imagesRef.current = next;
+    update("images", next);
   }
 
   function removePhoto(index) {
     URL.revokeObjectURL(images[index].url);
-    setLocalError("");
+    setSkipped(0);
     update(
       "images",
       images.filter((_, current) => current !== index),
@@ -220,6 +349,19 @@ export default function PhotosStep({ form, update, errors }) {
     };
   }
 
+  function dismissRejected(index) {
+    if (rejected[index].url) URL.revokeObjectURL(rejected[index].url);
+    setRejected(rejected.filter((_, current) => current !== index));
+  }
+
+  const rejectedTiles = rejected.map((photo, index) => (
+    <RejectedTile
+      key={`${photo.name}-${index}`}
+      photo={photo}
+      onDismiss={() => dismissRejected(index)}
+    />
+  ));
+
   const tiles = images.map((image, index) => (
     <PhotoTile
       key={image.url}
@@ -229,6 +371,7 @@ export default function PhotosStep({ form, update, errors }) {
       isDropTarget={
         targetIndex === index && draggedIndex !== null && draggedIndex !== index
       }
+      isInvalid={image.file && rejectedFiles.has(image.file)}
       onRemove={() => removePhoto(index)}
       onMakeCover={() => movePhoto(index, 0)}
       dragHandlers={dragHandlersFor(index)}
@@ -239,7 +382,14 @@ export default function PhotosStep({ form, update, errors }) {
     <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
       <div className="flex flex-col gap-3">
         {images.length === 0 ? (
-          <UploadArea remaining={remaining} onFiles={addFiles} />
+          <>
+            <UploadArea remaining={remaining} onFiles={addFiles} />
+            {rejectedTiles.length > 0 && (
+              <ul className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-3">
+                {rejectedTiles}
+              </ul>
+            )}
+          </>
         ) : (
           <>
             <ul className="grid gap-3 md:grid-cols-[3fr_2fr]">
@@ -247,6 +397,7 @@ export default function PhotosStep({ form, update, errors }) {
               <li className="list-none">
                 <ul className="grid grid-cols-2 content-start gap-3">
                   {tiles.slice(1)}
+                  {rejectedTiles}
                   {remaining > 0 && (
                     <li>
                       <UploadArea
@@ -266,10 +417,17 @@ export default function PhotosStep({ form, update, errors }) {
           </>
         )}
 
-        {(localError || serverError) && (
-          <FieldError className="text-xs">
-            {localError || serverError}
-          </FieldError>
+        {skipped > 0 && (
+          <p role="status" className="text-xs text-muted-foreground">
+            {skipped === 1
+              ? "1 foto ficou de fora"
+              : `${skipped} fotos ficaram de fora`}{" "}
+            porque o limite é de {maxPhotos} fotos. Ficaram as primeiras.
+          </p>
+        )}
+
+        {serverError && (
+          <FieldError className="text-xs">{serverError}</FieldError>
         )}
       </div>
 

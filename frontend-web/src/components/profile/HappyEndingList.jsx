@@ -45,7 +45,7 @@ export default function HappyEndingList({ adoptions }) {
               <img
                 src={adoption.pet.cover_url}
                 alt={adoption.pet.name ?? "Pet adotado"}
-                className="h-70 w-full object-cover"
+                className="h-70 w-full object-cover object-[50%_25%]"
               />
             ) : (
               <div className="flex h-70 w-full items-center justify-center text-muted-foreground/40">

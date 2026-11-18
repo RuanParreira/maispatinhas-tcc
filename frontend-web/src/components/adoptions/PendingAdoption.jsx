@@ -42,7 +42,7 @@ export default function PendingAdoption({ adoption, onAnswered, children }) {
           <img
             src={adoption.pet.cover_url}
             alt={adoption.pet.name ?? "Pet"}
-            className="size-20 shrink-0 rounded-xl object-cover"
+            className="size-20 shrink-0 rounded-xl object-cover object-[50%_25%]"
           />
         ) : (
           <div className="flex size-20 shrink-0 items-center justify-center rounded-xl bg-secondary text-muted-foreground/40">

@@ -165,6 +165,9 @@ return [
         'animal.size' => [
             'in' => 'Ave, roedor e coelho são sempre de porte pequeno.',
         ],
+        'images.*' => [
+            'dimensions' => 'Uma das fotos tem tamanho fora do permitido: use entre 300×300 e 6000×6000 pixels.',
+        ],
         'with_finder' => [
             'required_if' => 'Informe se o animal está com você.',
             'prohibited_unless' => 'Essa informação só vale para posts de animal encontrado.',
