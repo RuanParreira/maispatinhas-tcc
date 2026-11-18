@@ -24,6 +24,22 @@ class PostPolicy
             : Response::denyAsNotFound();
     }
 
+    /**
+     * Favorito é para guardar pets de outras pessoas, e só de anúncios que a pessoa pode ver.
+     */
+    public function favorite(User $user, Post $post): Response
+    {
+        $visibility = $this->view($user, $post);
+
+        if ($visibility->denied()) {
+            return $visibility;
+        }
+
+        return $user->id === $post->user_id
+            ? Response::deny('Você não pode favoritar o próprio anúncio.')
+            : Response::allow();
+    }
+
     public function update(User $user, Post $post): Response
     {
         if ($user->id !== $post->user_id && ! $user->isAdmin()) {

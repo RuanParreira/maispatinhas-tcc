@@ -34,7 +34,7 @@ class FavoriteController extends Controller
      */
     public function store(Request $request, Post $post): Response
     {
-        Gate::authorize('view', $post);
+        Gate::authorize('favorite', $post);
         abort_unless($post->status === PostStatus::Active, 409, 'Só anúncios publicados podem ser favoritados.');
 
         $request->user()->favoritePosts()->syncWithoutDetaching([$post->id]);

@@ -37,6 +37,14 @@ it('does not favorite a reunion, even though it is public', function () {
     expect($user->favoritePosts()->count())->toBe(0);
 });
 
+it('does not favorite the own post', function () {
+    $post = Post::factory()->active()->create();
+
+    $this->actingAs($post->user)->putJson("/api/posts/{$post->id}/favorite")->assertForbidden();
+
+    expect($post->user->favoritePosts()->count())->toBe(0);
+});
+
 it('requires authentication to favorite', function () {
     $post = Post::factory()->active()->create();
 
