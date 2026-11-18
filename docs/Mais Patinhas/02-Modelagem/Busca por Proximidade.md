@@ -12,14 +12,14 @@ aliases:
 
 Como o sistema mostra primeiro os anúncios da cidade do usuário e depois os da região (ex.: quem mora em Uberaba vê Uberaba, depois Delta, Igarapava, Conceição das Alagoas...).
 
-> **Situação (nov/2026):** a tabela `municipalities` e o `municipality_id` em `users` e `posts` já estão no código. A busca por raio descrita abaixo ainda **não foi implementada**: hoje o catálogo só filtra pelo nome da cidade, no navegador.
+> **Situação (nov/2026):** implementada. Adotar começa sem limite de distância, ordenado a partir da cidade do usuário (a cidade e a região primeiro): adoção exige visita, mas cortar por raio deixava a tela vazia enquanto a base é pequena. Pets perdidos começa em até 50 km: o pet costuma estar perto de onde sumiu, e 50 km ainda pega as cidades vizinhas (de Uberaba, Delta e Igarapava). O card mostra a distância e o raio continua disponível para quem quiser cortar. Reencontros começa no Brasil inteiro, do mais recente, porque são histórias e não algo para agir; escolher uma cidade mostra só os reencontros dela, sem raio. Os filtros ficam na URL, então voltar de um anúncio mantém a busca. A busca por nome saiu: quem procura um pet não sabe o nome dele.
 
 ## Decisão
 
 - A localização é guardada **por município**, nunca pelo endereço exato do usuário.
 - Existe uma tabela de referência `municipalities` com o código IBGE e a latitude/longitude do centro de cada cidade.
 - `users` e `posts` guardam apenas `municipality_id` (FK para `municipalities.ibge_code`). Nome da cidade e UF vêm do JOIN, sem duplicar dado.
-- A distância é calculada no próprio MySQL, em linha reta, com `ST_Distance_Sphere`. Nenhuma API externa é consultada na hora da busca.
+- A distância é calculada no próprio banco, em linha reta, com uma conta plana (veja [[#Query de busca]]). Nenhuma API externa é consultada na hora da busca.
 - A origem da busca é um parâmetro. O município do usuário é só o valor padrão, então visitante sem login ou quem procura em outra cidade também consegue buscar.
 
 ### Por que não guardar lat/long do usuário
@@ -70,31 +70,29 @@ Tabela só de leitura, populada uma vez por seeder. Sem timestamps.
 
 ## Query de busca
 
-Proposta, ainda não implementada:
+`GET /api/posts?near={ibge_code}&radius={km}&sort=distance`, montada pelo escopo `Post::nearTo()`:
 
 ```sql
-WITH proximos AS (
-  SELECT ibge_code,
-         ST_Distance_Sphere(POINT(longitude, latitude), POINT(:lng, :lat)) / 1000 AS km
-  FROM municipalities
-  WHERE latitude  BETWEEN :lat - :dlat AND :lat + :dlat
-    AND longitude BETWEEN :lng - :dlng AND :lng + :dlng
-)
-SELECT p.*, prox.km
-FROM proximos prox
-JOIN posts p ON p.municipality_id = prox.ibge_code
-WHERE prox.km <= :raio
-  AND p.status = 'active'
-  AND p.deleted_at IS NULL
-ORDER BY prox.km, p.published_at DESC
+SELECT posts.*,
+       ((area.latitude - :lat) * 111.32) * ((area.latitude - :lat) * 111.32)
+     + ((area.longitude - :lng) * :km_lng) * ((area.longitude - :lng) * :km_lng) AS distance_sq
+FROM posts
+JOIN municipalities AS area ON area.ibge_code = posts.municipality_id
+WHERE area.latitude  BETWEEN :lat - :dlat AND :lat + :dlat
+  AND area.longitude BETWEEN :lng - :dlng AND :lng + :dlng
+  AND <distance_sq> <= :raio * :raio
+  AND posts.status = 'active'
+ORDER BY distance_sq, posts.published_at DESC
 LIMIT 15 OFFSET :offset;
 ```
 
-- `:lat` e `:lng` são as coordenadas do município de origem.
-- O `BETWEEN` (bounding box) usa o índice e corta a busca para poucas dezenas de municípios. Um grau de latitude tem cerca de 111 km; para 100 km, `:dlat ≈ 0.9` e `:dlng ≈ 1.0`.
-- A própria cidade fica no km 0, então "Uberaba primeiro, depois a região" sai direto do `ORDER BY`.
-- A migration de `posts` já cria o índice `(status, municipality_id, published_at)`.
-- Raio padrão de 50 km, com opção de 25/50/100 km. Se vierem poucos resultados, ampliar o raio automaticamente.
+- `:lat` e `:lng` são as coordenadas do município de origem; `:km_lng` é `111.32 × cos(lat)`, calculado no PHP.
+- **Por que não `ST_Distance_Sphere`:** os testes rodam em SQLite, que não tem essa função nem `POW`. A conta plana usa só soma e multiplicação, roda igual nos dois bancos, e o erro em raios de até 200 km é de poucos quilômetros.
+- O `BETWEEN` (bounding box) usa o índice e corta a busca para poucas dezenas de municípios. A condição do círculo vem depois, para os cantos do quadrado não entrarem.
+- A própria cidade fica no km 0, então "Uberaba primeiro, depois a região" sai direto do `ORDER BY`. O card mostra `distance_km` ("a 38 km").
+- `radius=0` é só a própria cidade; sem `radius` (Todo o Brasil) a distância é calculada para ordenar, sem cortar.
+- Opções no catálogo: só a cidade, 50, 100 e 200 km, ou "Sem limite" (padrão de Adotar; Pets perdidos começa em 50 km). Com raio e sem resultado, a tela oferece "Ver mais longe".
+- Na tela de detalhes, "Outros pets" usa a cidade do anúncio e 100 km.
 
 ## Exemplo real a partir de Uberaba
 

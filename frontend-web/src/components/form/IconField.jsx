@@ -42,12 +42,14 @@ export function IconField({
 }) {
   return (
     <Field data-invalid={Boolean(error)} className="gap-1.5">
-      <div className="flex items-center justify-between gap-3">
-        <FieldLabel htmlFor={id} className="text-xs tracking-wide">
-          {label}
-        </FieldLabel>
-        {labelAction}
-      </div>
+      {(label || labelAction) && (
+        <div className="flex items-center justify-between gap-3">
+          <FieldLabel htmlFor={id} className="text-xs tracking-wide">
+            {label}
+          </FieldLabel>
+          {labelAction}
+        </div>
+      )}
       <InputGroup className="h-12">
         {children ?? (
           <InputGroupInput

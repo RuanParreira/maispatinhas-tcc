@@ -88,15 +88,55 @@ it('filters by species, size and sex', function () {
         ->assertJsonPath('data.0.id', $match->id);
 });
 
-it('searches by animal name, breed and city name', function () {
-    $byName = activePostWithAnimal(['name' => 'Thor', 'breed' => 'SRD']);
-    $byBreed = activePostWithAnimal(['name' => 'Mel', 'breed' => 'Thornbury']);
-    $byCity = activePostWithAnimal(['name' => 'Bob', 'breed' => 'SRD'], ['name' => 'Thorlandia']);
-    activePostWithAnimal(['name' => 'Luna', 'breed' => 'SRD'], ['name' => 'Uberaba']);
+// 0,45° de latitude são uns 50 km; 2,75° passam de 300 km.
+function postsAroundOrigin(): array
+{
+    $origin = activePostWithAnimal([], ['latitude' => -19.75, 'longitude' => -47.94]);
+    $close = activePostWithAnimal([], ['latitude' => -19.30, 'longitude' => -47.94]);
+    $far = activePostWithAnimal([], ['latitude' => -17.00, 'longitude' => -47.94]);
 
-    $ids = collect($this->getJson('/api/posts?search=thor')->assertOk()->json('data'))->pluck('id');
+    return [$origin, $close, $far];
+}
 
-    expect($ids)->toHaveCount(3)->toContain($byName->id, $byBreed->id, $byCity->id);
+it('lists only posts within the radius, nearest first, with the distance', function () {
+    [$origin, $close] = postsAroundOrigin();
+
+    $this->getJson("/api/posts?near={$origin->municipality_id}&radius=100&sort=distance")
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.id', $origin->id)
+        ->assertJsonPath('data.0.distance_km', 0)
+        ->assertJsonPath('data.1.id', $close->id)
+        ->assertJsonPath('data.1.distance_km', 50);
+});
+
+// A -19,75° de latitude, 1° de longitude tem uns 104,8 km: 0,4772° a leste dá 50 km.
+// O canto (89 km para norte e 89 km para leste) cai no quadrado de busca, mas fica a 126 km.
+it('measures east-west distance and leaves out the corners of the search box', function () {
+    $origin = activePostWithAnimal([], ['latitude' => -19.75, 'longitude' => -47.94]);
+    $east = activePostWithAnimal([], ['latitude' => -19.75, 'longitude' => -47.4628]);
+    activePostWithAnimal([], ['latitude' => -18.95, 'longitude' => -47.09]);
+
+    $this->getJson("/api/posts?near={$origin->municipality_id}&radius=100&sort=distance")
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.1.id', $east->id)
+        ->assertJsonPath('data.1.distance_km', 50);
+});
+
+it('keeps only the origin city with radius 0 and every city without a radius', function () {
+    [$origin] = postsAroundOrigin();
+
+    $this->getJson("/api/posts?near={$origin->municipality_id}&radius=0")
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $origin->id);
+
+    $this->getJson("/api/posts?near={$origin->municipality_id}")->assertJsonCount(3, 'data');
+});
+
+it('omits the distance when no city is given', function () {
+    postsAroundOrigin();
+
+    $this->getJson('/api/posts')->assertOk()->assertJsonMissingPath('data.0.distance_km');
 });
 
 it('filters by age group from the approximate birth date', function (string $group, string $birthDate) {
@@ -113,20 +153,10 @@ it('filters by age group from the approximate birth date', function (string $gro
     'idoso' => ['senior', now()->subYears(9)->toDateString()],
 ]);
 
-it('sorts by animal name when asked', function () {
-    activePostWithAnimal(['name' => 'Zeca']);
-    activePostWithAnimal(['name' => 'Amora']);
-
-    $this->getJson('/api/posts?sort=name')
-        ->assertOk()
-        ->assertJsonPath('data.0.animal.name', 'Amora')
-        ->assertJsonPath('data.1.animal.name', 'Zeca');
-});
-
 it('rejects unknown filter values', function () {
-    $this->getJson('/api/posts?species=dragon&age_group=baby&sort=price')
+    $this->getJson('/api/posts?species=dragon&age_group=baby&sort=name&near=1&radius=-5')
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['species', 'age_group', 'sort']);
+        ->assertJsonValidationErrors(['species', 'age_group', 'sort', 'near', 'radius']);
 });
 
 it('never exposes moderation data', function () {

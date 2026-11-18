@@ -30,6 +30,7 @@ class PostCardResource extends JsonResource
             'published_at' => $this->published_at?->toIso8601String(),
             'cover_url' => $this->cover?->url,
             'is_favorite' => $this->whenHas('is_favorite'),
+            'distance_km' => $this->whenHas('distance_sq', fn () => (int) round(sqrt((float) $this->distance_sq))),
             'user' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

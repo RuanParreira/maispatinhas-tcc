@@ -32,12 +32,13 @@ class ListPostsRequest extends FormRequest
             'type' => ['nullable', 'array'],
             'type.*' => [Rule::enum(PostType::class)],
             'status' => ['nullable', Rule::in([PostStatus::Active->value, PostStatus::Resolved->value])],
-            'search' => ['nullable', 'string', 'max:100'],
+            'near' => ['nullable', 'integer', 'exists:municipalities,ibge_code'],
+            'radius' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'species' => ['nullable', Rule::enum(AnimalSpecies::class)],
             'size' => ['nullable', Rule::enum(AnimalSize::class)],
             'sex' => ['nullable', Rule::enum(AnimalSex::class)],
             'age_group' => ['nullable', Rule::enum(AnimalAgeGroup::class)],
-            'sort' => ['nullable', Rule::in(['recent', 'name'])],
+            'sort' => ['nullable', Rule::in(['distance', 'recent'])],
             'page' => ['nullable', 'integer', 'min:1'],
         ];
     }

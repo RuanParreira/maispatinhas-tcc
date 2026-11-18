@@ -21,6 +21,9 @@ const views = {
   },
 };
 
+// Pet perdido costuma estar perto de onde sumiu: 50 km pega a cidade e as vizinhas.
+const lostRadius = "50";
+
 export default function LostAndFound() {
   const [searchParams, setSearchParams] = useSearchParams();
   const view = views[searchParams.get("view")]
@@ -29,6 +32,7 @@ export default function LostAndFound() {
 
   return (
     <PostCatalog
+      defaultRadius={lostRadius}
       types={views[view].types}
       label={views[view].count}
       header={
@@ -41,9 +45,16 @@ export default function LostAndFound() {
           value={view}
           onValueChange={(value) =>
             value &&
-            setSearchParams(value === "all" ? {} : { view: value }, {
-              replace: true,
-            })
+            setSearchParams(
+              (current) => {
+                const next = new URLSearchParams(current);
+                if (value === "all") next.delete("view");
+                else next.set("view", value);
+                next.delete("page");
+                return next;
+              },
+              { replace: true },
+            )
           }
           className="w-fit rounded-xl bg-secondary/50 p-1"
         >

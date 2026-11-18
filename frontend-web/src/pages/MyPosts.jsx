@@ -193,63 +193,54 @@ export default function MyPosts() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-xs sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-1 flex-wrap items-center gap-3">
-            <InputGroup className="h-11 min-w-60 flex-1">
-              <InputGroupInput
-                type="search"
-                aria-label="Buscar meus anúncios"
-                placeholder="Busque por título, descrição ou nome do pet"
-                value={values.search}
-                onChange={(e) => setFilter("search", e.target.value)}
-                className="pr-4 text-body md:text-body"
-              />
-              <InputGroupAddon className="pl-4">
-                <Search className="size-4.5" />
-              </InputGroupAddon>
-            </InputGroup>
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card p-3 shadow-xs sm:p-4">
+        <InputGroup className="h-11 min-w-60 flex-1">
+          <InputGroupInput
+            type="search"
+            aria-label="Buscar meus anúncios"
+            placeholder="Busque por título, descrição ou nome do pet"
+            value={values.search}
+            onChange={(e) => setFilter("search", e.target.value)}
+            className="pr-4 text-body md:text-body"
+          />
+          <InputGroupAddon className="pl-4">
+            <Search className="size-4.5" />
+          </InputGroupAddon>
+        </InputGroup>
 
-            <Select
-              value={selectedStatus}
-              onValueChange={(value) => setFilter("status", value)}
-            >
-              <SelectTrigger aria-label="Status" size="lg" variant="filled">
-                <span className="text-muted-foreground">Status:</span>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent
-                position="popper"
-                align="start"
-                className="min-w-40"
-              >
-                {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <Select
+          value={selectedStatus}
+          onValueChange={(value) => setFilter("status", value)}
+        >
+          <SelectTrigger aria-label="Status" size="lg" variant="filled">
+            <span className="text-muted-foreground">Status:</span>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" align="start" className="min-w-40">
+            {statusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Button asChild size="toolbar">
-            <Link to="/posts/create">
-              <Plus className="size-4" />
-              Criar anúncio
-            </Link>
-          </Button>
-        </div>
-
-        {!loading && !error && (
-          <p className="text-[0.8125rem] text-muted-foreground">
-            Exibindo{" "}
-            <span className="font-semibold text-foreground">
-              {filteredPosts.length}{" "}
-              {filteredPosts.length === 1 ? "anúncio" : "anúncios"}
-            </span>
-          </p>
-        )}
+        <Button asChild size="toolbar">
+          <Link to="/posts/create">
+            <Plus className="size-4" />
+            Criar anúncio
+          </Link>
+        </Button>
       </div>
+
+      {!loading && !error && (
+        <p className="-mt-2 text-[0.8125rem] text-muted-foreground">
+          <span className="font-semibold text-foreground">
+            {filteredPosts.length}{" "}
+            {filteredPosts.length === 1 ? "anúncio" : "anúncios"}
+          </span>
+        </p>
+      )}
 
       {renderContent()}
     </div>

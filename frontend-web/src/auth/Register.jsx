@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Mail, Phone, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
+import { fetchMunicipalities } from "@/lib/municipalities";
 import { useAuth } from "@/auth/useAuth";
 import AuthShell from "@/components/auth/AuthShell";
 import { IconField, PasswordField } from "@/components/form/IconField";
@@ -25,7 +26,7 @@ export default function Register() {
   const { login } = useAuth();
 
   useEffect(() => {
-    api.get("/api/municipalities").then((res) => setMunicipalities(res.data));
+    fetchMunicipalities().then(setMunicipalities);
   }, []);
 
   async function handleSubmit(e) {
@@ -46,7 +47,9 @@ export default function Register() {
       login(data);
       navigate("/adoptions");
     } catch (err) {
-      setErrors(err.response?.data?.errors ?? { email: ["Erro ao registrar."] });
+      setErrors(
+        err.response?.data?.errors ?? { email: ["Erro ao registrar."] },
+      );
     } finally {
       setSubmitting(false);
     }

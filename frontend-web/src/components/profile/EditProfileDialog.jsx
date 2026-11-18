@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Phone, User } from "lucide-react";
 import api from "@/api/axios";
+import { fetchMunicipalities } from "@/lib/municipalities";
 import CityCombobox from "@/components/auth/CityCombobox";
 import AvatarField from "@/components/profile/AvatarField";
 import { IconField } from "@/components/form/IconField";
@@ -30,7 +31,7 @@ function EditProfileForm({ user, profile, onSaved, onAvatarChange, onCancel }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    api.get("/api/municipalities").then((res) => setMunicipalities(res.data));
+    fetchMunicipalities().then(setMunicipalities);
   }, []);
 
   async function handleSubmit(e) {
@@ -130,12 +131,7 @@ function EditProfileForm({ user, profile, onSaved, onAvatarChange, onCancel }) {
       </Field>
 
       <DialogFooter>
-        <Button
-          type="button"
-          variant="ghost"
-          size="md"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="ghost" size="md" onClick={onCancel}>
           Cancelar
         </Button>
         <Button

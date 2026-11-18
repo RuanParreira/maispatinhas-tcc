@@ -8,7 +8,8 @@ export default function Reunions() {
       types={reunionTypes}
       status="resolved"
       label="de volta para casa"
-      searchOnly
+      cityOnly
+      nationwide
     />
   );
 }

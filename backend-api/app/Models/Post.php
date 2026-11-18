@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder<static> active()
  * @method static Builder<static> reunited()
  * @method static Builder<static> withFavoriteFlag(?User $user)
+ * @method static Builder<static> nearTo(Municipality $origin, ?int $radiusKm)
  */
 #[Fillable([
     'type',
@@ -66,6 +67,48 @@ class Post extends Model
     protected function active(Builder $query): void
     {
         $query->where('status', PostStatus::Active);
+    }
+
+    /**
+     * Anúncios até $radiusKm da cidade de origem, com distance_sq (km²) para ordenar.
+     * Sem raio, só calcula a distância; raio 0 é a própria cidade. A conta é plana
+     * (sem trigonometria no SQL) para rodar igual no MySQL e no SQLite dos testes;
+     * em raios regionais o erro é de poucos quilômetros.
+     *
+     * @param  Builder<Post>  $query
+     */
+    #[Scope]
+    protected function nearTo(Builder $query, Municipality $origin, ?int $radiusKm): void
+    {
+        $kmPerLatitude = 111.32;
+        $kmPerLongitude = $kmPerLatitude * cos(deg2rad($origin->latitude));
+        $distance = '((area.latitude - ?) * ?) * ((area.latitude - ?) * ?)'
+            .' + ((area.longitude - ?) * ?) * ((area.longitude - ?) * ?)';
+        $bindings = [
+            $origin->latitude, $kmPerLatitude, $origin->latitude, $kmPerLatitude,
+            $origin->longitude, $kmPerLongitude, $origin->longitude, $kmPerLongitude,
+        ];
+
+        $query->join('municipalities as area', 'area.ibge_code', '=', 'posts.municipality_id')
+            ->select('posts.*')
+            ->selectRaw("{$distance} as distance_sq", $bindings);
+
+        if ($radiusKm === null) {
+            return;
+        }
+
+        if ($radiusKm === 0) {
+            $query->where('posts.municipality_id', $origin->ibge_code);
+
+            return;
+        }
+
+        $latitudeDelta = $radiusKm / $kmPerLatitude;
+        $longitudeDelta = $radiusKm / max($kmPerLongitude, 1);
+
+        $query->whereBetween('area.latitude', [$origin->latitude - $latitudeDelta, $origin->latitude + $latitudeDelta])
+            ->whereBetween('area.longitude', [$origin->longitude - $longitudeDelta, $origin->longitude + $longitudeDelta])
+            ->whereRaw("{$distance} <= ?", [...$bindings, $radiusKm * $radiusKm]);
     }
 
     /**

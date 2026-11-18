@@ -42,8 +42,8 @@ Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderaç
 
 ## Estado da implementação (nov/2026)
 
-- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e cancelamento dos próprios anúncios com fotos; catálogo público de anúncios; favoritos.
-- **A fazer:** painel de moderação, chat, indicação e confirmação de adoção ("Doei"), avaliação pós-adoção e busca por raio ([[Busca por Proximidade]]).
+- **Pronto:** cadastro, login e recuperação de senha; perfil público (anúncios, adoções e avaliações recebidas); configurações da conta (perfil, foto, e-mail, senha, sessões e exclusão da conta com anonimização); cadastro, edição e cancelamento dos próprios anúncios com fotos; catálogo público de anúncios por região ([[Busca por Proximidade]]); favoritos.
+- **A fazer:** painel de moderação, chat, indicação e confirmação de adoção ("Doei"), avaliação pós-adoção.
 
 ## Documentos do TCC
 

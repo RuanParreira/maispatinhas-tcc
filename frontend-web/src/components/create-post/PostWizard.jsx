@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Send } from "lucide-react";
 import { toast } from "sonner";
-import api from "@/api/axios";
+import { fetchMunicipalities } from "@/lib/municipalities";
 import { isEmpty } from "@/lib/postForm";
 import { postTextMinLengths, postTypes } from "@/lib/posts";
 import DetailsStep from "@/components/create-post/DetailsStep";
@@ -183,9 +183,8 @@ export default function PostWizard({ initialForm, editing = false, onSubmit }) {
   const isLast = current === visibleSteps.length - 1;
 
   useEffect(() => {
-    api
-      .get("/api/municipalities")
-      .then(({ data }) => setMunicipalities(data))
+    fetchMunicipalities()
+      .then(setMunicipalities)
       .catch(() =>
         toast.error(
           "Não foi possível carregar as cidades. Recarregue a página.",
@@ -221,11 +220,13 @@ export default function PostWizard({ initialForm, editing = false, onSubmit }) {
       setErrors({});
       return;
     }
-    setErrors((previous) => {
-      const next = { ...previous };
-      delete next[field];
-      return next;
-    });
+    setErrors((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).filter(
+          ([key]) => key !== field && !key.startsWith(`${field}.`),
+        ),
+      ),
+    );
   }
 
   function goTo(index) {

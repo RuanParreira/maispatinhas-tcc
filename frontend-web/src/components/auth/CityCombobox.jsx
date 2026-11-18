@@ -24,6 +24,9 @@ export default function CityCombobox({
   municipalities,
   value,
   initialLabel = "",
+  placeholder = "Digite o nome da sua cidade",
+  ariaLabel,
+  clearOnEdit = true,
   onChange,
 }) {
   const [query, setQuery] = useState(initialLabel);
@@ -51,7 +54,8 @@ export default function CityCombobox({
     return [...startsWith, ...contains].slice(0, MAX_RESULTS);
   }, [options, term]);
 
-  const showList = open && !value;
+  const selected = value ? options.find((o) => o.code === value) : null;
+  const showList = open && (!selected || query !== selected.label);
 
   function select(option) {
     onChange(option.code);
@@ -62,12 +66,21 @@ export default function CityCombobox({
   function handleValueChange(text) {
     setQuery(text);
     setOpen(true);
-    if (value) onChange("");
+    if (value && clearOnEdit) onChange("");
   }
 
+  // Sem clearOnEdit, a cidade anterior vale até escolher outra (o texto vem selecionado para digitar por cima); apagar o campo limpa ao sair.
   function handleBlur() {
     setOpen(false);
-    if (!value) setQuery("");
+    if (clearOnEdit) {
+      if (!value) setQuery("");
+      return;
+    }
+    if (!query.trim()) {
+      if (value) onChange("");
+      return;
+    }
+    setQuery(selected?.label ?? "");
   }
 
   return (
@@ -121,10 +134,14 @@ export default function CityCombobox({
           data-slot="input-group-control"
           aria-invalid={Boolean(error)}
           autoComplete="off"
-          placeholder="Digite o nome da sua cidade"
+          aria-label={ariaLabel}
+          placeholder={placeholder}
           value={query}
           onValueChange={handleValueChange}
-          onFocus={() => setOpen(true)}
+          onFocus={(event) => {
+            setOpen(true);
+            if (!clearOnEdit) event.target.select();
+          }}
           onBlur={handleBlur}
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
           className="h-full min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-muted-foreground"
