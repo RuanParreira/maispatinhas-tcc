@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Mail, ShieldCheck } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "@/api/axios";
 import { useAuth } from "@/auth/useAuth";
 import AuthShell from "@/components/auth/AuthShell";
@@ -17,9 +17,9 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
   const { login } = useAuth();
 
+  // Não navega daqui: o AuthGate da tela de login leva para a página de origem (ou Adotar) assim que a sessão existe.
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors({});
@@ -33,7 +33,6 @@ export default function Login() {
         remember,
       });
       login(data);
-      navigate("/adoptions");
     } catch (err) {
       setErrors(err.response?.data?.errors ?? { email: ["Erro ao entrar."] });
     } finally {

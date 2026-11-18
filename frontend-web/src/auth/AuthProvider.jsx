@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import { AuthContext, useAuth } from "@/auth/useAuth";
@@ -77,15 +77,25 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Quem cai no login vindo de uma tela protegida volta para ela depois de entrar.
 export function AuthGate({ when, redirectTo }) {
   const { status } = useAuth();
+  const location = useLocation();
 
   if (status === "loading") {
     return null;
   }
 
   if (status === when) {
-    return <Navigate to={redirectTo} replace />;
+    const from = location.state?.from;
+    return when === "guest" ? (
+      <Navigate to={redirectTo} replace state={{ from: location }} />
+    ) : (
+      <Navigate
+        to={from ? `${from.pathname}${from.search}` : redirectTo}
+        replace
+      />
+    );
   }
 
   return <Outlet />;
