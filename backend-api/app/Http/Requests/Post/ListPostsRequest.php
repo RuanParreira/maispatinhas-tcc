@@ -20,9 +20,9 @@ class ListPostsRequest extends FormRequest
     }
 
     /**
-     * Filtros do catálogo público. Todos são opcionais; "search" procura no nome
-     * e na raça do animal e no nome da cidade. type aceita vários tipos (perdidos e
-     * encontrados dividem a tela) e status=resolved lista os reencontros.
+     * Filtros do catálogo público. Todos são opcionais; near e radius fazem a busca
+     * por região. type aceita vários tipos (perdidos e encontrados dividem a tela)
+     * e status=resolved lista os reencontros.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

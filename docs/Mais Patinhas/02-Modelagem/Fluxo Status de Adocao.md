@@ -62,9 +62,9 @@ A exclusão de conta cancela automaticamente as adoções em aberto:
 
 Ver [[Fluxo Status de Anuncio]] para o ciclo de vida do anúncio.
 
-## Por que `Animais` não tem status
+## Por que `animals` não tem status
 
-O estado do animal é derivado, não armazenado. Guardar uma coluna `Status` em `Animais` criaria uma terceira fonte de verdade sobre o mesmo fato, e nada no banco impediria a combinação impossível de animal marcado como "adotado" com anúncio ainda `ATIVO`.
+O estado do animal é derivado, não armazenado. Guardar uma coluna `status` em `animals` criaria uma terceira fonte de verdade sobre o mesmo fato, e nada no banco impediria a combinação impossível de animal marcado como "adotado" com anúncio ainda `ATIVO`.
 
 O estado do animal se lê assim:
 

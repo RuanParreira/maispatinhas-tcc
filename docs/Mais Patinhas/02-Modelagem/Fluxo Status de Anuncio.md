@@ -15,8 +15,10 @@ stateDiagram-v2
     ATIVO --> PENDENTE_APROVACAO
     ATIVO --> PAUSADO
     PAUSADO --> ATIVO
+    PAUSADO --> PENDENTE_APROVACAO
     ATIVO --> EXPIRADO
     EXPIRADO --> ATIVO
+    EXPIRADO --> PENDENTE_APROVACAO
     ATIVO --> RESOLVIDO
     PAUSADO --> RESOLVIDO
     ATIVO --> CANCELADO
@@ -33,7 +35,7 @@ stateDiagram-v2
 | Estado | Significado | Quem provoca |
 | --- | --- | --- |
 | `PENDENTE_APROVACAO` | Enviado, aguardando moderação. | autor |
-| `REJEITADO` | Moderação recusou. O motivo fica em `Moderações`. | moderador |
+| `REJEITADO` | Moderação recusou. O motivo fica em `moderations`. | moderador |
 | `ATIVO` | Aprovado e publicado, visível no catálogo. | moderador |
 | `PAUSADO` | Retirado temporariamente do catálogo pelo autor. | autor |
 | `EXPIRADO` | Passou do prazo sem resolução. Sai do catálogo. | sistema |
@@ -44,7 +46,7 @@ stateDiagram-v2
 
 A publicação é automática: assim que o moderador aprova, o anúncio já vai ao ar. Um estado `APROVADO` entre `PENDENTE_APROVACAO` e `ATIVO` nunca seria ocupado por nenhuma linha — as duas transições acontecem na mesma operação.
 
-Estado que ninguém ocupa é peso morto no enum e gera dúvida na hora de investigar problema. O registro de que houve aprovação não depende dele: fica em `Aprovado por`, `Aprovado em` e na tabela `Moderações`.
+Estado que ninguém ocupa é peso morto no enum e gera dúvida na hora de investigar problema. O registro de que houve aprovação não depende dele: fica em `approved_by`, `approved_at` e na tabela `moderations`.
 
 ## Por que não existe um estado `RASCUNHO`
 
@@ -62,11 +64,11 @@ Editar é diferente de pausar. Se o autor muda qualquer coisa num anúncio `ATIV
 
 `PAUSADO` e `EXPIRADO` editados também voltam para `PENDENTE_APROVACAO`. Retomar e renovar não passam pela moderação, então sem essa regra daria para pausar, trocar o conteúdo e retomar, publicando algo que ninguém aprovou.
 
-Além disso, o fato de ter sido aprovado não depende do campo de status: fica registrado em `Aprovado por`, `Aprovado em` e na tabela `Moderações`. Mesmo que o estado atual mude várias vezes, o histórico da moderação permanece.
+Além disso, o fato de ter sido aprovado não depende do campo de status: fica registrado em `approved_by`, `approved_at` e na tabela `moderations`. Mesmo que o estado atual mude várias vezes, o histórico da moderação permanece.
 
 ## Reenvio depois da rejeição
 
-`REJEITADO → PENDENTE_APROVACAO` existe para o autor corrigir o que foi apontado e reenviar. Na prática, o reenvio acontece ao salvar a edição. Cada passagem pela moderação gera uma linha nova em `Moderações`, então o histórico de idas e vindas fica preservado.
+`REJEITADO → PENDENTE_APROVACAO` existe para o autor corrigir o que foi apontado e reenviar. Na prática, o reenvio acontece ao salvar a edição. Cada passagem pela moderação gera uma linha nova em `moderations`, então o histórico de idas e vindas fica preservado.
 
 `REJEITADO → CANCELADO` é a saída de quem desistiu.
 
@@ -74,10 +76,10 @@ Além disso, o fato de ter sido aprovado não depende do campo de status: fica r
 
 `EXPIRADO` evita que anúncio de animal perdido nunca reencontrado fique visível para sempre. O anúncio sai do catálogo mas não é apagado, e o autor pode renovar (`EXPIRADO → ATIVO`).
 
-O prazo é regra de aplicação, não do banco, e depende do tipo: **60 dias** para `ADOCAO` e **30 dias** para `PERDIDO` e `ENCONTRADO`, que ficam desatualizados mais rápido. Ele conta a partir de `Data publicação`.
+O prazo é regra de aplicação, não do banco, e depende do tipo: **60 dias** para `ADOCAO` e **30 dias** para `PERDIDO` e `ENCONTRADO`, que ficam desatualizados mais rápido. Ele conta a partir de `published_at`.
 
 - Um comando agendado (`posts:expire`, diário) passa para `EXPIRADO` os anúncios `ATIVO` que venceram. `PAUSADO` não expira: já está fora do catálogo.
-- Renovar (`EXPIRADO → ATIVO`) não passa pela moderação, porque o conteúdo aprovado não mudou, e reinicia `Data publicação`, recomeçando a contagem.
+- Renovar (`EXPIRADO → ATIVO`) não passa pela moderação, porque o conteúdo aprovado não mudou, e reinicia `published_at`, recomeçando a contagem.
 
 ## Cancelar em vez de excluir
 

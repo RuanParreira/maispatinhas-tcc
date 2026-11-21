@@ -101,15 +101,15 @@ LIMIT 15 OFFSET :offset;
 | Cidade | UF | Distância |
 |---|---|---|
 | Uberaba | MG | 0 km |
-| Delta | MG | 29.7 km |
+| Delta | MG | 29.8 km |
 | Igarapava | SP | 38.3 km |
 | Água Comprida | MG | 38.8 km |
 | Veríssimo | MG | 40.2 km |
 | Aramina | SP | 41.1 km |
-| Conceição das Alagoas | MG | 50.3 km |
-| Uberlândia | MG | 99 km |
+| Conceição das Alagoas | MG | 50.4 km |
+| Uberlândia | MG | 99.2 km |
 
-34 municípios num raio de 100 km.
+33 municípios num raio de 100 km, pela mesma conta plana do sistema.
 
 ## Limitação
 

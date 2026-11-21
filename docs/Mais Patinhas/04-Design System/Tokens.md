@@ -16,7 +16,7 @@ Referência gerada de `tokens.json`. No frontend, use a classe do Tailwind indic
 | `--tinta` | `#2e2418` | Tinta: títulos, corpo de texto e texto sobre `ambar`, `mel` e fundos de estado. 14,2:1 em `fundo`, 12,0:1 em `realce`. |
 | `--tinta-suave` | `#706455` | Texto secundário (raça, cidade, data, legendas, placeholder): 5,4:1 em `fundo`, 5,6:1 em `superficie` e 4,6:1 em `realce`. Valor do `--muted-foreground`; escurecido do briefing (#7c6f60) para passar 4,5:1 também sobre os fundos bege. |
 | `--foco` | `{aviso}` | Foco de qualquer controle: borda nesta cor mais anel sólido de 1px (`ring-1 ring-ring`), contorno de 2px. No frontend é `--ring`. Segue o `aviso` (5,5:1 em `fundo`, 4,6:1 em `realce`). |
-| `--sucesso` | `#4e7a55` | Sucesso: ícone, ponto e borda de mensagens (anúncio ativo, pedido enviado). Como texto, só sobre `fundo`/`superficie` (4,6:1); sobre `sucesso-fundo` fica em 4,1:1, então o texto da mensagem vai em `tinta`. |
+| `--sucesso` | `#4e7a55` | Sucesso: ícone, ponto e borda de mensagens (anúncio ativo, adoção concluída). Como texto, só sobre `fundo`/`superficie` (4,6:1); sobre `sucesso-fundo` fica em 4,1:1, então o texto da mensagem vai em `tinta`. |
 | `--sucesso-fundo` | `#e3ede1` | Fundo de selos e blocos de sucesso, com texto em `tinta` e ícone em `sucesso`. |
 | `--erro` | `#a8432f` | Erro: ícone, borda e texto de validação (4,8:1 em `erro-fundo`, 5,6:1 em `fundo`); anúncio rejeitado. |
 | `--erro-fundo` | `#f6e1da` | Fundo de mensagens e selos de erro. |
