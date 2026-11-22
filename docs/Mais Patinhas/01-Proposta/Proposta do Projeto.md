@@ -52,8 +52,9 @@ Entidades: Usuário, Municípios, Animais, Anúncios, Arquivos (fotos), Moderaç
   - tela de detalhes do anúncio, com galeria, ficha do pet, card de quem anunciou e outros pets da região;
   - favoritos (só de anúncios de outras pessoas);
   - confirmação da adoção pelo adotante em Minhas adoções ([[Fluxo Status de Adocao]]);
+  - chat do anúncio em tempo real (Laravel Reverb): conversa aberta pelo botão de contato, contador de não lidas no menu, aviso de "Lida" e "digitando...", e bloqueio, que deixa a conversa só para leitura;
   - home com busca por cidade e vitrine dos anúncios mais recentes.
-- **A fazer:** painel de moderação, chat, indicação do adotante pelo doador ("Doei", depende do chat), avaliação pós-adoção. Ideias em estudo ficam em [[Ideias]].
+- **A fazer:** painel de moderação, indicação do adotante pelo doador ("Doei"), avaliação pós-adoção e denúncia de conversas (depende da moderação). Ideias em estudo ficam em [[Ideias]].
 
 ## Documentos do TCC
 

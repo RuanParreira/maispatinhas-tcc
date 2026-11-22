@@ -33,6 +33,10 @@
     {
       "key": "user_id",
       "value": ""
+    },
+    {
+      "key": "conversation_id",
+      "value": ""
     }
   ],
   "event": [
@@ -844,6 +848,134 @@
             "header": [],
             "url": "{{base_url}}/api/my-adoptions/{{adoption_id}}/confirmation",
             "description": "Recusa a indicação; o anúncio continua publicado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conversas",
+      "item": [
+        {
+          "name": "Abrir conversa no anúncio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/posts/{{post_id}}/conversation",
+            "description": "Botão de contato do anúncio. 201 cria, 200 devolve a que já existe (uma por interessado em cada anúncio). 403 no próprio anúncio ou com conta suspensa/banida, 409 se o anúncio não está publicado. Guarda o id em {{conversation_id}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o id da conversa em {{conversation_id}}.",
+                  "pm.collectionVariables.set('conversation_id', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/conversations",
+            "description": "Conversas com pelo menos uma mensagem, da mais recente para a mais antiga, com unread_count e last_message. Guarda a primeira em {{conversation_id}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o id da primeira conversa em {{conversation_id}}.",
+                  "const first = (pm.response.json().data || [])[0]; if (first) pm.collectionVariables.set('conversation_id', first.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Não lidas (menu)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/unread-count",
+            "description": "Total de mensagens recebidas e não lidas: {\"count\": n}."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalhes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}",
+            "description": "Só os dois participantes (404 para os outros). can_send diz se o campo de mensagem fica liberado."
+          },
+          "response": []
+        },
+        {
+          "name": "Mensagens",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/messages",
+            "description": "Da mais nova para a mais antiga, 30 por vez. Para as anteriores, repita com ?cursor= o valor de meta.next_cursor."
+          },
+          "response": []
+        },
+        {
+          "name": "Enviar mensagem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/messages",
+            "description": "201. body de 1 a 2000 caracteres. 403 com a conversa bloqueada ou arquivada, anúncio cancelado ou conta suspensa/banida. Avisa a outra pessoa em tempo real (Reverb), se ele estiver no ar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Olá! Ele ainda está disponível?\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar como lidas",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/read",
+            "description": "204. Marca as mensagens que você recebeu nesta conversa e, se havia alguma, avisa quem enviou (o chat dele mostra \"Lida\")."
+          },
+          "response": []
+        },
+        {
+          "name": "Bloquear",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/block",
+            "description": "204. A conversa fica só para leitura nos dois lados. 403 se ela não está ativa."
+          },
+          "response": []
+        },
+        {
+          "name": "Desbloquear",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/conversations/{{conversation_id}}/block",
+            "description": "204. Só quem bloqueou (403 para a outra pessoa)."
           },
           "response": []
         }
