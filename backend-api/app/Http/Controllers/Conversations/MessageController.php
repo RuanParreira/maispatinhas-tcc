@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Conversations;
 
+use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Conversation\StoreMessageRequest;
 use App\Http\Resources\MessageResource;
@@ -31,6 +32,8 @@ class MessageController extends Controller
 
     /**
      * last_message_at ordena a lista de conversas, então muda junto com a mensagem.
+     * O aviso em tempo real vai depois do commit e não derruba o envio: com o Reverb
+     * fora do ar, a mensagem fica salva e a outra pessoa vê ao recarregar.
      */
     public function store(StoreMessageRequest $request, Conversation $conversation): JsonResponse
     {
@@ -47,6 +50,8 @@ class MessageController extends Controller
 
             return $message;
         });
+
+        rescue(fn () => event(new MessageSent($message->setRelation('conversation', $conversation))));
 
         return (new MessageResource($message))->response()->setStatusCode(201);
     }

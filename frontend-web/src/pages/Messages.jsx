@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/api/axios";
+import { useAuth } from "@/auth/useAuth";
+import { UNREAD_CHANGED } from "@/hooks/useUnreadMessages";
+import { echo } from "@/lib/echo";
 import { toChatConversation, toChatMessage } from "@/lib/conversations";
 import { cn } from "@/lib/utils";
 import ChatPanel from "@/components/messages/ChatPanel";
 import ConversationList from "@/components/messages/ConversationList";
+import MessagesSkeleton from "@/components/messages/MessagesSkeleton";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -16,6 +20,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+
+// O contador do menu só recarrega depois que a API confirmou a leitura.
+function sendReadReceipt(conversationId) {
+  api
+    .put(`/api/conversations/${conversationId}/read`)
+    .then(() => window.dispatchEvent(new Event(UNREAD_CHANGED)))
+    .catch(() => {});
+}
 
 function EmptyState({ title, children, action }) {
   return (
@@ -32,9 +44,10 @@ function EmptyState({ title, children, action }) {
   );
 }
 
-// A mensagem só chega à outra pessoa quando ela recarrega ou troca de conversa;
-// o tempo real (Reverb) entra na etapa seguinte.
+// Mensagens novas chegam em tempo real pelo canal pessoal do usuário (Reverb).
+// Sem o Reverb no ar, a tela continua funcionando e atualiza ao recarregar.
 export default function Messages() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const requestedId = Number(searchParams.get("conversation")) || null;
 
@@ -46,6 +59,106 @@ export default function Messages() {
   const [attempt, setAttempt] = useState(0);
 
   const active = conversations.find((item) => item.id === activeId);
+
+  const conversationsRef = useRef(conversations);
+  const activeIdRef = useRef(activeId);
+  useEffect(() => {
+    conversationsRef.current = conversations;
+    activeIdRef.current = activeId;
+  });
+
+  // Conversa que ainda não está na lista (alguém acabou de escrever pela
+  // primeira vez) é buscada na API antes de entrar no topo.
+  useEffect(() => {
+    if (!user) return;
+    const channelName = `App.Models.User.${user.id}`;
+
+    const channel = echo.private(channelName);
+    // A mensagem também chega para quem enviou (outras abas abertas): essa não
+    // conta como não lida nem gera aviso de leitura.
+    const handleMessage = async ({ conversation_id, message: raw }) => {
+      const message = toChatMessage({
+        ...raw,
+        is_mine: raw.sender_id === user.id,
+      });
+      const fromOther = message.from !== "me";
+      const isActive = conversation_id === activeIdRef.current;
+      let fallback = conversationsRef.current.find(
+        (item) => item.id === conversation_id,
+      );
+
+      if (!fallback) {
+        const { data } = await api.get(`/api/conversations/${conversation_id}`);
+        fallback = toChatConversation(data.data);
+      }
+      if (isActive && fromOther) sendReadReceipt(conversation_id);
+
+      setConversations((current) => {
+        const target =
+          current.find((item) => item.id === conversation_id) ?? fallback;
+        if (target.messages.some((item) => item.id === message.id)) {
+          return current;
+        }
+
+        return [
+          {
+            ...target,
+            time: message.time,
+            lastMessage: message,
+            messages: target.loaded
+              ? [...target.messages, message]
+              : target.messages,
+            unread: isActive || !fromOther ? target.unread : target.unread + 1,
+          },
+          ...current.filter((item) => item.id !== conversation_id),
+        ];
+      });
+    };
+
+    // A outra pessoa leu: minhas mensagens passam de "Enviada" para "Lida".
+    const handleRead = ({ conversation_id }) => {
+      setConversations((current) =>
+        current.map((item) =>
+          item.id === conversation_id
+            ? {
+                ...item,
+                messages: item.messages.map((message) =>
+                  message.from === "me" ? { ...message, read: true } : message,
+                ),
+              }
+            : item,
+        ),
+      );
+    };
+
+    // A outra pessoa bloqueou ou desbloqueou: a API diz se ainda dá para enviar.
+    const handleUpdated = async ({ conversation_id }) => {
+      if (
+        !conversationsRef.current.some((item) => item.id === conversation_id)
+      ) {
+        return;
+      }
+      const { data } = await api.get(`/api/conversations/${conversation_id}`);
+      const { canSend, status, blockedByMe } = toChatConversation(data.data);
+      setConversations((current) =>
+        current.map((item) =>
+          item.id === conversation_id
+            ? { ...item, canSend, status, blockedByMe }
+            : item,
+        ),
+      );
+    };
+
+    channel.listen(".message.sent", handleMessage);
+    channel.listen(".messages.read", handleRead);
+    channel.listen(".conversation.updated", handleUpdated);
+
+    return () => {
+      channel.stopListening(".message.sent", handleMessage);
+      channel.stopListening(".messages.read", handleRead);
+      channel.stopListening(".conversation.updated", handleUpdated);
+    };
+  }, [user]);
 
   // A conversa recém-aberta pelo anúncio ainda não tem mensagem, então não vem
   // na lista: busca ela à parte e coloca no topo.
@@ -89,14 +202,12 @@ export default function Messages() {
         if (ignore) return;
         updateConversation(activeId, () => ({
           loaded: true,
+          unread: 0,
           messages: data.data.map(toChatMessage).reverse(),
           nextCursor: data.meta.next_cursor,
         }));
-        return api.put(`/api/conversations/${activeId}/read`);
+        sendReadReceipt(activeId);
       })
-      .then(
-        () => !ignore && updateConversation(activeId, () => ({ unread: 0 })),
-      )
       .catch(
         () => !ignore && toast.error("Não foi possível carregar as mensagens."),
       );
@@ -114,7 +225,16 @@ export default function Messages() {
     );
   }
 
+  function markAsRead(id) {
+    updateConversation(id, () => ({ unread: 0 }));
+    sendReadReceipt(id);
+  }
+
+  // Conversa já carregada não passa de novo pelo efeito de carga, então as
+  // mensagens que chegaram enquanto ela estava fechada são marcadas aqui.
   function handleSelect(id) {
+    const selected = conversations.find((item) => item.id === id);
+    if (selected?.loaded && selected.unread > 0) markAsRead(id);
     setActiveId(id);
     setChatOpen(true);
   }
@@ -130,6 +250,26 @@ export default function Messages() {
     }));
   }
 
+  // Depois de bloquear ou desbloquear, can_send vem da API: um anúncio
+  // cancelado continua só para leitura mesmo sem bloqueio.
+  async function handleBlockChange(blocked) {
+    const id = activeId;
+
+    try {
+      await api[blocked ? "post" : "delete"](`/api/conversations/${id}/block`);
+      const { data } = await api.get(`/api/conversations/${id}`);
+      const { canSend, status, blockedByMe } = toChatConversation(data.data);
+      updateConversation(id, () => ({ canSend, status, blockedByMe }));
+      toast.success(blocked ? "Conversa bloqueada." : "Conversa desbloqueada.");
+      return true;
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ?? "Não foi possível concluir a ação.",
+      );
+      return false;
+    }
+  }
+
   // Quem enviou por último sobe para o topo da lista.
   async function handleSend(text) {
     const id = activeId;
@@ -142,6 +282,9 @@ export default function Messages() {
 
       setConversations((current) => {
         const sent = current.find((item) => item.id === id);
+        if (sent.messages.some((item) => item.id === message.id)) {
+          return current;
+        }
         const others = current.filter((item) => item.id !== id);
         return [
           {
@@ -163,11 +306,7 @@ export default function Messages() {
   }
 
   if (loading) {
-    return (
-      <p className="py-10 text-center text-sm text-muted-foreground">
-        Carregando conversas...
-      </p>
-    );
+    return <MessagesSkeleton />;
   }
 
   if (error) {
@@ -223,6 +362,7 @@ export default function Messages() {
         onBack={() => setChatOpen(false)}
         onSend={handleSend}
         onLoadOlder={active.nextCursor ? handleLoadOlder : null}
+        onBlockChange={handleBlockChange}
         className={cn("flex-1 md:flex", chatOpen ? "flex" : "hidden")}
       />
     </div>

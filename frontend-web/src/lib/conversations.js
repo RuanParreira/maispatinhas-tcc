@@ -47,6 +47,7 @@ export function toChatMessage(message) {
     day: dayLabel(date),
     time: timeFormat.format(date),
     text: message.body,
+    read: Boolean(message.read_at),
   };
 }
 
@@ -63,6 +64,8 @@ export function toChatConversation(conversation) {
     postId: post.id,
     kind: post.type,
     canSend: conversation.can_send,
+    status: conversation.status,
+    blockedByMe: conversation.blocked_by_me,
     person: person.name,
     personAvatar: person.avatar_url,
     personCity: person.municipality

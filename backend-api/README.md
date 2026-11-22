@@ -124,6 +124,14 @@ php artisan serve
 
 API sobe em `http://localhost:8000`.
 
+Em outro terminal, suba o WebSocket do chat (Reverb) em `localhost:8090`:
+
+```bash
+php artisan reverb:start
+```
+
+Sem ele o chat continua funcionando, mas a mensagem nova só aparece para a outra pessoa quando ela recarrega a página. No Docker, o serviço `reverb` já sobe junto.
+
 ### Testes
 
 ```bash

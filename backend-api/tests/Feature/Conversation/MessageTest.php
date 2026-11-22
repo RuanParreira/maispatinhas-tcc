@@ -3,11 +3,14 @@
 use App\Enums\ConversationStatus;
 use App\Enums\PostStatus;
 use App\Enums\UserStatus;
+use App\Events\MessageSent;
+use App\Events\MessagesRead;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -26,6 +29,37 @@ it('sends a message and updates the conversation order', function () {
         ->assertJsonPath('data.is_mine', true);
 
     expect($conversation->fresh()->last_message_at)->not->toBeNull();
+});
+
+it('notifies both participants in real time, so other tabs of the sender update too', function () {
+    Event::fake([MessageSent::class]);
+    $conversation = activeConversation();
+
+    $this->actingAs($conversation->interested)
+        ->postJson("/api/conversations/{$conversation->id}/messages", ['body' => 'Oi'])
+        ->assertCreated();
+
+    Event::assertDispatched(MessageSent::class, fn (MessageSent $event) => collect($event->broadcastOn())->pluck('name')->all() === [
+        "private-App.Models.User.{$conversation->advertiser_id}",
+        "private-App.Models.User.{$conversation->interested_id}",
+    ] && $event->broadcastWith()['message']['sender_id'] === $conversation->interested_id);
+});
+
+it('keeps the message when the websocket server is down', function () {
+    config([
+        'broadcasting.default' => 'reverb',
+        'broadcasting.connections.reverb.options.host' => '127.0.0.1',
+        'broadcasting.connections.reverb.options.port' => 1,
+        'broadcasting.connections.reverb.options.scheme' => 'http',
+        'broadcasting.connections.reverb.options.useTLS' => false,
+    ]);
+    $conversation = activeConversation();
+
+    $this->actingAs($conversation->interested)
+        ->postJson("/api/conversations/{$conversation->id}/messages", ['body' => 'Oi'])
+        ->assertCreated();
+
+    expect($conversation->messages()->count())->toBe(1);
 });
 
 it('keeps sending on a paused post, so the parties can arrange the delivery', function () {
@@ -112,4 +146,27 @@ it('marks as read only the messages the user received', function () {
 
     expect($received->fresh()->read_at)->not->toBeNull()
         ->and($sent->fresh()->read_at)->toBeNull();
+});
+
+it('tells the sender when the messages were read, only if something was unread', function () {
+    Event::fake([MessagesRead::class]);
+    $conversation = activeConversation();
+    Message::factory()->for($conversation)->create();
+
+    $this->actingAs($conversation->advertiser)->putJson("/api/conversations/{$conversation->id}/read");
+    $this->actingAs($conversation->advertiser)->putJson("/api/conversations/{$conversation->id}/read");
+
+    Event::assertDispatchedTimes(MessagesRead::class, 1);
+    Event::assertDispatched(MessagesRead::class, fn (MessagesRead $event) => $event->senderId === $conversation->interested_id);
+});
+
+// O broadcaster null dos testes aprova qualquer canal: os canais são registrados de novo no Reverb.
+it('lets only the participants join the conversation channel', function () {
+    config(['broadcasting.default' => 'reverb']);
+    require base_path('routes/channels.php');
+    $conversation = activeConversation();
+    $channel = ['socket_id' => '1234.5678', 'channel_name' => "private-conversation.{$conversation->id}"];
+
+    $this->actingAs($conversation->interested)->postJson('/api/broadcasting/auth', $channel)->assertOk();
+    $this->actingAs(User::factory()->create())->postJson('/api/broadcasting/auth', $channel)->assertForbidden();
 });

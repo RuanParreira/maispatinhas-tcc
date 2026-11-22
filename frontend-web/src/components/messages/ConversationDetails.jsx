@@ -1,14 +1,12 @@
 import { useState } from "react";
 import {
   Ban,
-  BellOff,
-  BellRing,
   CalendarDays,
   ExternalLink,
   Flag,
   MapPin,
+  PawPrint,
   ShieldAlert,
-  Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,7 +14,16 @@ import { initialsOf } from "@/lib/initials";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Sheet,
   SheetContent,
@@ -31,13 +38,28 @@ const actionClass = "h-10 w-full justify-start gap-3 px-3 font-medium";
 const sectionLabelClass =
   "text-label font-semibold text-muted-foreground uppercase";
 
-export default function ConversationDetails({ conversation, children }) {
-  const [muted, setMuted] = useState(false);
+// Bloquear pede confirmação; desbloquear é imediato. Denunciar depende da moderação.
+export default function ConversationDetails({
+  conversation,
+  onBlockChange,
+  children,
+}) {
+  const [confirmingBlock, setConfirmingBlock] = useState(false);
+  const [pending, setPending] = useState(false);
   const { person, pet } = conversation;
+  const firstName = person.split(" ")[0];
   const kind = conversationKinds[conversation.kind];
+  const canBlock = conversation.status === "active";
 
   function comingSoon() {
     toast.info("Disponível em breve.");
+  }
+
+  async function changeBlock(blocked) {
+    setPending(true);
+    const done = await onBlockChange(blocked);
+    setPending(false);
+    if (done) setConfirmingBlock(false);
   }
 
   return (
@@ -55,11 +77,17 @@ export default function ConversationDetails({ conversation, children }) {
           <section className="flex flex-col gap-3">
             <p className={sectionLabelClass}>Anúncio</p>
             <div className="overflow-hidden rounded-xl bg-secondary/40">
-              <img
-                src={pet.image}
-                alt={pet.name}
-                className="h-44 w-full object-cover"
-              />
+              {pet.image ? (
+                <img
+                  src={pet.image}
+                  alt={pet.name}
+                  className="h-44 w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-44 w-full items-center justify-center text-muted-foreground/40">
+                  <PawPrint className="size-12" />
+                </div>
+              )}
               <div className="flex flex-col gap-2 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-heading text-2xl leading-tight">
@@ -128,42 +156,68 @@ export default function ConversationDetails({ conversation, children }) {
               type="button"
               variant="ghost"
               className={actionClass}
-              aria-pressed={muted}
-              onClick={() => setMuted((current) => !current)}
-            >
-              {muted ? <BellRing /> : <BellOff />}
-              {muted ? "Reativar notificações" : "Silenciar conversa"}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={actionClass}
               onClick={comingSoon}
             >
               <Flag />
               Denunciar
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={actionClass}
-              onClick={comingSoon}
-            >
-              <Ban />
-              Bloquear {person.split(" ")[0]}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={`${actionClass} text-destructive hover:bg-destructive/10 hover:text-destructive`}
-              onClick={comingSoon}
-            >
-              <Trash2 />
-              Apagar conversa
-            </Button>
+            {conversation.blockedByMe ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className={actionClass}
+                disabled={pending}
+                onClick={() => changeBlock(false)}
+              >
+                <Ban />
+                Desbloquear {firstName}
+              </Button>
+            ) : (
+              canBlock && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={`${actionClass} text-destructive hover:bg-destructive/10 hover:text-destructive`}
+                  onClick={() => setConfirmingBlock(true)}
+                >
+                  <Ban />
+                  Bloquear {firstName}
+                </Button>
+              )
+            )}
           </section>
         </div>
       </SheetContent>
+
+      <Dialog open={confirmingBlock} onOpenChange={setConfirmingBlock}>
+        <DialogContent className="gap-5 p-6 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bloquear {firstName}?</DialogTitle>
+            <DialogDescription>
+              Nenhum de vocês poderá enviar mensagens nesta conversa. O
+              histórico continua visível, e você pode desbloquear depois.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mx-0 mb-0 rounded-none border-t-0 bg-transparent p-0 pt-1">
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setConfirmingBlock(false)}
+            >
+              Voltar
+            </Button>
+            <Button
+              variant="destructive"
+              size="md"
+              disabled={pending}
+              onClick={() => changeBlock(true)}
+            >
+              {pending && <Spinner />}
+              Bloquear
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }

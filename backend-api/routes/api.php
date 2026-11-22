@@ -112,9 +112,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{post}/conversation', [Conversations\ConversationController::class, 'store'])->middleware('throttle:30,1');
     Route::prefix('conversations')->group(function () {
         Route::get('/', [Conversations\ConversationController::class, 'index']);
+        Route::get('/unread-count', [Conversations\ConversationController::class, 'unreadCount']);
         Route::get('/{conversation}', [Conversations\ConversationController::class, 'show']);
         Route::get('/{conversation}/messages', [Conversations\MessageController::class, 'index']);
         Route::post('/{conversation}/messages', [Conversations\MessageController::class, 'store'])->middleware('throttle:messages');
         Route::put('/{conversation}/read', [Conversations\ReadController::class, 'update']);
+        Route::post('/{conversation}/block', [Conversations\BlockController::class, 'store']);
+        Route::delete('/{conversation}/block', [Conversations\BlockController::class, 'destroy']);
     });
 });

@@ -26,6 +26,7 @@ class ConversationResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'can_send' => $user->can('send', $this->resource),
+            'blocked_by_me' => $this->blocked_by === $user->id,
             'last_message_at' => $this->last_message_at?->toIso8601String(),
             'unread_count' => $this->whenCounted('unread_count'),
             'last_message' => new MessageResource($this->whenLoaded('latestMessage')),

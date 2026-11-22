@@ -1,9 +1,11 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ImagePlus, Info, MapPin, Send, Smile } from "lucide-react";
+import { ArrowLeft, Info, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+import { echo } from "@/lib/echo";
 import { initialsOf } from "@/lib/initials";
 import { cn } from "@/lib/utils";
 import ConversationDetails from "@/components/messages/ConversationDetails";
+import { MessageBubblesSkeleton } from "@/components/messages/MessagesSkeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Bubble, BubbleContent, BubbleGroup } from "@/components/ui/bubble";
@@ -15,6 +17,15 @@ import {
   MessageFooter,
 } from "@/components/ui/message";
 import { conversationKinds } from "@/lib/conversations";
+
+function readOnlyMessage(conversation) {
+  const firstName = conversation.person.split(" ")[0];
+  if (conversation.blockedByMe) {
+    return `Você bloqueou ${firstName}. Desbloqueie nos detalhes da conversa para voltar a conversar.`;
+  }
+  if (conversation.status === "blocked") return "Esta conversa foi bloqueada.";
+  return "Esta conversa não aceita mais mensagens.";
+}
 
 // Junta mensagens seguidas do mesmo remetente no mesmo dia.
 function groupMessages(messages) {
@@ -33,11 +44,59 @@ function groupMessages(messages) {
   }, []);
 }
 
+/**
+ * "digitando..." vai direto de um navegador para o outro pelo canal da conversa
+ * (whisper do Reverb), sem passar pela API. O aviso some depois de 3 s sem
+ * digitação ou quando a mensagem chega; quem digita avisa no máximo a cada 2 s.
+ */
+function useTypingIndicator(conversationId, lastMessageId) {
+  const [typingAfter, setTypingAfter] = useState(null);
+  const channelRef = useRef(null);
+  const lastNotifyRef = useRef(0);
+  const lastMessageIdRef = useRef(lastMessageId);
+
+  useEffect(() => {
+    lastMessageIdRef.current = lastMessageId;
+  });
+
+  useEffect(() => {
+    const channelName = `conversation.${conversationId}`;
+    const channel = echo.private(channelName);
+    let timer;
+
+    function handleTyping() {
+      setTypingAfter(lastMessageIdRef.current ?? 0);
+      clearTimeout(timer);
+      timer = setTimeout(() => setTypingAfter(null), 3000);
+    }
+
+    channel.listenForWhisper("typing", handleTyping);
+    channelRef.current = channel;
+
+    return () => {
+      clearTimeout(timer);
+      channel.stopListeningForWhisper("typing", handleTyping);
+      echo.leave(channelName);
+    };
+  }, [conversationId]);
+
+  return {
+    visible: typingAfter !== null && typingAfter === (lastMessageId ?? 0),
+    notify() {
+      const now = Date.now();
+      if (now - lastNotifyRef.current < 2000) return;
+      lastNotifyRef.current = now;
+      channelRef.current?.whisper("typing", {});
+    },
+  };
+}
+
 export default function ChatPanel({
   conversation,
   onBack,
   onSend,
   onLoadOlder,
+  onBlockChange,
   className,
 }) {
   const [draft, setDraft] = useState("");
@@ -47,11 +106,21 @@ export default function ChatPanel({
   const kind = conversationKinds[conversation.kind];
   const groups = groupMessages(messages);
   const lastMessageId = messages.at(-1)?.id;
+  const typing = useTypingIndicator(conversation.id, lastMessageId);
 
   useEffect(() => {
     const area = scrollRef.current;
     if (area) area.scrollTop = area.scrollHeight;
   }, [conversation.id, lastMessageId]);
+
+  // O balão de "digitando..." só puxa a rolagem se a pessoa já está no fim do chat.
+  useEffect(() => {
+    const area = scrollRef.current;
+    if (!typing.visible || !area) return;
+    if (area.scrollHeight - area.scrollTop - area.clientHeight < 160) {
+      area.scrollTop = area.scrollHeight;
+    }
+  }, [typing.visible]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -77,17 +146,29 @@ export default function ChatPanel({
         </Button>
         <Avatar size="lg">
           <AvatarImage src={pet.image} alt="" />
-          <AvatarFallback>{pet.name[0]}</AvatarFallback>
+          <AvatarFallback className="bg-primary font-semibold text-primary-foreground">
+            {pet.name[0]}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <h2 className="truncate font-sans text-base leading-tight font-semibold">
             {person} · {pet.name}
           </h2>
-          <p className="truncate text-[0.8125rem] leading-5 text-muted-foreground">
-            {pet.meta}
+          <p
+            aria-live="polite"
+            className="truncate text-[0.8125rem] leading-5 text-muted-foreground"
+          >
+            {typing.visible ? (
+              <span className="font-medium text-warning">digitando...</span>
+            ) : (
+              pet.meta
+            )}
           </p>
         </div>
-        <ConversationDetails conversation={conversation}>
+        <ConversationDetails
+          conversation={conversation}
+          onBlockChange={onBlockChange}
+        >
           <Button
             type="button"
             variant="ghost"
@@ -107,7 +188,9 @@ export default function ChatPanel({
         <div className="mx-auto flex max-w-sm flex-col items-center pb-8 text-center">
           <Avatar className="size-20">
             <AvatarImage src={pet.image} alt={pet.name} />
-            <AvatarFallback>{pet.name[0]}</AvatarFallback>
+            <AvatarFallback className="bg-primary font-semibold text-primary-foreground">
+              {pet.name[0]}
+            </AvatarFallback>
           </Avatar>
           <p className="mt-3 font-heading text-2xl leading-tight">
             {person} · {pet.name}
@@ -141,6 +224,8 @@ export default function ChatPanel({
             Carregar mensagens anteriores
           </Button>
         )}
+
+        {!conversation.loaded && <MessageBubblesSkeleton />}
 
         <div className="flex w-full flex-col gap-4">
           {groups.map((group, index) => {
@@ -181,35 +266,39 @@ export default function ChatPanel({
                     </BubbleGroup>
                     <MessageFooter className="px-1 font-normal">
                       {group.messages.at(-1).time}
-                      {mine && isLast && " · Enviada"}
+                      {mine &&
+                        isLast &&
+                        (group.messages.at(-1).read ? " · Lida" : " · Enviada")}
                     </MessageFooter>
                   </MessageContent>
                 </Message>
               </Fragment>
             );
           })}
+          {typing.visible && (
+            <Message align="start">
+              <MessageContent>
+                <Bubble variant="secondary">
+                  <BubbleContent className="animate-pulse rounded-2xl px-3.5 text-[0.9375rem] text-muted-foreground italic">
+                    digitando...
+                  </BubbleContent>
+                </Bubble>
+              </MessageContent>
+            </Message>
+          )}
         </div>
       </div>
 
       {!conversation.canSend ? (
         <p className="border-t border-border/60 px-4 py-4 text-center text-sm text-muted-foreground">
-          Esta conversa não aceita mais mensagens.
+          {readOnlyMessage(conversation)}
         </p>
       ) : (
         <form
           onSubmit={handleSubmit}
           className="flex items-center gap-1 border-t border-border/60 px-3 py-3"
         >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-lg"
-            aria-label="Enviar foto"
-            className="rounded-full text-warning"
-          >
-            <ImagePlus className="size-5" />
-          </Button>
-          <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-1 pl-4 transition-shadow focus-within:ring-1 focus-within:ring-ring">
+          <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-4 pl-4 transition-shadow focus-within:ring-1 focus-within:ring-ring">
             <input
               type="text"
               aria-label="Mensagem"
@@ -217,18 +306,12 @@ export default function ChatPanel({
               autoComplete="off"
               maxLength={2000}
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={(e) => {
+                setDraft(e.target.value);
+                if (e.target.value.trim()) typing.notify();
+              }}
               className="min-w-0 flex-1 bg-transparent text-[0.9375rem] outline-none placeholder:text-muted-foreground"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Inserir emoji"
-              className="rounded-full text-warning hover:bg-transparent"
-            >
-              <Smile className="size-5" />
-            </Button>
           </div>
           <Button
             type="submit"

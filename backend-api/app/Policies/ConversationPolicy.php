@@ -22,6 +22,35 @@ class ConversationPolicy
     }
 
     /**
+     * Conversa arquivada (a outra pessoa excluiu a conta) já não recebe mensagens.
+     */
+    public function block(User $user, Conversation $conversation): Response
+    {
+        $visibility = $this->view($user, $conversation);
+
+        if ($visibility->denied()) {
+            return $visibility;
+        }
+
+        return $conversation->status === ConversationStatus::Active
+            ? Response::allow()
+            : Response::deny('Esta conversa não pode ser bloqueada.');
+    }
+
+    public function unblock(User $user, Conversation $conversation): Response
+    {
+        $visibility = $this->view($user, $conversation);
+
+        if ($visibility->denied()) {
+            return $visibility;
+        }
+
+        return $conversation->status === ConversationStatus::Blocked && $conversation->blocked_by === $user->id
+            ? Response::allow()
+            : Response::deny('Só quem bloqueou pode desbloquear a conversa.');
+    }
+
+    /**
      * Pausado, expirado ou resolvido ainda aceita mensagem, porque as partes podem
      * estar combinando a entrega. Anúncio cancelado e conversa arquivada (a outra
      * pessoa excluiu a conta) ficam só para leitura.

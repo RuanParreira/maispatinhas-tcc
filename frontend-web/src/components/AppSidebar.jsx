@@ -13,6 +13,7 @@ import {
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/auth/useAuth";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { initialsOf } from "@/lib/initials";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -25,13 +26,14 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 // O link do perfil depende do usuário logado, por isso os grupos são montados a partir do id.
-const navGroups = (userId) => [
+const navGroups = (userId, unreadMessages) => [
   {
     label: "Principal",
     items: [
@@ -51,7 +53,12 @@ const navGroups = (userId) => [
       },
       { title: "Favoritos", url: "/favorites", icon: Bookmark },
       { title: "Minhas adoções", url: "/my-adoptions", icon: HandHeart },
-      { title: "Mensagens", url: "/messages", icon: MessageSquare },
+      {
+        title: "Mensagens",
+        url: "/messages",
+        icon: MessageSquare,
+        badge: unreadMessages,
+      },
     ],
   },
   {
@@ -67,6 +74,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const unreadMessages = useUnreadMessages(user?.id);
 
   const initials = user?.name ? initialsOf(user.name) : "US";
 
@@ -93,7 +101,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {navGroups(user?.id).map((group) => (
+        {navGroups(user?.id, unreadMessages).map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel className="text-[0.6875rem] font-semibold tracking-wider text-sidebar-foreground/70 uppercase group-data-[collapsible=icon]:pointer-events-none">
               {group.label}
@@ -118,6 +126,14 @@ export function AppSidebar() {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                    {item.badge > 0 && (
+                      <SidebarMenuBadge
+                        aria-label={`${item.badge} não lidas`}
+                        className="top-1/2 right-2 h-5 peer-data-[size=default]/menu-button:top-1/2 min-w-5 -translate-y-1/2 rounded-full bg-primary/20 px-1.5 text-[0.6875rem] leading-none font-semibold text-foreground peer-data-active/menu-button:bg-primary-foreground/15 peer-data-active/menu-button:text-primary-foreground"
+                      >
+                        {item.badge > 99 ? "99+" : item.badge}
+                      </SidebarMenuBadge>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

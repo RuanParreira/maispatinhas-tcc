@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('advertiser_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('interested_id')->constrained('users')->cascadeOnDelete();
             $table->enum('status', ['active', 'archived', 'blocked'])->default('active');
+            $table->foreignId('blocked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
 

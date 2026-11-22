@@ -6,6 +6,7 @@ use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ConversationResource;
 use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,23 @@ class ConversationController extends Controller
             ->get();
 
         return ConversationResource::collection($conversations);
+    }
+
+    /**
+     * Total de mensagens não lidas, para o número ao lado de "Mensagens" no menu.
+     *
+     * @return array{count: int}
+     */
+    public function unreadCount(Request $request): array
+    {
+        $user = $request->user();
+
+        $count = Message::whereNull('read_at')
+            ->where('sender_id', '!=', $user->id)
+            ->whereHas('conversation', fn ($query) => $query->involving($user))
+            ->count();
+
+        return ['count' => $count];
     }
 
     public function show(Conversation $conversation): ConversationResource

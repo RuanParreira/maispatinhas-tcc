@@ -132,7 +132,9 @@ export default function ConversationList({
                 >
                   <Avatar className="size-13">
                     <AvatarImage src={conversation.pet.image} alt="" />
-                    <AvatarFallback>{conversation.pet.name[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary font-semibold text-primary-foreground">
+                      {conversation.pet.name[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">

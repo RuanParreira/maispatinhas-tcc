@@ -48,6 +48,7 @@ services:
       QUEUE_CONNECTION: database
       FRONTEND_URL: http://localhost:5173
       SANCTUM_STATEFUL_DOMAINS: localhost:5173
+      REVERB_HOST: reverb
     volumes:
       - ./backend-api:/var/www/html
       - ./backend-api/storage/app/public:/var/www/html/public/storage
@@ -59,6 +60,19 @@ services:
              until php artisan migrate --force --seed --ansi; do echo 'aguardando banco...'; sleep 2; done &&
              php artisan storage:link --force &&
              php artisan serve --host=0.0.0.0 --port=8000"
+
+  # WebSocket do chat. O navegador conecta em localhost:8090; o backend fala com ele pelo nome do serviço.
+  reverb:
+    build:
+      context: ./backend-api
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./backend-api:/var/www/html
+    depends_on:
+      - backend
+    command: php artisan reverb:start --host=0.0.0.0 --port=8090
 
   frontend:
     build:

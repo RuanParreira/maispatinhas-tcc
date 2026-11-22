@@ -78,6 +78,19 @@ it('lists only the user conversations that have messages, with the unread count'
         ->assertJsonPath('data.1.other_user.id', $older->interested_id);
 });
 
+it('counts only unread messages the user received in his conversations', function () {
+    $user = User::factory()->create();
+    $conversation = Conversation::factory()->for(Post::factory()->active()->for($user))->create();
+    Message::factory()->for($conversation)->count(2)->create();
+    Message::factory()->for($conversation)->create(['read_at' => now()]);
+    Message::factory()->for($conversation)->create(['sender_id' => $user->id]);
+    Message::factory()->create();
+
+    $this->actingAs($user)->getJson('/api/conversations/unread-count')
+        ->assertOk()
+        ->assertExactJson(['count' => 2]);
+});
+
 it('hides a conversation from anyone outside it', function () {
     $conversation = Conversation::factory()->for(Post::factory()->active())->create();
 
