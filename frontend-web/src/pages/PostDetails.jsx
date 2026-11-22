@@ -773,10 +773,16 @@ export default function PostDetails() {
             name={name}
             badge={
               <Badge
-                variant={isReunion ? "success" : postTypes[type].variant}
+                variant={
+                  post.status === "active"
+                    ? postTypes[type].variant
+                    : postStatuses[post.status]?.variant
+                }
                 className="h-6 px-3 shadow-xs"
               >
-                {isReunion ? statusLabelOf(post) : catalogLabels[type]}
+                {post.status === "active"
+                  ? catalogLabels[type]
+                  : statusLabelOf(post)}
               </Badge>
             }
           />

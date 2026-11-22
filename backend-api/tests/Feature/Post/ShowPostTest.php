@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Conversation;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,4 +62,12 @@ it('shows a reunion to guests but keeps a resolved adoption private', function (
 
     $this->getJson("/api/posts/{$reunion->id}")->assertOk();
     $this->getJson("/api/posts/{$adoption->id}")->assertNotFound();
+});
+
+it('keeps a finished post visible to who talked about it in the chat', function () {
+    $post = Post::factory()->resolved()->create();
+    $conversation = Conversation::factory()->for($post)->create();
+
+    $this->actingAs($conversation->interested)->getJson("/api/posts/{$post->id}")->assertOk();
+    $this->actingAs(User::factory()->create())->getJson("/api/posts/{$post->id}")->assertNotFound();
 });

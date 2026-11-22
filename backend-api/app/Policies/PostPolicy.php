@@ -12,7 +12,8 @@ class PostPolicy
 {
     /**
      * Posts ativos e reencontros são públicos. Os demais (em moderação, rejeitados, pausados...)
-     * só são vistos pelo dono e por admins; os outros recebem 404 para não revelar que existem.
+     * só são vistos pelo dono, por admins e por quem conversou sobre o anúncio (o "Ver anúncio"
+     * do chat continua funcionando depois da adoção); os outros recebem 404 para não revelar que existem.
      */
     public function view(?User $user, Post $post): Response
     {
@@ -20,7 +21,13 @@ class PostPolicy
             return Response::allow();
         }
 
-        return $user !== null && ($user->id === $post->user_id || $user->isAdmin())
+        if ($user === null) {
+            return Response::denyAsNotFound();
+        }
+
+        return $user->id === $post->user_id
+            || $user->isAdmin()
+            || $post->conversations()->where('interested_id', $user->id)->exists()
             ? Response::allow()
             : Response::denyAsNotFound();
     }
