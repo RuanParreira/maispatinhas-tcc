@@ -117,7 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{conversation}/messages', [Conversations\MessageController::class, 'index']);
         Route::post('/{conversation}/messages', [Conversations\MessageController::class, 'store'])->middleware('throttle:messages');
         Route::put('/{conversation}/read', [Conversations\ReadController::class, 'update']);
-        Route::post('/{conversation}/block', [Conversations\BlockController::class, 'store']);
-        Route::delete('/{conversation}/block', [Conversations\BlockController::class, 'destroy']);
+        Route::post('/{conversation}/block', [Conversations\BlockController::class, 'store'])->middleware('throttle:30,1');
+        Route::delete('/{conversation}/block', [Conversations\BlockController::class, 'destroy'])->middleware('throttle:30,1');
     });
 });

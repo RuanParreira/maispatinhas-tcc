@@ -1,3 +1,4 @@
+import api from "@/api/axios";
 import { animalSpecies, postTypes } from "@/lib/posts";
 
 export const conversationKinds = Object.fromEntries(
@@ -48,7 +49,38 @@ export function toChatMessage(message) {
     time: timeFormat.format(date),
     text: message.body,
     read: Boolean(message.read_at),
+    createdAt: message.created_at,
   };
+}
+
+export function updateById(conversations, id, change) {
+  return conversations.map((item) =>
+    item.id === id ? { ...item, ...change(item) } : item,
+  );
+}
+
+/**
+ * Põe a mensagem na conversa e sobe a conversa para o topo. Serve para a que eu
+ * envio e para a que chega em tempo real; a mesma mensagem nunca entra duas
+ * vezes (a aba que enviou recebe também o aviso). Só a da outra pessoa conta
+ * como não lida. fallback é a conversa buscada na API quando ainda não está na lista.
+ */
+export function withNewMessage(conversations, id, message, fallback) {
+  const target = conversations.find((item) => item.id === id) ?? fallback;
+  if (!target || target.messages.some((item) => item.id === message.id)) {
+    return conversations;
+  }
+
+  return [
+    {
+      ...target,
+      time: message.time,
+      lastMessage: message,
+      messages: target.loaded ? [...target.messages, message] : target.messages,
+      unread: message.from === "me" ? target.unread : target.unread + 1,
+    },
+    ...conversations.filter((item) => item.id !== id),
+  ];
 }
 
 /**
@@ -86,4 +118,17 @@ export function toChatConversation(conversation) {
       : null,
     messages: [],
   };
+}
+
+export async function fetchConversation(id) {
+  const { data } = await api.get(`/api/conversations/${id}`);
+  return toChatConversation(data.data);
+}
+
+/**
+ * Campos que mudam com bloqueio e desbloqueio. can_send vem da API porque um
+ * anúncio cancelado continua só para leitura mesmo sem bloqueio.
+ */
+export function accessOf({ canSend, status, blockedByMe }) {
+  return { canSend, status, blockedByMe };
 }

@@ -151,13 +151,14 @@ it('marks as read only the messages the user received', function () {
 it('tells the sender when the messages were read, only if something was unread', function () {
     Event::fake([MessagesRead::class]);
     $conversation = activeConversation();
-    Message::factory()->for($conversation)->create();
+    $received = Message::factory()->for($conversation)->create();
 
     $this->actingAs($conversation->advertiser)->putJson("/api/conversations/{$conversation->id}/read");
     $this->actingAs($conversation->advertiser)->putJson("/api/conversations/{$conversation->id}/read");
 
     Event::assertDispatchedTimes(MessagesRead::class, 1);
-    Event::assertDispatched(MessagesRead::class, fn (MessagesRead $event) => $event->senderId === $conversation->interested_id);
+    Event::assertDispatched(MessagesRead::class, fn (MessagesRead $event) => $event->senderId === $conversation->interested_id
+        && $event->broadcastWith()['read_at'] === $received->fresh()->read_at->toIso8601String());
 });
 
 // O broadcaster null dos testes aprova qualquer canal: os canais são registrados de novo no Reverb.

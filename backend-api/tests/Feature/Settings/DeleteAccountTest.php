@@ -112,3 +112,15 @@ it('archives conversations, removes favorites and ends every session', function 
         ->and(DB::table('favorites')->where('user_id', $user->id)->exists())->toBeFalse()
         ->and(DB::table('sessions')->where('user_id', $user->id)->exists())->toBeFalse();
 });
+
+it('archives a blocked conversation, so it cannot be unblocked to write to the removed account', function () {
+    $user = User::factory()->create(['password' => Hash::make('secret-123')]);
+    $conversation = Conversation::factory()->create(['interested_id' => $user->id]);
+    $conversation->forceFill(['status' => ConversationStatus::Blocked, 'blocked_by' => $conversation->advertiser_id])->save();
+
+    $this->actingAs($user)->deleteJson('/api/user', ['current_password' => 'secret-123'])->assertNoContent();
+
+    expect($conversation->fresh())
+        ->status->toBe(ConversationStatus::Archived)
+        ->blocked_by->toBeNull();
+});

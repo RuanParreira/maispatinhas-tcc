@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Info, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/auth/useAuth";
 import { echo } from "@/lib/echo";
 import { initialsOf } from "@/lib/initials";
 import { cn } from "@/lib/utils";
@@ -48,8 +49,11 @@ function groupMessages(messages) {
  * "digitando..." vai direto de um navegador para o outro pelo canal da conversa
  * (whisper do Reverb), sem passar pela API. O aviso some depois de 3 s sem
  * digitação ou quando a mensagem chega; quem digita avisa no máximo a cada 2 s.
+ * O aviso leva o id de quem digita: outra aba da mesma pessoa ignora o próprio aviso.
  */
 function useTypingIndicator(conversationId, lastMessageId) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [typingAfter, setTypingAfter] = useState(null);
   const channelRef = useRef(null);
   const lastNotifyRef = useRef(0);
@@ -64,7 +68,8 @@ function useTypingIndicator(conversationId, lastMessageId) {
     const channel = echo.private(channelName);
     let timer;
 
-    function handleTyping() {
+    function handleTyping(data) {
+      if (data?.userId === userId) return;
       setTypingAfter(lastMessageIdRef.current ?? 0);
       clearTimeout(timer);
       timer = setTimeout(() => setTypingAfter(null), 3000);
@@ -78,7 +83,7 @@ function useTypingIndicator(conversationId, lastMessageId) {
       channel.stopListeningForWhisper("typing", handleTyping);
       echo.leave(channelName);
     };
-  }, [conversationId]);
+  }, [conversationId, userId]);
 
   return {
     visible: typingAfter !== null && typingAfter === (lastMessageId ?? 0),
@@ -86,11 +91,16 @@ function useTypingIndicator(conversationId, lastMessageId) {
       const now = Date.now();
       if (now - lastNotifyRef.current < 2000) return;
       lastNotifyRef.current = now;
-      channelRef.current?.whisper("typing", {});
+      channelRef.current?.whisper("typing", { userId });
     },
   };
 }
 
+/**
+ * Chat de uma conversa. Mensagem nova rola até o fim; o balão de "digitando..."
+ * só puxa a rolagem se a pessoa já está no fim, para não atrapalhar quem lê
+ * mensagens antigas.
+ */
 export default function ChatPanel({
   conversation,
   onBack,
@@ -113,7 +123,6 @@ export default function ChatPanel({
     if (area) area.scrollTop = area.scrollHeight;
   }, [conversation.id, lastMessageId]);
 
-  // O balão de "digitando..." só puxa a rolagem se a pessoa já está no fim do chat.
   useEffect(() => {
     const area = scrollRef.current;
     if (!typing.visible || !area) return;
@@ -125,7 +134,7 @@ export default function ChatPanel({
   async function handleSubmit(e) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || sending) return;
+    if (!text || sending || !conversation.loaded) return;
     setSending(true);
     if (await onSend(text)) setDraft("");
     setSending(false);
@@ -317,7 +326,7 @@ export default function ChatPanel({
             type="submit"
             size="icon-lg"
             aria-label="Enviar mensagem"
-            disabled={!draft.trim() || sending}
+            disabled={!draft.trim() || sending || !conversation.loaded}
             className="ml-1 size-10 rounded-full"
           >
             <Send />

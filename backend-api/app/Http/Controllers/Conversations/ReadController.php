@@ -20,14 +20,15 @@ class ReadController extends Controller
         Gate::authorize('view', $conversation);
 
         $user = $request->user();
+        $readAt = now();
 
         $marked = $conversation->messages()
             ->whereNull('read_at')
             ->where('sender_id', '!=', $user->id)
-            ->update(['read_at' => now()]);
+            ->update(['read_at' => $readAt]);
 
         if ($marked > 0) {
-            rescue(fn () => event(new MessagesRead($conversation->id, $conversation->otherParticipant($user)->id)));
+            rescue(fn () => event(new MessagesRead($conversation->id, $conversation->otherParticipant($user)->id, $readAt)));
         }
 
         return response()->noContent();

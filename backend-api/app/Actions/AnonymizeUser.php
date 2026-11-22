@@ -49,12 +49,11 @@ class AnonymizeUser
                 ->whereIn('status', self::OPEN_POST_STATUSES)
                 ->update(['status' => PostStatus::Canceled]);
 
-            // As mensagens ficam: também são histórico da outra parte.
-            Conversation::where(fn ($query) => $query
-                ->where('advertiser_id', $user->id)
-                ->orWhere('interested_id', $user->id))
-                ->where('status', ConversationStatus::Active)
-                ->update(['status' => ConversationStatus::Archived]);
+            // As mensagens ficam: também são histórico da outra parte. Bloqueadas também
+            // arquivam, senão quem bloqueou poderia desbloquear e escrever para a conta removida.
+            Conversation::query()->involving($user)
+                ->whereIn('status', [ConversationStatus::Active, ConversationStatus::Blocked])
+                ->update(['status' => ConversationStatus::Archived, 'blocked_by' => null]);
 
             $user->favoritePosts()->detach();
 

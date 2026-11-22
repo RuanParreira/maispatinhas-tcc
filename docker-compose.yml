@@ -36,7 +36,7 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
+    environment: &backend-env
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306
@@ -62,16 +62,21 @@ services:
              php artisan serve --host=0.0.0.0 --port=8000"
 
   # WebSocket do chat. O navegador conecta em localhost:8090; o backend fala com ele pelo nome do serviço.
+  # Usa o mesmo ambiente do backend porque o Reverb consulta o cache (no banco) a cada 5 s.
   reverb:
     build:
       context: ./backend-api
     restart: unless-stopped
     ports:
       - "8090:8090"
+    environment: *backend-env
     volumes:
       - ./backend-api:/var/www/html
     depends_on:
-      - backend
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
     command: php artisan reverb:start --host=0.0.0.0 --port=8090
 
   frontend:

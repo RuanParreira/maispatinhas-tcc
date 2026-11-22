@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -13,7 +12,7 @@ use Illuminate\Foundation\Events\Dispatchable;
  */
 class ConversationUpdated implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets;
+    use Dispatchable;
 
     public function __construct(public int $conversationId, public int $recipientId) {}
 
