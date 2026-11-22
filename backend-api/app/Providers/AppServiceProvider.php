@@ -28,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('avatar', fn (Request $request) => Limit::perMinute(10)->by($request->user()->id));
         RateLimiter::for('posts', fn (Request $request) => Limit::perMinute(6)->by($request->user()->id));
+        RateLimiter::for('messages', fn (Request $request) => Limit::perMinute(30)->by($request->user()->id));
     }
 }

@@ -652,6 +652,7 @@ export default function PostDetails() {
   const { user } = useAuth();
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
+  const [openingChat, setOpeningChat] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -705,6 +706,20 @@ export default function PostDetails() {
   const back = backLinkOf(post, isOwner);
   const cameFromSite = window.history.state?.idx > 0;
   const contact = contactOf(post, animal.name);
+
+  // Abre a conversa (ou reaproveita a que já existe) e leva direto para ela.
+  function openConversation() {
+    setOpeningChat(true);
+    api
+      .post(`/api/posts/${post.id}/conversation`)
+      .then(({ data }) => navigate(`/messages?conversation=${data.data.id}`))
+      .catch((error) => {
+        toast.error(
+          error.response?.data?.message ?? "Não foi possível abrir a conversa.",
+        );
+        setOpeningChat(false);
+      });
+  }
   const { age_amount, age_unit } = ageFromBirthDate(animal.birth_date);
   const age = formatAge(age_amount, age_unit);
   const eyebrow = [
@@ -838,11 +853,15 @@ export default function PostDetails() {
 
           {!isOwner && post.status === "active" && (
             <div className="flex flex-col gap-2">
-              <Button asChild size="xl" className="w-full">
-                <Link to="/messages">
-                  <MessageCircle />
-                  {contact.label}
-                </Link>
+              <Button
+                type="button"
+                size="xl"
+                className="w-full"
+                disabled={openingChat}
+                onClick={openConversation}
+              >
+                <MessageCircle />
+                {contact.label}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
                 {contact.hint}

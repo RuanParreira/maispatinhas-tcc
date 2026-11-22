@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Conversations;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\MyAdoptions;
@@ -105,5 +106,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [MyAdoptions\AdoptionController::class, 'index']);
         Route::post('/{adoption}/confirmation', [MyAdoptions\ConfirmationController::class, 'store']);
         Route::delete('/{adoption}/confirmation', [MyAdoptions\ConfirmationController::class, 'destroy']);
+    });
+
+    // Conversas (chat entre anunciante e interessado)
+    Route::post('/posts/{post}/conversation', [Conversations\ConversationController::class, 'store'])->middleware('throttle:30,1');
+    Route::prefix('conversations')->group(function () {
+        Route::get('/', [Conversations\ConversationController::class, 'index']);
+        Route::get('/{conversation}', [Conversations\ConversationController::class, 'show']);
+        Route::get('/{conversation}/messages', [Conversations\MessageController::class, 'index']);
+        Route::post('/{conversation}/messages', [Conversations\MessageController::class, 'store'])->middleware('throttle:messages');
+        Route::put('/{conversation}/read', [Conversations\ReadController::class, 'update']);
     });
 });

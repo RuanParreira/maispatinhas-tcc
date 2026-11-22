@@ -14,7 +14,7 @@ import {
   MessageContent,
   MessageFooter,
 } from "@/components/ui/message";
-import { conversationKinds } from "@/data/mockConversations";
+import { conversationKinds } from "@/lib/conversations";
 
 // Junta mensagens seguidas do mesmo remetente no mesmo dia.
 function groupMessages(messages) {
@@ -23,30 +23,43 @@ function groupMessages(messages) {
     if (last?.from === message.from && last.day === message.day) {
       last.messages.push(message);
     } else {
-      groups.push({ from: message.from, day: message.day, messages: [message] });
+      groups.push({
+        from: message.from,
+        day: message.day,
+        messages: [message],
+      });
     }
     return groups;
   }, []);
 }
 
-export default function ChatPanel({ conversation, onBack, onSend, className }) {
+export default function ChatPanel({
+  conversation,
+  onBack,
+  onSend,
+  onLoadOlder,
+  className,
+}) {
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
   const { person, pet, messages } = conversation;
   const kind = conversationKinds[conversation.kind];
   const groups = groupMessages(messages);
+  const lastMessageId = messages.at(-1)?.id;
 
   useEffect(() => {
     const area = scrollRef.current;
     if (area) area.scrollTop = area.scrollHeight;
-  }, [conversation.id, messages.length]);
+  }, [conversation.id, lastMessageId]);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text) return;
-    onSend(text);
-    setDraft("");
+    if (!text || sending) return;
+    setSending(true);
+    if (await onSend(text)) setDraft("");
+    setSending(false);
   }
 
   return (
@@ -113,9 +126,21 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
             size="sm"
             className="mt-4 rounded-full px-3.5"
           >
-            <Link to={kind.route}>Ver anúncio</Link>
+            <Link to={`/posts/${conversation.postId}`}>Ver anúncio</Link>
           </Button>
         </div>
+
+        {onLoadOlder && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onLoadOlder}
+            className="mx-auto mb-4 flex rounded-full"
+          >
+            Carregar mensagens anteriores
+          </Button>
+        )}
 
         <div className="flex w-full flex-col gap-4">
           {groups.map((group, index) => {
@@ -133,6 +158,7 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
                   {!mine && (
                     <MessageAvatar className="group-has-data-[slot=message-footer]/message:-translate-y-5">
                       <Avatar>
+                        <AvatarImage src={conversation.personAvatar} alt="" />
                         <AvatarFallback className="bg-secondary text-xs font-semibold text-foreground">
                           {initialsOf(person)}
                         </AvatarFallback>
@@ -165,49 +191,56 @@ export default function ChatPanel({ conversation, onBack, onSend, className }) {
         </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center gap-1 border-t border-border/60 px-3 py-3"
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-lg"
-          aria-label="Enviar foto"
-          className="rounded-full text-warning"
+      {!conversation.canSend ? (
+        <p className="border-t border-border/60 px-4 py-4 text-center text-sm text-muted-foreground">
+          Esta conversa não aceita mais mensagens.
+        </p>
+      ) : (
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-1 border-t border-border/60 px-3 py-3"
         >
-          <ImagePlus className="size-5" />
-        </Button>
-        <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-1 pl-4 transition-shadow focus-within:ring-1 focus-within:ring-ring">
-          <input
-            type="text"
-            aria-label="Mensagem"
-            placeholder="Escreva uma mensagem"
-            autoComplete="off"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-[0.9375rem] outline-none placeholder:text-muted-foreground"
-          />
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            aria-label="Inserir emoji"
-            className="rounded-full text-warning hover:bg-transparent"
+            size="icon-lg"
+            aria-label="Enviar foto"
+            className="rounded-full text-warning"
           >
-            <Smile className="size-5" />
+            <ImagePlus className="size-5" />
           </Button>
-        </div>
-        <Button
-          type="submit"
-          size="icon-lg"
-          aria-label="Enviar mensagem"
-          disabled={!draft.trim()}
-          className="ml-1 size-10 rounded-full"
-        >
-          <Send />
-        </Button>
-      </form>
+          <div className="flex h-10 min-w-0 flex-1 items-center rounded-full bg-secondary/60 pr-1 pl-4 transition-shadow focus-within:ring-1 focus-within:ring-ring">
+            <input
+              type="text"
+              aria-label="Mensagem"
+              placeholder="Escreva uma mensagem"
+              autoComplete="off"
+              maxLength={2000}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-[0.9375rem] outline-none placeholder:text-muted-foreground"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Inserir emoji"
+              className="rounded-full text-warning hover:bg-transparent"
+            >
+              <Smile className="size-5" />
+            </Button>
+          </div>
+          <Button
+            type="submit"
+            size="icon-lg"
+            aria-label="Enviar mensagem"
+            disabled={!draft.trim() || sending}
+            className="ml-1 size-10 rounded-full"
+          >
+            <Send />
+          </Button>
+        </form>
+      )}
     </section>
   );
 }

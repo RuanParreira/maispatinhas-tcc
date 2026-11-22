@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\PostStatus;
+use App\Enums\UserStatus;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -38,6 +39,26 @@ class PostPolicy
         return $user->id === $post->user_id
             ? Response::deny('Você não pode favoritar o próprio anúncio.')
             : Response::allow();
+    }
+
+    /**
+     * Abrir conversa com o anunciante. Conta suspensa ou banida não inicia contato.
+     */
+    public function contact(User $user, Post $post): Response
+    {
+        $visibility = $this->view($user, $post);
+
+        if ($visibility->denied()) {
+            return $visibility;
+        }
+
+        if ($user->id === $post->user_id) {
+            return Response::deny('Você não pode conversar com você mesmo.');
+        }
+
+        return $user->status === UserStatus::Active
+            ? Response::allow()
+            : Response::deny('Sua conta não pode enviar mensagens.');
     }
 
     public function update(User $user, Post $post): Response

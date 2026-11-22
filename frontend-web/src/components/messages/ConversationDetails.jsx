@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { initialsOf } from "@/lib/initials";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +25,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { conversationKinds } from "@/data/mockConversations";
+import { conversationKinds } from "@/lib/conversations";
 
 const actionClass = "h-10 w-full justify-start gap-3 px-3 font-medium";
 const sectionLabelClass =
@@ -77,11 +77,10 @@ export default function ConversationDetails({ conversation, children }) {
                 <p className="text-[0.8125rem] leading-5 text-muted-foreground">
                   {pet.description}
                 </p>
-                <Badge variant="muted">{pet.tag}</Badge>
               </div>
             </div>
             <Button asChild variant="secondary" size="lg">
-              <Link to={kind.route}>
+              <Link to={`/posts/${conversation.postId}`}>
                 Ver anúncio
                 <ExternalLink data-icon="inline-end" />
               </Link>
@@ -94,6 +93,7 @@ export default function ConversationDetails({ conversation, children }) {
             <p className={sectionLabelClass}>Você está conversando com</p>
             <div className="flex items-center gap-3">
               <Avatar size="lg">
+                <AvatarImage src={conversation.personAvatar} alt="" />
                 <AvatarFallback className="bg-secondary text-sm font-semibold text-foreground">
                   {initialsOf(person)}
                 </AvatarFallback>

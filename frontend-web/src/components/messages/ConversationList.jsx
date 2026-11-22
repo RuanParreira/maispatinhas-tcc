@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { conversationKinds } from "@/data/mockConversations";
+import { conversationKinds } from "@/lib/conversations";
 
 const filterOptions = [
   { value: "all", label: "Todas" },
@@ -30,7 +30,6 @@ const kindOptions = [
   { value: "lost", label: "Perdidos" },
   { value: "found", label: "Achados" },
 ];
-
 
 export default function ConversationList({
   conversations,
@@ -115,7 +114,7 @@ export default function ConversationList({
       {visible.length > 0 ? (
         <ul className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
           {visible.map((conversation) => {
-            const last = conversation.messages.at(-1);
+            const last = conversation.lastMessage;
             const kindInfo = conversationKinds[conversation.kind];
             const unread = conversation.unread > 0;
 
@@ -165,8 +164,9 @@ export default function ConversationList({
                             : "text-muted-foreground",
                         )}
                       >
-                        {last.from === "me" && "Você: "}
-                        {last.text}
+                        {last
+                          ? `${last.from === "me" ? "Você: " : ""}${last.text}`
+                          : "Nova conversa"}
                       </p>
                       {unread && (
                         <span
