@@ -18,8 +18,8 @@ beforeEach(function () {
     $this->seed([MunicipalitySeeder::class, UserSeeder::class, DemoSeeder::class]);
 });
 
-it('creates the four accounts with the default password and a single admin', function () {
-    expect(User::count())->toBe(4)
+it('creates the eight accounts with the default password and a single admin', function () {
+    expect(User::count())->toBe(8)
         ->and(User::all()->filter->isAdmin()->pluck('email')->all())->toBe(['admin@gmail.com'])
         ->and(User::all()->every(fn (User $user) => Hash::check('password', $user->password)))->toBeTrue();
 });

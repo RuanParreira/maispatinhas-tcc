@@ -14,13 +14,18 @@ it('seeds only municipalities outside the local environment', function () {
 });
 
 it('seeds the development accounts and sample data in the local environment', function () {
+    Storage::fake('public');
     app()->detectEnvironment(fn () => 'local');
 
     $this->seed();
 
     expect(User::pluck('email')->sort()->values()->all())->toBe([
         'admin@gmail.com',
+        'beatriz@gmail.com',
+        'camila@gmail.com',
+        'juliana@gmail.com',
         'leandro@gmail.com',
+        'lucas@gmail.com',
         'ruan@gmail.com',
         'walysson@gmail.com',
     ]);
