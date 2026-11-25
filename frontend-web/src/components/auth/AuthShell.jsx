@@ -1,11 +1,17 @@
-import { ArrowLeft, HandHeart, Heart, PawPrint, Search, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  HandHeart,
+  Heart,
+  MessagesSquare,
+  Search,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const pillars = [
   { label: "Adoção responsável", icon: Heart },
   { label: "Pets perdidos", icon: Search },
-  { label: "Comunidade ativa", icon: Users },
+  { label: "Chat com o anunciante", icon: MessagesSquare },
 ];
 
 export default function AuthShell({
@@ -13,7 +19,6 @@ export default function AuthShell({
   title,
   description,
   image,
-  testimonial,
   showImpact = false,
   children,
 }) {
@@ -48,17 +53,9 @@ export default function AuthShell({
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
-            <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-1.5 text-label font-semibold text-foreground uppercase shadow-xs backdrop-blur-sm">
-              <PawPrint className="size-3.5 fill-current text-warning" />
-              História real
-            </span>
-
             <figcaption className="absolute inset-x-6 bottom-6 text-white">
-              <blockquote className="font-heading text-[1.375rem] leading-snug italic">
-                “{testimonial.quote}”
-              </blockquote>
-              <p className="mt-3 text-xs font-medium tracking-wider text-white/80 uppercase">
-                {testimonial.author} — {testimonial.detail}
+              <p className="font-heading text-[1.375rem] leading-snug">
+                Adote, anuncie e ajude pets perdidos a voltarem para casa.
               </p>
             </figcaption>
           </figure>
@@ -71,11 +68,11 @@ export default function AuthShell({
                 </span>
                 <div>
                   <p className="font-heading text-2xl leading-8">
-                    +1.400 encontros
+                    Tudo em um só lugar
                   </p>
                   <p className="mt-1 text-[0.8125rem] leading-5 text-muted-foreground">
-                    Viabilizados com carinho e compromisso com o bem-estar
-                    animal.
+                    Anúncios perto de você, conversa direta com quem anunciou e
+                    adoção registrada na plataforma.
                   </p>
                 </div>
               </div>

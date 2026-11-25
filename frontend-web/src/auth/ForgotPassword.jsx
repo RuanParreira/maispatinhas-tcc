@@ -35,12 +35,6 @@ export default function ForgotPassword() {
       title="Esqueceu sua senha?"
       description="Informe o e-mail da sua conta e enviaremos um link para você criar uma nova senha."
       image={loginImage}
-      testimonial={{
-        quote:
-          "Adotar transformou meu lar. Cada dia é repleto de afeto, calma e reciprocidade sincera.",
-        author: "Família Silva & Caramelo",
-        detail: "Adoção em 2023",
-      }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <IconField

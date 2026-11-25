@@ -25,8 +25,8 @@ const steps = [
   {
     title: "Dê um lar",
     description:
-      "Assine o termo de adoção responsável e comece uma nova história de amor e companheirismo mútuo.",
-    label: "Adoção oficial",
+      "O anunciante registra a adoção, você confirma pela plataforma e os dois avaliam como foi a experiência.",
+    label: "Adoção registrada",
     icon: Home,
   },
 ];

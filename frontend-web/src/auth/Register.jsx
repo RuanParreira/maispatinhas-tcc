@@ -62,12 +62,6 @@ export default function Register() {
       description="Cadastre-se para adotar, anunciar um pet ou ajudar alguém a reencontrar seu companheiro."
       image={registerImage}
       showImpact
-      testimonial={{
-        quote:
-          "Encontrei a Mia por aqui em poucos dias. Hoje a casa não é a mesma sem ela.",
-        author: "Marina & Mia",
-        detail: "Juntas desde 2024",
-      }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <IconField

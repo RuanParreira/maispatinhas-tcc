@@ -46,12 +46,6 @@ export default function Login() {
       title="Que bom ter você de volta."
       description="Acesse sua conta para gerenciar anúncios, acompanhar adoções ou reencontrar seu companheiro."
       image={loginImage}
-      testimonial={{
-        quote:
-          "Adotar transformou meu lar. Cada dia é repleto de afeto, calma e reciprocidade sincera.",
-        author: "Família Silva & Caramelo",
-        detail: "Adoção em 2023",
-      }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <IconField

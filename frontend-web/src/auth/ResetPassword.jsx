@@ -47,12 +47,6 @@ export default function ResetPassword() {
       title="Crie uma nova senha."
       description="Escolha uma senha forte para proteger sua conta."
       image={loginImage}
-      testimonial={{
-        quote:
-          "Adotar transformou meu lar. Cada dia é repleto de afeto, calma e reciprocidade sincera.",
-        author: "Família Silva & Caramelo",
-        detail: "Adoção em 2023",
-      }}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <PasswordField
