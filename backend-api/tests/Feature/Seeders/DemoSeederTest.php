@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    Storage::fake('public');
     $this->seed([MunicipalitySeeder::class, UserSeeder::class, DemoSeeder::class]);
 });
 
@@ -36,6 +37,7 @@ it('spreads active posts across cities inside and outside a 100 km radius of Ube
         ->with('municipality')
         ->get()
         ->pluck('municipality.name')
+        ->unique()
         ->sort()
         ->values()
         ->all();
@@ -59,4 +61,12 @@ it('gives every regular account a donated pet and a bio', function () {
         fn (User $user) => expect($user->bio)->not->toBeEmpty()
             ->and($user->donatedAdoptions()->where('adoptions.status', AdoptionStatus::Completed)->count())->toBe(1)
     );
+});
+
+it('stores a photo for every post and account', function () {
+    expect(Post::doesntHave('files')->exists())->toBeFalse()
+        ->and(User::whereNull('avatar_path')->exists())->toBeFalse();
+
+    Post::with('files')->get()->flatMap->files->each(fn ($file) => Storage::disk('public')->assertExists($file->path));
+    User::all()->each(fn (User $user) => Storage::disk('public')->assertExists($user->avatar_path));
 });
